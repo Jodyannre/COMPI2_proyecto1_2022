@@ -8,10 +8,10 @@ options {
 
 
 /* *********************Tipos primitivos********************* */
-BOOLEAN     : 'bool';
-CARACTER    : 'char';
-FLOAT64     : 'f64';
-INT64       : 'i64';
+BOOL        : 'bool';
+CHAR        : 'char';
+F64         : 'f64';
+I64         : 'i64';
 STR         : '&str';
 STRING      : 'String';
 USIZE       : 'usize';
@@ -67,8 +67,8 @@ DECIMAL         : [0-9]+'.'[0-9]+;
 ID_CAMEL        : [A-Z]([a-zA-Z]|[0-9])*; //Para struct por ejemplo
 ID              : ([a-zA-Z]|[0-9])([a-zA-Z]|[0-9]|'_')*;
 DEFAULT         : '_';
-OR              : '||';
 O               : '|';
+OR              : '||';
 AMPERSAND       : '&';
 AND             : '&&';
 PRINT_OP_DEBUG  : ':?';
@@ -92,7 +92,7 @@ DIVISION        : '/' ;
 FN_TIPO_RETORNO : '->';
 RESTA           : '-' ;
 SUMA            : '+' ;
-ADMIRACION      : '!';
+NOT             : '!';
 PREGUNTA        : '?';
 PAR_IZQ         : '(';
 PAR_DER         : ')';
@@ -101,6 +101,8 @@ LLAVE_DER       : '}';
 CORCHETE_IZQ    : '[';
 CORCHETE_DER    : ']';
 CADENA          : '"' .*? '"';
+ASCII           : [\u0040-\u0126];
+CARACTER        : '\'' ASCII '\'';
 WHITESPACE      : [ \\\r\n\t]+ -> skip;
 COMMENT         : '/*' .*? '*/' -> skip;
 LINE_COMMENT    : '//' ~[\r\n]* -> skip;

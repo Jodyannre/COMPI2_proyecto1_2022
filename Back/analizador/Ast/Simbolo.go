@@ -6,7 +6,6 @@ type Simbolo struct {
 	Fila          int
 	Columna       int
 	Tipo          TipoDato
-	Funcion       bool
 	Mutable       bool
 	Publico       bool
 }
@@ -16,21 +15,47 @@ type SimboloReporte struct {
 	TipoSimbolo   string
 	TipoDato      string
 	Scope         string
-	Fila          string
-	Columna       string
+	Fila          int
+	Columna       int
 }
 
 func NewSimbolo(identificador string, valor interface{}, fila int, columna int,
-	tipo TipoDato, funcion bool, mutable bool, publico bool) Simbolo {
+	tipo TipoDato, mutable bool, publico bool) Simbolo {
 	simbolo := Simbolo{
 		Identificador: identificador,
 		Valor:         valor,
 		Fila:          fila,
 		Columna:       columna,
 		Tipo:          tipo,
-		Funcion:       funcion,
 		Mutable:       mutable,
 		Publico:       publico,
 	}
 	return simbolo
+}
+
+func (s Simbolo) NewSimboloReporte(scope *Scope) SimboloReporte {
+	var tipo string
+	var nombreScope string
+	if s.Tipo == FUNCION {
+		tipo = ValorTipoDato[FUNCION]
+	} else if s.Tipo == MODULO {
+		tipo = ValorTipoDato[MODULO]
+	} else {
+		tipo = ValorTipoDato[VARIABLE]
+	}
+
+	if scope.Global {
+		nombreScope = "Global"
+	} else {
+		nombreScope = "Local"
+	}
+
+	return SimboloReporte{
+		Identificador: s.Identificador,
+		TipoSimbolo:   tipo,
+		TipoDato:      ValorTipoDato[s.Valor.(TipoRetornado).Tipo],
+		Scope:         nombreScope,
+		Fila:          s.Fila,
+		Columna:       s.Columna,
+	}
 }

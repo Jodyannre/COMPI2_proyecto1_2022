@@ -11,7 +11,7 @@ type Scope struct {
 	prev                 *Scope
 	tablaSimbolos        map[string]interface{}
 	tablaFunciones       map[string]interface{}
-	tablaSimbolosReporte map[string]interface{}
+	tablaSimbolosReporte *arraylist.List
 	Errores              *arraylist.List
 	Consola              string
 	Global               bool
@@ -23,14 +23,24 @@ func NewScope(name string, prev *Scope) Scope {
 	nuevo.Errores = arraylist.New()
 	nuevo.tablaSimbolos = make(map[string]interface{})
 	nuevo.tablaFunciones = make(map[string]interface{})
-	nuevo.tablaSimbolosReporte = make(map[string]interface{})
+	nuevo.tablaSimbolosReporte = arraylist.New()
 	nuevo.Global = false
 	return nuevo
 }
 
 func (scope *Scope) Add(simbolo Simbolo) {
+	var global *Scope = scope
 	id := strings.ToUpper(simbolo.Identificador)
+	//Agregar el símbolo al scope actual
 	scope.tablaSimbolos[id] = simbolo
+
+	//Recuperar el scope global
+	for scope_actual := scope; scope_actual.prev != nil; scope_actual = scope_actual.prev {
+		global = scope_actual
+	}
+	//Crear el símbolo para la tabla de reporte de símbolos
+	simboloReporte := simbolo.NewSimboloReporte(scope)
+	global.tablaSimbolosReporte.Add(simboloReporte)
 }
 
 func (scope *Scope) Exist(ident string) bool {

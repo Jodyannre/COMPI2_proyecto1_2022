@@ -11,7 +11,7 @@ type CustomSyntaxError struct {
 	Columna int
 	Msg     string
 	Tipo    Ast.TipoDato
-	Ambito 	string
+	Ambito  string
 }
 
 type CustomError struct {
@@ -19,7 +19,7 @@ type CustomError struct {
 	Columna int
 	Msg     string
 	Tipo    Ast.TipoDato
-	Ambito	string
+	Ambito  string
 }
 
 func NewError(linea int, columna int, msg string) CustomSyntaxError {
