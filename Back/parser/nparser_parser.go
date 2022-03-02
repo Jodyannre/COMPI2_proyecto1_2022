@@ -10,7 +10,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
-//import "github.com/colegno/arraylist"
+import "github.com/colegno/arraylist"
 import "Back/analizador/Ast"
 import "Back/analizador/expresiones"
 import "Back/analizador/instrucciones"
@@ -21,68 +21,77 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 91, 141,
-	4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 3, 2, 3, 2,
-	3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 3, 23, 10, 3, 3, 4,
-	3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-	3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-	3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-	5, 4, 62, 10, 4, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5,
-	3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5,
-	3, 5, 3, 5, 3, 5, 5, 5, 88, 10, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 91, 162,
+	4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7,
+	4, 8, 9, 8, 3, 2, 3, 2, 3, 2, 3, 3, 7, 3, 21, 10, 3, 12, 3, 14, 3, 24,
+	11, 3, 3, 3, 3, 3, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
+	3, 4, 3, 4, 5, 4, 39, 10, 4, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5,
 	3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5,
 	3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5,
-	7, 5, 120, 10, 5, 12, 5, 14, 5, 123, 11, 5, 3, 6, 3, 6, 3, 6, 3, 6, 3,
-	6, 3, 6, 3, 6, 3, 6, 3, 6, 3, 6, 3, 6, 3, 6, 3, 6, 3, 6, 5, 6, 139, 10,
-	6, 3, 6, 2, 3, 8, 7, 2, 4, 6, 8, 10, 2, 7, 4, 2, 76, 76, 78, 78, 3, 2,
-	72, 74, 3, 2, 76, 77, 4, 2, 64, 68, 70, 70, 4, 2, 68, 68, 70, 70, 2, 160,
-	2, 12, 3, 2, 2, 2, 4, 22, 3, 2, 2, 2, 6, 61, 3, 2, 2, 2, 8, 87, 3, 2, 2,
-	2, 10, 138, 3, 2, 2, 2, 12, 13, 5, 4, 3, 2, 13, 14, 8, 2, 1, 2, 14, 3,
-	3, 2, 2, 2, 15, 16, 5, 8, 5, 2, 16, 17, 8, 3, 1, 2, 17, 23, 3, 2, 2, 2,
-	18, 19, 5, 6, 4, 2, 19, 20, 7, 63, 2, 2, 20, 21, 8, 3, 1, 2, 21, 23, 3,
-	2, 2, 2, 22, 15, 3, 2, 2, 2, 22, 18, 3, 2, 2, 2, 23, 5, 3, 2, 2, 2, 24,
-	25, 7, 17, 2, 2, 25, 26, 7, 51, 2, 2, 26, 27, 7, 71, 2, 2, 27, 28, 5, 8,
-	5, 2, 28, 29, 8, 4, 1, 2, 29, 62, 3, 2, 2, 2, 30, 31, 7, 17, 2, 2, 31,
-	32, 7, 51, 2, 2, 32, 33, 7, 59, 2, 2, 33, 34, 5, 10, 6, 2, 34, 35, 7, 71,
-	2, 2, 35, 36, 5, 8, 5, 2, 36, 37, 8, 4, 1, 2, 37, 62, 3, 2, 2, 2, 38, 39,
-	7, 17, 2, 2, 39, 40, 7, 16, 2, 2, 40, 41, 7, 51, 2, 2, 41, 42, 7, 71, 2,
-	2, 42, 43, 5, 8, 5, 2, 43, 44, 8, 4, 1, 2, 44, 62, 3, 2, 2, 2, 45, 46,
-	7, 17, 2, 2, 46, 47, 7, 16, 2, 2, 47, 48, 7, 51, 2, 2, 48, 49, 7, 59, 2,
-	2, 49, 50, 5, 10, 6, 2, 50, 51, 8, 4, 1, 2, 51, 62, 3, 2, 2, 2, 52, 53,
-	7, 17, 2, 2, 53, 54, 7, 16, 2, 2, 54, 55, 7, 51, 2, 2, 55, 56, 7, 59, 2,
-	2, 56, 57, 5, 10, 6, 2, 57, 58, 7, 71, 2, 2, 58, 59, 5, 8, 5, 2, 59, 60,
-	8, 4, 1, 2, 60, 62, 3, 2, 2, 2, 61, 24, 3, 2, 2, 2, 61, 30, 3, 2, 2, 2,
-	61, 38, 3, 2, 2, 2, 61, 45, 3, 2, 2, 2, 61, 52, 3, 2, 2, 2, 62, 7, 3, 2,
-	2, 2, 63, 64, 8, 5, 1, 2, 64, 65, 9, 2, 2, 2, 65, 66, 5, 8, 5, 17, 66,
-	67, 8, 5, 1, 2, 67, 88, 3, 2, 2, 2, 68, 69, 7, 80, 2, 2, 69, 70, 5, 8,
-	5, 2, 70, 71, 7, 81, 2, 2, 71, 72, 8, 5, 1, 2, 72, 88, 3, 2, 2, 2, 73,
-	74, 7, 51, 2, 2, 74, 88, 8, 5, 1, 2, 75, 76, 7, 21, 2, 2, 76, 88, 8, 5,
-	1, 2, 77, 78, 7, 22, 2, 2, 78, 88, 8, 5, 1, 2, 79, 80, 7, 88, 2, 2, 80,
-	88, 8, 5, 1, 2, 81, 82, 7, 49, 2, 2, 82, 88, 8, 5, 1, 2, 83, 84, 7, 48,
-	2, 2, 84, 88, 8, 5, 1, 2, 85, 86, 7, 86, 2, 2, 86, 88, 8, 5, 1, 2, 87,
-	63, 3, 2, 2, 2, 87, 68, 3, 2, 2, 2, 87, 73, 3, 2, 2, 2, 87, 75, 3, 2, 2,
-	2, 87, 77, 3, 2, 2, 2, 87, 79, 3, 2, 2, 2, 87, 81, 3, 2, 2, 2, 87, 83,
-	3, 2, 2, 2, 87, 85, 3, 2, 2, 2, 88, 121, 3, 2, 2, 2, 89, 90, 12, 16, 2,
-	2, 90, 91, 9, 3, 2, 2, 91, 92, 5, 8, 5, 17, 92, 93, 8, 5, 1, 2, 93, 120,
-	3, 2, 2, 2, 94, 95, 12, 15, 2, 2, 95, 96, 9, 4, 2, 2, 96, 97, 5, 8, 5,
-	16, 97, 98, 8, 5, 1, 2, 98, 120, 3, 2, 2, 2, 99, 100, 12, 14, 2, 2, 100,
-	101, 9, 5, 2, 2, 101, 102, 5, 8, 5, 15, 102, 103, 8, 5, 1, 2, 103, 120,
-	3, 2, 2, 2, 104, 105, 12, 13, 2, 2, 105, 106, 9, 6, 2, 2, 106, 107, 5,
-	8, 5, 14, 107, 108, 8, 5, 1, 2, 108, 120, 3, 2, 2, 2, 109, 110, 12, 12,
-	2, 2, 110, 111, 7, 56, 2, 2, 111, 112, 5, 8, 5, 13, 112, 113, 8, 5, 1,
-	2, 113, 120, 3, 2, 2, 2, 114, 115, 12, 11, 2, 2, 115, 116, 7, 54, 2, 2,
-	116, 117, 5, 8, 5, 12, 117, 118, 8, 5, 1, 2, 118, 120, 3, 2, 2, 2, 119,
-	89, 3, 2, 2, 2, 119, 94, 3, 2, 2, 2, 119, 99, 3, 2, 2, 2, 119, 104, 3,
-	2, 2, 2, 119, 109, 3, 2, 2, 2, 119, 114, 3, 2, 2, 2, 120, 123, 3, 2, 2,
-	2, 121, 119, 3, 2, 2, 2, 121, 122, 3, 2, 2, 2, 122, 9, 3, 2, 2, 2, 123,
-	121, 3, 2, 2, 2, 124, 125, 7, 3, 2, 2, 125, 139, 8, 6, 1, 2, 126, 127,
-	7, 4, 2, 2, 127, 139, 8, 6, 1, 2, 128, 129, 7, 6, 2, 2, 129, 139, 8, 6,
-	1, 2, 130, 131, 7, 5, 2, 2, 131, 139, 8, 6, 1, 2, 132, 133, 7, 7, 2, 2,
-	133, 139, 8, 6, 1, 2, 134, 135, 7, 8, 2, 2, 135, 139, 8, 6, 1, 2, 136,
-	137, 7, 9, 2, 2, 137, 139, 8, 6, 1, 2, 138, 124, 3, 2, 2, 2, 138, 126,
-	3, 2, 2, 2, 138, 128, 3, 2, 2, 2, 138, 130, 3, 2, 2, 2, 138, 132, 3, 2,
-	2, 2, 138, 134, 3, 2, 2, 2, 138, 136, 3, 2, 2, 2, 139, 11, 3, 2, 2, 2,
-	8, 22, 61, 87, 119, 121, 138,
+	3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 5, 5, 78, 10, 5, 3, 6, 3, 6, 3, 6,
+	3, 6, 3, 6, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7,
+	3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7,
+	3, 7, 3, 7, 5, 7, 109, 10, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7,
+	3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7,
+	3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 3, 7, 7, 7,
+	141, 10, 7, 12, 7, 14, 7, 144, 11, 7, 3, 8, 3, 8, 3, 8, 3, 8, 3, 8, 3,
+	8, 3, 8, 3, 8, 3, 8, 3, 8, 3, 8, 3, 8, 3, 8, 3, 8, 5, 8, 160, 10, 8, 3,
+	8, 2, 3, 12, 9, 2, 4, 6, 8, 10, 12, 14, 2, 7, 4, 2, 76, 76, 78, 78, 3,
+	2, 72, 74, 3, 2, 76, 77, 4, 2, 64, 68, 70, 70, 4, 2, 68, 68, 70, 70, 2,
+	181, 2, 16, 3, 2, 2, 2, 4, 22, 3, 2, 2, 2, 6, 38, 3, 2, 2, 2, 8, 77, 3,
+	2, 2, 2, 10, 79, 3, 2, 2, 2, 12, 108, 3, 2, 2, 2, 14, 159, 3, 2, 2, 2,
+	16, 17, 5, 4, 3, 2, 17, 18, 8, 2, 1, 2, 18, 3, 3, 2, 2, 2, 19, 21, 5, 6,
+	4, 2, 20, 19, 3, 2, 2, 2, 21, 24, 3, 2, 2, 2, 22, 20, 3, 2, 2, 2, 22, 23,
+	3, 2, 2, 2, 23, 25, 3, 2, 2, 2, 24, 22, 3, 2, 2, 2, 25, 26, 8, 3, 1, 2,
+	26, 5, 3, 2, 2, 2, 27, 28, 5, 12, 7, 2, 28, 29, 8, 4, 1, 2, 29, 39, 3,
+	2, 2, 2, 30, 31, 5, 8, 5, 2, 31, 32, 7, 63, 2, 2, 32, 33, 8, 4, 1, 2, 33,
+	39, 3, 2, 2, 2, 34, 35, 5, 10, 6, 2, 35, 36, 7, 63, 2, 2, 36, 37, 8, 4,
+	1, 2, 37, 39, 3, 2, 2, 2, 38, 27, 3, 2, 2, 2, 38, 30, 3, 2, 2, 2, 38, 34,
+	3, 2, 2, 2, 39, 7, 3, 2, 2, 2, 40, 41, 7, 17, 2, 2, 41, 42, 7, 51, 2, 2,
+	42, 43, 7, 71, 2, 2, 43, 44, 5, 12, 7, 2, 44, 45, 8, 5, 1, 2, 45, 78, 3,
+	2, 2, 2, 46, 47, 7, 17, 2, 2, 47, 48, 7, 51, 2, 2, 48, 49, 7, 59, 2, 2,
+	49, 50, 5, 14, 8, 2, 50, 51, 7, 71, 2, 2, 51, 52, 5, 12, 7, 2, 52, 53,
+	8, 5, 1, 2, 53, 78, 3, 2, 2, 2, 54, 55, 7, 17, 2, 2, 55, 56, 7, 16, 2,
+	2, 56, 57, 7, 51, 2, 2, 57, 58, 7, 71, 2, 2, 58, 59, 5, 12, 7, 2, 59, 60,
+	8, 5, 1, 2, 60, 78, 3, 2, 2, 2, 61, 62, 7, 17, 2, 2, 62, 63, 7, 16, 2,
+	2, 63, 64, 7, 51, 2, 2, 64, 65, 7, 59, 2, 2, 65, 66, 5, 14, 8, 2, 66, 67,
+	8, 5, 1, 2, 67, 78, 3, 2, 2, 2, 68, 69, 7, 17, 2, 2, 69, 70, 7, 16, 2,
+	2, 70, 71, 7, 51, 2, 2, 71, 72, 7, 59, 2, 2, 72, 73, 5, 14, 8, 2, 73, 74,
+	7, 71, 2, 2, 74, 75, 5, 12, 7, 2, 75, 76, 8, 5, 1, 2, 76, 78, 3, 2, 2,
+	2, 77, 40, 3, 2, 2, 2, 77, 46, 3, 2, 2, 2, 77, 54, 3, 2, 2, 2, 77, 61,
+	3, 2, 2, 2, 77, 68, 3, 2, 2, 2, 78, 9, 3, 2, 2, 2, 79, 80, 7, 51, 2, 2,
+	80, 81, 7, 71, 2, 2, 81, 82, 5, 12, 7, 2, 82, 83, 8, 6, 1, 2, 83, 11, 3,
+	2, 2, 2, 84, 85, 8, 7, 1, 2, 85, 86, 9, 2, 2, 2, 86, 87, 5, 12, 7, 17,
+	87, 88, 8, 7, 1, 2, 88, 109, 3, 2, 2, 2, 89, 90, 7, 80, 2, 2, 90, 91, 5,
+	12, 7, 2, 91, 92, 7, 81, 2, 2, 92, 93, 8, 7, 1, 2, 93, 109, 3, 2, 2, 2,
+	94, 95, 7, 51, 2, 2, 95, 109, 8, 7, 1, 2, 96, 97, 7, 21, 2, 2, 97, 109,
+	8, 7, 1, 2, 98, 99, 7, 22, 2, 2, 99, 109, 8, 7, 1, 2, 100, 101, 7, 88,
+	2, 2, 101, 109, 8, 7, 1, 2, 102, 103, 7, 49, 2, 2, 103, 109, 8, 7, 1, 2,
+	104, 105, 7, 48, 2, 2, 105, 109, 8, 7, 1, 2, 106, 107, 7, 86, 2, 2, 107,
+	109, 8, 7, 1, 2, 108, 84, 3, 2, 2, 2, 108, 89, 3, 2, 2, 2, 108, 94, 3,
+	2, 2, 2, 108, 96, 3, 2, 2, 2, 108, 98, 3, 2, 2, 2, 108, 100, 3, 2, 2, 2,
+	108, 102, 3, 2, 2, 2, 108, 104, 3, 2, 2, 2, 108, 106, 3, 2, 2, 2, 109,
+	142, 3, 2, 2, 2, 110, 111, 12, 16, 2, 2, 111, 112, 9, 3, 2, 2, 112, 113,
+	5, 12, 7, 17, 113, 114, 8, 7, 1, 2, 114, 141, 3, 2, 2, 2, 115, 116, 12,
+	15, 2, 2, 116, 117, 9, 4, 2, 2, 117, 118, 5, 12, 7, 16, 118, 119, 8, 7,
+	1, 2, 119, 141, 3, 2, 2, 2, 120, 121, 12, 14, 2, 2, 121, 122, 9, 5, 2,
+	2, 122, 123, 5, 12, 7, 15, 123, 124, 8, 7, 1, 2, 124, 141, 3, 2, 2, 2,
+	125, 126, 12, 13, 2, 2, 126, 127, 9, 6, 2, 2, 127, 128, 5, 12, 7, 14, 128,
+	129, 8, 7, 1, 2, 129, 141, 3, 2, 2, 2, 130, 131, 12, 12, 2, 2, 131, 132,
+	7, 56, 2, 2, 132, 133, 5, 12, 7, 13, 133, 134, 8, 7, 1, 2, 134, 141, 3,
+	2, 2, 2, 135, 136, 12, 11, 2, 2, 136, 137, 7, 54, 2, 2, 137, 138, 5, 12,
+	7, 12, 138, 139, 8, 7, 1, 2, 139, 141, 3, 2, 2, 2, 140, 110, 3, 2, 2, 2,
+	140, 115, 3, 2, 2, 2, 140, 120, 3, 2, 2, 2, 140, 125, 3, 2, 2, 2, 140,
+	130, 3, 2, 2, 2, 140, 135, 3, 2, 2, 2, 141, 144, 3, 2, 2, 2, 142, 140,
+	3, 2, 2, 2, 142, 143, 3, 2, 2, 2, 143, 13, 3, 2, 2, 2, 144, 142, 3, 2,
+	2, 2, 145, 146, 7, 3, 2, 2, 146, 160, 8, 8, 1, 2, 147, 148, 7, 4, 2, 2,
+	148, 160, 8, 8, 1, 2, 149, 150, 7, 6, 2, 2, 150, 160, 8, 8, 1, 2, 151,
+	152, 7, 5, 2, 2, 152, 160, 8, 8, 1, 2, 153, 154, 7, 7, 2, 2, 154, 160,
+	8, 8, 1, 2, 155, 156, 7, 8, 2, 2, 156, 160, 8, 8, 1, 2, 157, 158, 7, 9,
+	2, 2, 158, 160, 8, 8, 1, 2, 159, 145, 3, 2, 2, 2, 159, 147, 3, 2, 2, 2,
+	159, 149, 3, 2, 2, 2, 159, 151, 3, 2, 2, 2, 159, 153, 3, 2, 2, 2, 159,
+	155, 3, 2, 2, 2, 159, 157, 3, 2, 2, 2, 160, 15, 3, 2, 2, 2, 9, 22, 38,
+	77, 108, 140, 142, 159,
 }
 var literalNames = []string{
 	"", "'bool'", "'char'", "'f64'", "'i64'", "'&str'", "'String'", "'usize'",
@@ -112,7 +121,8 @@ var symbolicNames = []string{
 }
 
 var ruleNames = []string{
-	"inicio", "instruccion", "declaracion", "expresion", "tipo_dato",
+	"inicio", "instrucciones", "instruccion", "declaracion", "asignacion",
+	"expresion", "tipo_dato",
 }
 
 type Nparser struct {
@@ -240,11 +250,13 @@ const (
 
 // Nparser rules.
 const (
-	NparserRULE_inicio      = 0
-	NparserRULE_instruccion = 1
-	NparserRULE_declaracion = 2
-	NparserRULE_expresion   = 3
-	NparserRULE_tipo_dato   = 4
+	NparserRULE_inicio        = 0
+	NparserRULE_instrucciones = 1
+	NparserRULE_instruccion   = 2
+	NparserRULE_declaracion   = 3
+	NparserRULE_asignacion    = 4
+	NparserRULE_expresion     = 5
+	NparserRULE_tipo_dato     = 6
 )
 
 // IInicioContext is an interface to support dynamic dispatch.
@@ -254,17 +266,17 @@ type IInicioContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// Get_instruccion returns the _instruccion rule contexts.
-	Get_instruccion() IInstruccionContext
+	// Get_instrucciones returns the _instrucciones rule contexts.
+	Get_instrucciones() IInstruccionesContext
 
-	// Set_instruccion sets the _instruccion rule contexts.
-	Set_instruccion(IInstruccionContext)
+	// Set_instrucciones sets the _instrucciones rule contexts.
+	Set_instrucciones(IInstruccionesContext)
 
-	// GetEx returns the ex attribute.
-	GetEx() interface{}
+	// GetLista returns the lista attribute.
+	GetLista() *arraylist.List
 
-	// SetEx sets the ex attribute.
-	SetEx(interface{})
+	// SetLista sets the lista attribute.
+	SetLista(*arraylist.List)
 
 	// IsInicioContext differentiates from other interfaces.
 	IsInicioContext()
@@ -272,9 +284,9 @@ type IInicioContext interface {
 
 type InicioContext struct {
 	*antlr.BaseParserRuleContext
-	parser       antlr.Parser
-	ex           interface{}
-	_instruccion IInstruccionContext
+	parser         antlr.Parser
+	lista          *arraylist.List
+	_instrucciones IInstruccionesContext
 }
 
 func NewEmptyInicioContext() *InicioContext {
@@ -299,22 +311,22 @@ func NewInicioContext(parser antlr.Parser, parent antlr.ParserRuleContext, invok
 
 func (s *InicioContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *InicioContext) Get_instruccion() IInstruccionContext { return s._instruccion }
+func (s *InicioContext) Get_instrucciones() IInstruccionesContext { return s._instrucciones }
 
-func (s *InicioContext) Set_instruccion(v IInstruccionContext) { s._instruccion = v }
+func (s *InicioContext) Set_instrucciones(v IInstruccionesContext) { s._instrucciones = v }
 
-func (s *InicioContext) GetEx() interface{} { return s.ex }
+func (s *InicioContext) GetLista() *arraylist.List { return s.lista }
 
-func (s *InicioContext) SetEx(v interface{}) { s.ex = v }
+func (s *InicioContext) SetLista(v *arraylist.List) { s.lista = v }
 
-func (s *InicioContext) Instruccion() IInstruccionContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IInstruccionContext)(nil)).Elem(), 0)
+func (s *InicioContext) Instrucciones() IInstruccionesContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IInstruccionesContext)(nil)).Elem(), 0)
 
 	if t == nil {
 		return nil
 	}
 
-	return t.(IInstruccionContext)
+	return t.(IInstruccionesContext)
 }
 
 func (s *InicioContext) GetRuleContext() antlr.RuleContext {
@@ -362,15 +374,183 @@ func (p *Nparser) Inicio() (localctx IInicioContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(10)
+		p.SetState(14)
 
-		var _x = p.Instruccion()
+		var _x = p.Instrucciones()
 
-		localctx.(*InicioContext)._instruccion = _x
+		localctx.(*InicioContext)._instrucciones = _x
 	}
 
-	localctx.(*InicioContext).ex = localctx.(*InicioContext).Get_instruccion().GetEx()
-	//fmt.Println(localctx.(*InicioContext).ex)
+	localctx.(*InicioContext).lista = localctx.(*InicioContext).Get_instrucciones().GetList()
+
+	return localctx
+}
+
+// IInstruccionesContext is an interface to support dynamic dispatch.
+type IInstruccionesContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// Get_instruccion returns the _instruccion rule contexts.
+	Get_instruccion() IInstruccionContext
+
+	// Set_instruccion sets the _instruccion rule contexts.
+	Set_instruccion(IInstruccionContext)
+
+	// GetE returns the e rule context list.
+	GetE() []IInstruccionContext
+
+	// SetE sets the e rule context list.
+	SetE([]IInstruccionContext)
+
+	// GetList returns the list attribute.
+	GetList() *arraylist.List
+
+	// SetList sets the list attribute.
+	SetList(*arraylist.List)
+
+	// IsInstruccionesContext differentiates from other interfaces.
+	IsInstruccionesContext()
+}
+
+type InstruccionesContext struct {
+	*antlr.BaseParserRuleContext
+	parser       antlr.Parser
+	list         *arraylist.List
+	_instruccion IInstruccionContext
+	e            []IInstruccionContext
+}
+
+func NewEmptyInstruccionesContext() *InstruccionesContext {
+	var p = new(InstruccionesContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = NparserRULE_instrucciones
+	return p
+}
+
+func (*InstruccionesContext) IsInstruccionesContext() {}
+
+func NewInstruccionesContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *InstruccionesContext {
+	var p = new(InstruccionesContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = NparserRULE_instrucciones
+
+	return p
+}
+
+func (s *InstruccionesContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *InstruccionesContext) Get_instruccion() IInstruccionContext { return s._instruccion }
+
+func (s *InstruccionesContext) Set_instruccion(v IInstruccionContext) { s._instruccion = v }
+
+func (s *InstruccionesContext) GetE() []IInstruccionContext { return s.e }
+
+func (s *InstruccionesContext) SetE(v []IInstruccionContext) { s.e = v }
+
+func (s *InstruccionesContext) GetList() *arraylist.List { return s.list }
+
+func (s *InstruccionesContext) SetList(v *arraylist.List) { s.list = v }
+
+func (s *InstruccionesContext) AllInstruccion() []IInstruccionContext {
+	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IInstruccionContext)(nil)).Elem())
+	var tst = make([]IInstruccionContext, len(ts))
+
+	for i, t := range ts {
+		if t != nil {
+			tst[i] = t.(IInstruccionContext)
+		}
+	}
+
+	return tst
+}
+
+func (s *InstruccionesContext) Instruccion(i int) IInstruccionContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IInstruccionContext)(nil)).Elem(), i)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IInstruccionContext)
+}
+
+func (s *InstruccionesContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *InstruccionesContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *InstruccionesContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NparserListener); ok {
+		listenerT.EnterInstrucciones(s)
+	}
+}
+
+func (s *InstruccionesContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NparserListener); ok {
+		listenerT.ExitInstrucciones(s)
+	}
+}
+
+func (p *Nparser) Instrucciones() (localctx IInstruccionesContext) {
+	this := p
+	_ = this
+
+	localctx = NewInstruccionesContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 2, NparserRULE_instrucciones)
+
+	localctx.(*InstruccionesContext).list = arraylist.New()
+
+	var _la int
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	p.SetState(20)
+	p.GetErrorHandler().Sync(p)
+	_la = p.GetTokenStream().LA(1)
+
+	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<NparserLET)|(1<<NparserTRUE)|(1<<NparserFALSE))) != 0) || (((_la-46)&-(0x1f+1)) == 0 && ((1<<uint((_la-46)))&((1<<(NparserNUMERO-46))|(1<<(NparserDECIMAL-46))|(1<<(NparserID-46))|(1<<(NparserRESTA-46))|(1<<(NparserNOT-46)))) != 0) || (((_la-78)&-(0x1f+1)) == 0 && ((1<<uint((_la-78)))&((1<<(NparserPAR_IZQ-78))|(1<<(NparserCADENA-78))|(1<<(NparserCARACTER-78)))) != 0) {
+		{
+			p.SetState(17)
+
+			var _x = p.Instruccion()
+
+			localctx.(*InstruccionesContext)._instruccion = _x
+		}
+		localctx.(*InstruccionesContext).e = append(localctx.(*InstruccionesContext).e, localctx.(*InstruccionesContext)._instruccion)
+
+		p.SetState(22)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+	}
+
+	listInt := localctx.(*InstruccionesContext).GetE()
+	for _, e := range listInt {
+		localctx.(*InstruccionesContext).list.Add(e.GetEx())
+	}
 
 	return localctx
 }
@@ -388,11 +568,17 @@ type IInstruccionContext interface {
 	// Get_declaracion returns the _declaracion rule contexts.
 	Get_declaracion() IDeclaracionContext
 
+	// Get_asignacion returns the _asignacion rule contexts.
+	Get_asignacion() IAsignacionContext
+
 	// Set_expresion sets the _expresion rule contexts.
 	Set_expresion(IExpresionContext)
 
 	// Set_declaracion sets the _declaracion rule contexts.
 	Set_declaracion(IDeclaracionContext)
+
+	// Set_asignacion sets the _asignacion rule contexts.
+	Set_asignacion(IAsignacionContext)
 
 	// GetEx returns the ex attribute.
 	GetEx() interface{}
@@ -410,6 +596,7 @@ type InstruccionContext struct {
 	ex           interface{}
 	_expresion   IExpresionContext
 	_declaracion IDeclaracionContext
+	_asignacion  IAsignacionContext
 }
 
 func NewEmptyInstruccionContext() *InstruccionContext {
@@ -438,9 +625,13 @@ func (s *InstruccionContext) Get_expresion() IExpresionContext { return s._expre
 
 func (s *InstruccionContext) Get_declaracion() IDeclaracionContext { return s._declaracion }
 
+func (s *InstruccionContext) Get_asignacion() IAsignacionContext { return s._asignacion }
+
 func (s *InstruccionContext) Set_expresion(v IExpresionContext) { s._expresion = v }
 
 func (s *InstruccionContext) Set_declaracion(v IDeclaracionContext) { s._declaracion = v }
+
+func (s *InstruccionContext) Set_asignacion(v IAsignacionContext) { s._asignacion = v }
 
 func (s *InstruccionContext) GetEx() interface{} { return s.ex }
 
@@ -470,6 +661,16 @@ func (s *InstruccionContext) PUNTOCOMA() antlr.TerminalNode {
 	return s.GetToken(NparserPUNTOCOMA, 0)
 }
 
+func (s *InstruccionContext) Asignacion() IAsignacionContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IAsignacionContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAsignacionContext)
+}
+
 func (s *InstruccionContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
@@ -495,7 +696,7 @@ func (p *Nparser) Instruccion() (localctx IInstruccionContext) {
 	_ = this
 
 	localctx = NewInstruccionContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 2, NparserRULE_instruccion)
+	p.EnterRule(localctx, 4, NparserRULE_instruccion)
 
 	defer func() {
 		p.ExitRule()
@@ -513,14 +714,13 @@ func (p *Nparser) Instruccion() (localctx IInstruccionContext) {
 		}
 	}()
 
-	p.SetState(20)
+	p.SetState(36)
 	p.GetErrorHandler().Sync(p)
-
-	switch p.GetTokenStream().LA(1) {
-	case NparserTRUE, NparserFALSE, NparserNUMERO, NparserDECIMAL, NparserID, NparserRESTA, NparserNOT, NparserPAR_IZQ, NparserCADENA, NparserCARACTER:
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 1, p.GetParserRuleContext()) {
+	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(13)
+			p.SetState(25)
 
 			var _x = p.expresion(0)
 
@@ -528,23 +728,36 @@ func (p *Nparser) Instruccion() (localctx IInstruccionContext) {
 		}
 		localctx.(*InstruccionContext).ex = localctx.(*InstruccionContext).Get_expresion().GetEx()
 
-	case NparserLET:
+	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(16)
+			p.SetState(28)
 
 			var _x = p.Declaracion()
 
 			localctx.(*InstruccionContext)._declaracion = _x
 		}
 		{
-			p.SetState(17)
+			p.SetState(29)
 			p.Match(NparserPUNTOCOMA)
 		}
 		localctx.(*InstruccionContext).ex = localctx.(*InstruccionContext).Get_declaracion().GetEx()
 
-	default:
-		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+	case 3:
+		p.EnterOuterAlt(localctx, 3)
+		{
+			p.SetState(32)
+
+			var _x = p.Asignacion()
+
+			localctx.(*InstruccionContext)._asignacion = _x
+		}
+		{
+			p.SetState(33)
+			p.Match(NparserPUNTOCOMA)
+		}
+		localctx.(*InstruccionContext).ex = localctx.(*InstruccionContext).Get_asignacion().GetEx()
+
 	}
 
 	return localctx
@@ -708,7 +921,7 @@ func (p *Nparser) Declaracion() (localctx IDeclaracionContext) {
 	_ = this
 
 	localctx = NewDeclaracionContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 4, NparserRULE_declaracion)
+	p.EnterRule(localctx, 6, NparserRULE_declaracion)
 
 	defer func() {
 		p.ExitRule()
@@ -726,31 +939,31 @@ func (p *Nparser) Declaracion() (localctx IDeclaracionContext) {
 		}
 	}()
 
-	p.SetState(59)
+	p.SetState(75)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 1, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 2, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(22)
+			p.SetState(38)
 
 			var _m = p.Match(NparserLET)
 
 			localctx.(*DeclaracionContext)._LET = _m
 		}
 		{
-			p.SetState(23)
+			p.SetState(39)
 
 			var _m = p.Match(NparserID)
 
 			localctx.(*DeclaracionContext)._ID = _m
 		}
 		{
-			p.SetState(24)
+			p.SetState(40)
 			p.Match(NparserIGUAL)
 		}
 		{
-			p.SetState(25)
+			p.SetState(41)
 
 			var _x = p.expresion(0)
 
@@ -783,36 +996,36 @@ func (p *Nparser) Declaracion() (localctx IDeclaracionContext) {
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(28)
+			p.SetState(44)
 
 			var _m = p.Match(NparserLET)
 
 			localctx.(*DeclaracionContext)._LET = _m
 		}
 		{
-			p.SetState(29)
+			p.SetState(45)
 
 			var _m = p.Match(NparserID)
 
 			localctx.(*DeclaracionContext)._ID = _m
 		}
 		{
-			p.SetState(30)
+			p.SetState(46)
 			p.Match(NparserDOSPUNTOS)
 		}
 		{
-			p.SetState(31)
+			p.SetState(47)
 
 			var _x = p.Tipo_dato()
 
 			localctx.(*DeclaracionContext)._tipo_dato = _x
 		}
 		{
-			p.SetState(32)
+			p.SetState(48)
 			p.Match(NparserIGUAL)
 		}
 		{
-			p.SetState(33)
+			p.SetState(49)
 
 			var _x = p.expresion(0)
 
@@ -845,144 +1058,22 @@ func (p *Nparser) Declaracion() (localctx IDeclaracionContext) {
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(36)
-
-			var _m = p.Match(NparserLET)
-
-			localctx.(*DeclaracionContext)._LET = _m
-		}
-		{
-			p.SetState(37)
-			p.Match(NparserMUT)
-		}
-		{
-			p.SetState(38)
-
-			var _m = p.Match(NparserID)
-
-			localctx.(*DeclaracionContext)._ID = _m
-		}
-		{
-			p.SetState(39)
-			p.Match(NparserIGUAL)
-		}
-		{
-			p.SetState(40)
-
-			var _x = p.expresion(0)
-
-			localctx.(*DeclaracionContext)._expresion = _x
-		}
-
-		fila := (func() int {
-			if localctx.(*DeclaracionContext).Get_LET() == nil {
-				return 0
-			} else {
-				return localctx.(*DeclaracionContext).Get_LET().GetLine()
-			}
-		}())
-		columna := (func() int {
-			if localctx.(*DeclaracionContext).Get_LET() == nil {
-				return 0
-			} else {
-				return localctx.(*DeclaracionContext).Get_LET().GetColumn()
-			}
-		}())
-		localctx.(*DeclaracionContext).ex = instrucciones.NewDeclaracion((func() string {
-			if localctx.(*DeclaracionContext).Get_ID() == nil {
-				return ""
-			} else {
-				return localctx.(*DeclaracionContext).Get_ID().GetText()
-			}
-		}()), Ast.INDEFINIDO,
-			true, false, Ast.VOID, localctx.(*DeclaracionContext).Get_expresion().GetEx(), fila, columna)
-
-	case 4:
-		p.EnterOuterAlt(localctx, 4)
-		{
-			p.SetState(43)
-
-			var _m = p.Match(NparserLET)
-
-			localctx.(*DeclaracionContext)._LET = _m
-		}
-		{
-			p.SetState(44)
-			p.Match(NparserMUT)
-		}
-		{
-			p.SetState(45)
-
-			var _m = p.Match(NparserID)
-
-			localctx.(*DeclaracionContext)._ID = _m
-		}
-		{
-			p.SetState(46)
-			p.Match(NparserDOSPUNTOS)
-		}
-		{
-			p.SetState(47)
-
-			var _x = p.Tipo_dato()
-
-			localctx.(*DeclaracionContext)._tipo_dato = _x
-		}
-
-		valor := expresiones.NewPrimitivo(nil, Ast.NULL)
-		fila := (func() int {
-			if localctx.(*DeclaracionContext).Get_LET() == nil {
-				return 0
-			} else {
-				return localctx.(*DeclaracionContext).Get_LET().GetLine()
-			}
-		}())
-		columna := (func() int {
-			if localctx.(*DeclaracionContext).Get_LET() == nil {
-				return 0
-			} else {
-				return localctx.(*DeclaracionContext).Get_LET().GetColumn()
-			}
-		}())
-		localctx.(*DeclaracionContext).ex = instrucciones.NewDeclaracion((func() string {
-			if localctx.(*DeclaracionContext).Get_ID() == nil {
-				return ""
-			} else {
-				return localctx.(*DeclaracionContext).Get_ID().GetText()
-			}
-		}()), localctx.(*DeclaracionContext).Get_tipo_dato().GetEx(),
-			true, false, Ast.VOID, valor, fila, columna)
-
-	case 5:
-		p.EnterOuterAlt(localctx, 5)
-		{
-			p.SetState(50)
-
-			var _m = p.Match(NparserLET)
-
-			localctx.(*DeclaracionContext)._LET = _m
-		}
-		{
-			p.SetState(51)
-			p.Match(NparserMUT)
-		}
-		{
 			p.SetState(52)
 
-			var _m = p.Match(NparserID)
+			var _m = p.Match(NparserLET)
 
-			localctx.(*DeclaracionContext)._ID = _m
+			localctx.(*DeclaracionContext)._LET = _m
 		}
 		{
 			p.SetState(53)
-			p.Match(NparserDOSPUNTOS)
+			p.Match(NparserMUT)
 		}
 		{
 			p.SetState(54)
 
-			var _x = p.Tipo_dato()
+			var _m = p.Match(NparserID)
 
-			localctx.(*DeclaracionContext)._tipo_dato = _x
+			localctx.(*DeclaracionContext)._ID = _m
 		}
 		{
 			p.SetState(55)
@@ -1016,10 +1107,309 @@ func (p *Nparser) Declaracion() (localctx IDeclaracionContext) {
 			} else {
 				return localctx.(*DeclaracionContext).Get_ID().GetText()
 			}
+		}()), Ast.INDEFINIDO,
+			true, false, Ast.VOID, localctx.(*DeclaracionContext).Get_expresion().GetEx(), fila, columna)
+
+	case 4:
+		p.EnterOuterAlt(localctx, 4)
+		{
+			p.SetState(59)
+
+			var _m = p.Match(NparserLET)
+
+			localctx.(*DeclaracionContext)._LET = _m
+		}
+		{
+			p.SetState(60)
+			p.Match(NparserMUT)
+		}
+		{
+			p.SetState(61)
+
+			var _m = p.Match(NparserID)
+
+			localctx.(*DeclaracionContext)._ID = _m
+		}
+		{
+			p.SetState(62)
+			p.Match(NparserDOSPUNTOS)
+		}
+		{
+			p.SetState(63)
+
+			var _x = p.Tipo_dato()
+
+			localctx.(*DeclaracionContext)._tipo_dato = _x
+		}
+
+		valor := expresiones.NewPrimitivo(nil, Ast.NULL)
+		fila := (func() int {
+			if localctx.(*DeclaracionContext).Get_LET() == nil {
+				return 0
+			} else {
+				return localctx.(*DeclaracionContext).Get_LET().GetLine()
+			}
+		}())
+		columna := (func() int {
+			if localctx.(*DeclaracionContext).Get_LET() == nil {
+				return 0
+			} else {
+				return localctx.(*DeclaracionContext).Get_LET().GetColumn()
+			}
+		}())
+		localctx.(*DeclaracionContext).ex = instrucciones.NewDeclaracion((func() string {
+			if localctx.(*DeclaracionContext).Get_ID() == nil {
+				return ""
+			} else {
+				return localctx.(*DeclaracionContext).Get_ID().GetText()
+			}
+		}()), localctx.(*DeclaracionContext).Get_tipo_dato().GetEx(),
+			true, false, Ast.VOID, valor, fila, columna)
+
+	case 5:
+		p.EnterOuterAlt(localctx, 5)
+		{
+			p.SetState(66)
+
+			var _m = p.Match(NparserLET)
+
+			localctx.(*DeclaracionContext)._LET = _m
+		}
+		{
+			p.SetState(67)
+			p.Match(NparserMUT)
+		}
+		{
+			p.SetState(68)
+
+			var _m = p.Match(NparserID)
+
+			localctx.(*DeclaracionContext)._ID = _m
+		}
+		{
+			p.SetState(69)
+			p.Match(NparserDOSPUNTOS)
+		}
+		{
+			p.SetState(70)
+
+			var _x = p.Tipo_dato()
+
+			localctx.(*DeclaracionContext)._tipo_dato = _x
+		}
+		{
+			p.SetState(71)
+			p.Match(NparserIGUAL)
+		}
+		{
+			p.SetState(72)
+
+			var _x = p.expresion(0)
+
+			localctx.(*DeclaracionContext)._expresion = _x
+		}
+
+		fila := (func() int {
+			if localctx.(*DeclaracionContext).Get_LET() == nil {
+				return 0
+			} else {
+				return localctx.(*DeclaracionContext).Get_LET().GetLine()
+			}
+		}())
+		columna := (func() int {
+			if localctx.(*DeclaracionContext).Get_LET() == nil {
+				return 0
+			} else {
+				return localctx.(*DeclaracionContext).Get_LET().GetColumn()
+			}
+		}())
+		localctx.(*DeclaracionContext).ex = instrucciones.NewDeclaracion((func() string {
+			if localctx.(*DeclaracionContext).Get_ID() == nil {
+				return ""
+			} else {
+				return localctx.(*DeclaracionContext).Get_ID().GetText()
+			}
 		}()), localctx.(*DeclaracionContext).Get_tipo_dato().GetEx(),
 			true, false, Ast.VOID, localctx.(*DeclaracionContext).Get_expresion().GetEx(), fila, columna)
 
 	}
+
+	return localctx
+}
+
+// IAsignacionContext is an interface to support dynamic dispatch.
+type IAsignacionContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// Get_ID returns the _ID token.
+	Get_ID() antlr.Token
+
+	// Set_ID sets the _ID token.
+	Set_ID(antlr.Token)
+
+	// Get_expresion returns the _expresion rule contexts.
+	Get_expresion() IExpresionContext
+
+	// Set_expresion sets the _expresion rule contexts.
+	Set_expresion(IExpresionContext)
+
+	// GetEx returns the ex attribute.
+	GetEx() Ast.Instruccion
+
+	// SetEx sets the ex attribute.
+	SetEx(Ast.Instruccion)
+
+	// IsAsignacionContext differentiates from other interfaces.
+	IsAsignacionContext()
+}
+
+type AsignacionContext struct {
+	*antlr.BaseParserRuleContext
+	parser     antlr.Parser
+	ex         Ast.Instruccion
+	_ID        antlr.Token
+	_expresion IExpresionContext
+}
+
+func NewEmptyAsignacionContext() *AsignacionContext {
+	var p = new(AsignacionContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = NparserRULE_asignacion
+	return p
+}
+
+func (*AsignacionContext) IsAsignacionContext() {}
+
+func NewAsignacionContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *AsignacionContext {
+	var p = new(AsignacionContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = NparserRULE_asignacion
+
+	return p
+}
+
+func (s *AsignacionContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *AsignacionContext) Get_ID() antlr.Token { return s._ID }
+
+func (s *AsignacionContext) Set_ID(v antlr.Token) { s._ID = v }
+
+func (s *AsignacionContext) Get_expresion() IExpresionContext { return s._expresion }
+
+func (s *AsignacionContext) Set_expresion(v IExpresionContext) { s._expresion = v }
+
+func (s *AsignacionContext) GetEx() Ast.Instruccion { return s.ex }
+
+func (s *AsignacionContext) SetEx(v Ast.Instruccion) { s.ex = v }
+
+func (s *AsignacionContext) ID() antlr.TerminalNode {
+	return s.GetToken(NparserID, 0)
+}
+
+func (s *AsignacionContext) IGUAL() antlr.TerminalNode {
+	return s.GetToken(NparserIGUAL, 0)
+}
+
+func (s *AsignacionContext) Expresion() IExpresionContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IExpresionContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExpresionContext)
+}
+
+func (s *AsignacionContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *AsignacionContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *AsignacionContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NparserListener); ok {
+		listenerT.EnterAsignacion(s)
+	}
+}
+
+func (s *AsignacionContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NparserListener); ok {
+		listenerT.ExitAsignacion(s)
+	}
+}
+
+func (p *Nparser) Asignacion() (localctx IAsignacionContext) {
+	this := p
+	_ = this
+
+	localctx = NewAsignacionContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 8, NparserRULE_asignacion)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(77)
+
+		var _m = p.Match(NparserID)
+
+		localctx.(*AsignacionContext)._ID = _m
+	}
+	{
+		p.SetState(78)
+		p.Match(NparserIGUAL)
+	}
+	{
+		p.SetState(79)
+
+		var _x = p.expresion(0)
+
+		localctx.(*AsignacionContext)._expresion = _x
+	}
+
+	fila := (func() int {
+		if localctx.(*AsignacionContext).Get_ID() == nil {
+			return 0
+		} else {
+			return localctx.(*AsignacionContext).Get_ID().GetLine()
+		}
+	}())
+	columna := (func() int {
+		if localctx.(*AsignacionContext).Get_ID() == nil {
+			return 0
+		} else {
+			return localctx.(*AsignacionContext).Get_ID().GetColumn()
+		}
+	}())
+	localctx.(*AsignacionContext).ex = instrucciones.NewAsignacion((func() string {
+		if localctx.(*AsignacionContext).Get_ID() == nil {
+			return ""
+		} else {
+			return localctx.(*AsignacionContext).Get_ID().GetText()
+		}
+	}()), localctx.(*AsignacionContext).Get_expresion().GetEx(), fila, columna)
 
 	return localctx
 }
@@ -1342,8 +1732,8 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 	localctx = NewExpresionContext(p, p.GetParserRuleContext(), _parentState)
 	var _prevctx IExpresionContext = localctx
 	var _ antlr.ParserRuleContext = _prevctx // TODO: To prevent unused variable warning.
-	_startState := 6
-	p.EnterRecursionRule(localctx, 6, NparserRULE_expresion, _p)
+	_startState := 10
+	p.EnterRecursionRule(localctx, 10, NparserRULE_expresion, _p)
 	var _la int
 
 	defer func() {
@@ -1365,13 +1755,13 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(85)
+	p.SetState(106)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
 	case NparserRESTA, NparserNOT:
 		{
-			p.SetState(62)
+			p.SetState(83)
 
 			var _lt = p.GetTokenStream().LT(1)
 
@@ -1389,7 +1779,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 			}
 		}
 		{
-			p.SetState(63)
+			p.SetState(84)
 
 			var _x = p.expresion(15)
 
@@ -1421,18 +1811,18 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserPAR_IZQ:
 		{
-			p.SetState(66)
+			p.SetState(87)
 			p.Match(NparserPAR_IZQ)
 		}
 		{
-			p.SetState(67)
+			p.SetState(88)
 
 			var _x = p.expresion(0)
 
 			localctx.(*ExpresionContext)._expresion = _x
 		}
 		{
-			p.SetState(68)
+			p.SetState(89)
 			p.Match(NparserPAR_DER)
 		}
 
@@ -1440,7 +1830,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserID:
 		{
-			p.SetState(71)
+			p.SetState(92)
 
 			var _m = p.Match(NparserID)
 
@@ -1458,7 +1848,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserTRUE:
 		{
-			p.SetState(73)
+			p.SetState(94)
 			p.Match(NparserTRUE)
 		}
 
@@ -1467,7 +1857,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserFALSE:
 		{
-			p.SetState(75)
+			p.SetState(96)
 			p.Match(NparserFALSE)
 		}
 
@@ -1476,7 +1866,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserCARACTER:
 		{
-			p.SetState(77)
+			p.SetState(98)
 
 			var _m = p.Match(NparserCARACTER)
 
@@ -1495,7 +1885,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserDECIMAL:
 		{
-			p.SetState(79)
+			p.SetState(100)
 
 			var _m = p.Match(NparserDECIMAL)
 
@@ -1517,7 +1907,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserNUMERO:
 		{
-			p.SetState(81)
+			p.SetState(102)
 
 			var _m = p.Match(NparserNUMERO)
 
@@ -1539,7 +1929,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 
 	case NparserCADENA:
 		{
-			p.SetState(83)
+			p.SetState(104)
 
 			var _m = p.Match(NparserCADENA)
 
@@ -1560,9 +1950,9 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
 	}
 	p.GetParserRuleContext().SetStop(p.GetTokenStream().LT(-1))
-	p.SetState(119)
+	p.SetState(140)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 4, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 5, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
@@ -1570,20 +1960,20 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 				p.TriggerExitRuleEvent()
 			}
 			_prevctx = localctx
-			p.SetState(117)
+			p.SetState(138)
 			p.GetErrorHandler().Sync(p)
-			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 3, p.GetParserRuleContext()) {
+			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 4, p.GetParserRuleContext()) {
 			case 1:
 				localctx = NewExpresionContext(p, _parentctx, _parentState)
 				localctx.(*ExpresionContext).op_izq = _prevctx
 				p.PushNewRecursionContext(localctx, _startState, NparserRULE_expresion)
-				p.SetState(87)
+				p.SetState(108)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 14)) {
 					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 14)", ""))
 				}
 				{
-					p.SetState(88)
+					p.SetState(109)
 
 					var _lt = p.GetTokenStream().LT(1)
 
@@ -1601,7 +1991,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 					}
 				}
 				{
-					p.SetState(89)
+					p.SetState(110)
 
 					var _x = p.expresion(15)
 
@@ -1635,13 +2025,13 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 				localctx = NewExpresionContext(p, _parentctx, _parentState)
 				localctx.(*ExpresionContext).op_izq = _prevctx
 				p.PushNewRecursionContext(localctx, _startState, NparserRULE_expresion)
-				p.SetState(92)
+				p.SetState(113)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 13)) {
 					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 13)", ""))
 				}
 				{
-					p.SetState(93)
+					p.SetState(114)
 
 					var _lt = p.GetTokenStream().LT(1)
 
@@ -1659,7 +2049,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 					}
 				}
 				{
-					p.SetState(94)
+					p.SetState(115)
 
 					var _x = p.expresion(14)
 
@@ -1693,13 +2083,13 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 				localctx = NewExpresionContext(p, _parentctx, _parentState)
 				localctx.(*ExpresionContext).op_izq = _prevctx
 				p.PushNewRecursionContext(localctx, _startState, NparserRULE_expresion)
-				p.SetState(97)
+				p.SetState(118)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 12)) {
 					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 12)", ""))
 				}
 				{
-					p.SetState(98)
+					p.SetState(119)
 
 					var _lt = p.GetTokenStream().LT(1)
 
@@ -1717,7 +2107,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 					}
 				}
 				{
-					p.SetState(99)
+					p.SetState(120)
 
 					var _x = p.expresion(13)
 
@@ -1751,13 +2141,13 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 				localctx = NewExpresionContext(p, _parentctx, _parentState)
 				localctx.(*ExpresionContext).op_izq = _prevctx
 				p.PushNewRecursionContext(localctx, _startState, NparserRULE_expresion)
-				p.SetState(102)
+				p.SetState(123)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 11)) {
 					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 11)", ""))
 				}
 				{
-					p.SetState(103)
+					p.SetState(124)
 
 					var _lt = p.GetTokenStream().LT(1)
 
@@ -1775,7 +2165,7 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 					}
 				}
 				{
-					p.SetState(104)
+					p.SetState(125)
 
 					var _x = p.expresion(12)
 
@@ -1809,20 +2199,20 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 				localctx = NewExpresionContext(p, _parentctx, _parentState)
 				localctx.(*ExpresionContext).op_izq = _prevctx
 				p.PushNewRecursionContext(localctx, _startState, NparserRULE_expresion)
-				p.SetState(107)
+				p.SetState(128)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 10)) {
 					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 10)", ""))
 				}
 				{
-					p.SetState(108)
+					p.SetState(129)
 
 					var _m = p.Match(NparserAND)
 
 					localctx.(*ExpresionContext)._AND = _m
 				}
 				{
-					p.SetState(109)
+					p.SetState(130)
 
 					var _x = p.expresion(11)
 
@@ -1856,20 +2246,20 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 				localctx = NewExpresionContext(p, _parentctx, _parentState)
 				localctx.(*ExpresionContext).op_izq = _prevctx
 				p.PushNewRecursionContext(localctx, _startState, NparserRULE_expresion)
-				p.SetState(112)
+				p.SetState(133)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 9)) {
 					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 9)", ""))
 				}
 				{
-					p.SetState(113)
+					p.SetState(134)
 
 					var _m = p.Match(NparserOR)
 
 					localctx.(*ExpresionContext)._OR = _m
 				}
 				{
-					p.SetState(114)
+					p.SetState(135)
 
 					var _x = p.expresion(10)
 
@@ -1902,9 +2292,9 @@ func (p *Nparser) expresion(_p int) (localctx IExpresionContext) {
 			}
 
 		}
-		p.SetState(121)
+		p.SetState(142)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 4, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 5, p.GetParserRuleContext())
 	}
 
 	return localctx
@@ -2012,7 +2402,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	_ = this
 
 	localctx = NewTipo_datoContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 8, NparserRULE_tipo_dato)
+	p.EnterRule(localctx, 12, NparserRULE_tipo_dato)
 
 	defer func() {
 		p.ExitRule()
@@ -2030,14 +2420,14 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 		}
 	}()
 
-	p.SetState(136)
+	p.SetState(157)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
 	case NparserBOOL:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(122)
+			p.SetState(143)
 			p.Match(NparserBOOL)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.BOOLEAN
@@ -2045,7 +2435,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	case NparserCHAR:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(124)
+			p.SetState(145)
 			p.Match(NparserCHAR)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.CHAR
@@ -2053,7 +2443,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	case NparserI64:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(126)
+			p.SetState(147)
 			p.Match(NparserI64)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.I64
@@ -2061,7 +2451,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	case NparserF64:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(128)
+			p.SetState(149)
 			p.Match(NparserF64)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.F64
@@ -2069,7 +2459,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	case NparserSTR:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(130)
+			p.SetState(151)
 			p.Match(NparserSTR)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.STR
@@ -2077,7 +2467,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	case NparserSTRING:
 		p.EnterOuterAlt(localctx, 6)
 		{
-			p.SetState(132)
+			p.SetState(153)
 			p.Match(NparserSTRING)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.STRING
@@ -2085,7 +2475,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 	case NparserUSIZE:
 		p.EnterOuterAlt(localctx, 7)
 		{
-			p.SetState(134)
+			p.SetState(155)
 			p.Match(NparserUSIZE)
 		}
 		localctx.(*Tipo_datoContext).ex = Ast.USIZE
@@ -2099,7 +2489,7 @@ func (p *Nparser) Tipo_dato() (localctx ITipo_datoContext) {
 
 func (p *Nparser) Sempred(localctx antlr.RuleContext, ruleIndex, predIndex int) bool {
 	switch ruleIndex {
-	case 3:
+	case 5:
 		var t *ExpresionContext = nil
 		if localctx != nil {
 			t = localctx.(*ExpresionContext)

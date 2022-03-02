@@ -7,7 +7,7 @@ options{
 
 
 @header{
-    //import "github.com/colegno/arraylist"
+    import "github.com/colegno/arraylist"
     import "Back/analizador/Ast"
     import "Back/analizador/expresiones"
     import "Back/analizador/instrucciones"
@@ -19,16 +19,29 @@ options{
 */
 
 
-inicio returns[interface{} ex] 
-            : instruccion
+inicio returns[*arraylist.List lista] 
+            : instrucciones	
             {
-                $ex = $instruccion.ex
-                //fmt.Println($ex)
+                $lista = $instrucciones.list
             }
 ;
+
+instrucciones returns [*arraylist.List list]
+			@init{
+				$list =  arraylist.New()
+			}
+			: e += instruccion*  {
+				listInt := localctx.(*InstruccionesContext).GetE()
+					for _, e := range listInt {
+						$list.Add(e.GetEx())
+					}
+			}
+;
+
 instruccion returns[interface{} ex] 
 			:expresion 		    	{$ex = $expresion.ex}	
-            |declaracion PUNTOCOMA  {$ex = $declaracion.ex}		    		     
+            |declaracion PUNTOCOMA  {$ex = $declaracion.ex}	
+            |asignacion PUNTOCOMA   {$ex = $asignacion.ex}	    		     
 ;
 
 /* 
@@ -76,8 +89,31 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
             true,false,Ast.VOID,$expresion.ex,fila,columna)               
         }
+    //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
 ;
 
+
+asignacion returns[Ast.Instruccion ex]
+    : ID IGUAL expresion
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = instrucciones.NewAsignacion($ID.text,$expresion.ex,fila,columna)
+    }
+;
+
+
+/* 
+atributos returns[*arraylist.List list]
+@init{ list := arrayList.New()}
+    : atributos atributo
+    | atributo
+;
+
+atributo returns[simbolos.Atributo ex]
+    : ID DOSPUNTOS tipo_dato
+;
+*/
 
 expresion returns[Ast.Expresion ex] 
     :   op=(RESTA|NOT) op_izq= expresion

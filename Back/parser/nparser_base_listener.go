@@ -27,6 +27,12 @@ func (s *BaseNparserListener) EnterInicio(ctx *InicioContext) {}
 // ExitInicio is called when production inicio is exited.
 func (s *BaseNparserListener) ExitInicio(ctx *InicioContext) {}
 
+// EnterInstrucciones is called when production instrucciones is entered.
+func (s *BaseNparserListener) EnterInstrucciones(ctx *InstruccionesContext) {}
+
+// ExitInstrucciones is called when production instrucciones is exited.
+func (s *BaseNparserListener) ExitInstrucciones(ctx *InstruccionesContext) {}
+
 // EnterInstruccion is called when production instruccion is entered.
 func (s *BaseNparserListener) EnterInstruccion(ctx *InstruccionContext) {}
 
@@ -38,6 +44,12 @@ func (s *BaseNparserListener) EnterDeclaracion(ctx *DeclaracionContext) {}
 
 // ExitDeclaracion is called when production declaracion is exited.
 func (s *BaseNparserListener) ExitDeclaracion(ctx *DeclaracionContext) {}
+
+// EnterAsignacion is called when production asignacion is entered.
+func (s *BaseNparserListener) EnterAsignacion(ctx *AsignacionContext) {}
+
+// ExitAsignacion is called when production asignacion is exited.
+func (s *BaseNparserListener) ExitAsignacion(ctx *AsignacionContext) {}
 
 // EnterExpresion is called when production expresion is entered.
 func (s *BaseNparserListener) EnterExpresion(ctx *ExpresionContext) {}

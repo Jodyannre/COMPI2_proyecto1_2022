@@ -11,11 +11,17 @@ type NparserListener interface {
 	// EnterInicio is called when entering the inicio production.
 	EnterInicio(c *InicioContext)
 
+	// EnterInstrucciones is called when entering the instrucciones production.
+	EnterInstrucciones(c *InstruccionesContext)
+
 	// EnterInstruccion is called when entering the instruccion production.
 	EnterInstruccion(c *InstruccionContext)
 
 	// EnterDeclaracion is called when entering the declaracion production.
 	EnterDeclaracion(c *DeclaracionContext)
+
+	// EnterAsignacion is called when entering the asignacion production.
+	EnterAsignacion(c *AsignacionContext)
 
 	// EnterExpresion is called when entering the expresion production.
 	EnterExpresion(c *ExpresionContext)
@@ -26,11 +32,17 @@ type NparserListener interface {
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
+	// ExitInstrucciones is called when exiting the instrucciones production.
+	ExitInstrucciones(c *InstruccionesContext)
+
 	// ExitInstruccion is called when exiting the instruccion production.
 	ExitInstruccion(c *InstruccionContext)
 
 	// ExitDeclaracion is called when exiting the declaracion production.
 	ExitDeclaracion(c *DeclaracionContext)
+
+	// ExitAsignacion is called when exiting the asignacion production.
+	ExitAsignacion(c *AsignacionContext)
 
 	// ExitExpresion is called when exiting the expresion production.
 	ExitExpresion(c *ExpresionContext)

@@ -9,6 +9,7 @@ import (
 	"Back/analizador/errores"
 	"Back/analizador/visitantes"
 	"Back/parser"
+	"fmt"
 
 	//"fmt"
 	"strconv"
@@ -23,7 +24,13 @@ type Key struct {
 
 func main() {
 
-	var input string = `let mut variable: bool`
+	var input string = `
+	let mut variable1:bool = true;
+	let variable2:i64 = 5;
+	variable1 = false;
+	variable1 = 5;
+	variable2 = 6;
+	`
 
 	//Obteniendo el input
 	cadena_entrada := antlr.NewInputStream(input)
@@ -85,6 +92,6 @@ func main() {
 	}
 
 	antlr.ParseTreeWalkerDefault.Walk(nvisitor, tree)
-	//fmt.Println(nvisitor.GetConsola())
+	fmt.Println(nvisitor.GetConsola())
 
 }

@@ -73,6 +73,8 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			Fila:          d.Fila,
 			Columna:       d.Columna,
 			Tipo:          d.Tipo,
+			Mutable:       d.Mutable,
+			Publico:       d.Publico,
 		}
 		scope.Add(nSimbolo)
 	} else if d.Tipo == Ast.INDEFINIDO && !existe {
@@ -83,6 +85,8 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			Fila:          d.Fila,
 			Columna:       d.Columna,
 			Tipo:          valor.Tipo,
+			Mutable:       d.Mutable,
+			Publico:       d.Publico,
 		}
 		scope.Add(nSimbolo)
 	} else if d.Tipo != Ast.INDEFINIDO && !existe && valor.Tipo == Ast.NULL {
@@ -93,6 +97,8 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			Fila:          d.Fila,
 			Columna:       d.Columna,
 			Tipo:          valor.Tipo,
+			Mutable:       d.Mutable,
+			Publico:       d.Publico,
 		}
 		scope.Add(nSimbolo)
 	} else if existe {
