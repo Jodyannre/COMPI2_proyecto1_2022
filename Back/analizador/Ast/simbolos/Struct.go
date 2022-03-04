@@ -57,7 +57,7 @@ func NewStruct(plantilla Struct, atributos *arraylist.List, scope *Ast.Scope) in
 		att = atributos.GetValue(i).(Atributo)
 		if val, ok := nuevo.Atributos[att.Nombre]; ok {
 			//Verificar que los tipos esten bien
-			resultado := ValidarTipo(val.(Atributo).Tipo, att.Valor.(Ast.Expresion), *scope, nuevo.Fila, nuevo.Columna)
+			resultado := ValidarTipo(val.(Atributo).Tipo, att.Valor.(Ast.Expresion), scope, nuevo.Fila, nuevo.Columna)
 			if resultado.Tipo == Ast.ERROR_SEMANTICO {
 				return resultado
 			}
@@ -69,7 +69,7 @@ func NewStruct(plantilla Struct, atributos *arraylist.List, scope *Ast.Scope) in
 	return nil
 }
 
-func ValidarTipo(tipo Ast.TipoDato, expresion Ast.Expresion, scope Ast.Scope, fila, columna int) Ast.TipoRetornado {
+func ValidarTipo(tipo Ast.TipoDato, expresion Ast.Expresion, scope *Ast.Scope, fila, columna int) Ast.TipoRetornado {
 	resultado := expresion.GetValue(scope)
 
 	if tipo == resultado.Tipo {

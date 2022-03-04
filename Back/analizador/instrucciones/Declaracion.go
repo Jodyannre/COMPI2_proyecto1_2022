@@ -57,10 +57,19 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 	}
 
 	//Verificar que los tipos sean correctos si
-	valor := d.Valor.(Ast.Expresion).GetValue(*scope)
+
+	//Primero verificar que no es un if expresion
+	_, tipoIn := d.Valor.(Ast.Abstracto).GetTipo()
+	var preValor interface{}
+	if tipoIn == Ast.IF_EXPRESION {
+		preValor = d.Valor.(Ast.Instruccion).Run(scope)
+	} else {
+		preValor = d.Valor.(Ast.Expresion).GetValue(scope)
+	}
+	valor := preValor.(Ast.TipoRetornado)
 
 	//Revisar si el retorno es un error
-	if valor.Tipo == Ast.ERROR {
+	if valor.Tipo == Ast.ERROR_SEMANTICO {
 		return valor
 	}
 
@@ -127,7 +136,7 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 	return Ast.TipoRetornado{
-		Tipo:  Ast.BOOLEAN,
+		Tipo:  Ast.EJECUTADO,
 		Valor: true,
 	}
 }

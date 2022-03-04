@@ -33,7 +33,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 	//Obtener el valor del id
 	simbolo_id := scope.GetSimbolo(a.Id)
 	//Verificar que los tipos sean correctos
-	valor := a.Valor.(Ast.Expresion).GetValue(*scope)
+	valor := a.Valor.(Ast.Expresion).GetValue(scope)
 
 	if existe {
 		//Primero verificar si es mutable
@@ -85,7 +85,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 	return Ast.TipoRetornado{
-		Tipo:  Ast.BOOLEAN,
+		Tipo:  Ast.EJECUTADO,
 		Valor: true,
 	}
 }

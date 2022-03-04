@@ -111,6 +111,8 @@ const (
 	VARIABLE
 	INDEFINIDO
 	VOID
+	RETORNO
+	EJECUTADO
 )
 
 type TipoRetornado struct {

@@ -22,7 +22,7 @@ func (i Imprimir) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 }
 
 func (i Imprimir) Run(scope *Ast.Scope) interface{} {
-	resultado_expresion := i.Expresiones.GetValue(*scope)
+	resultado_expresion := i.Expresiones.GetValue(scope)
 	retorno := Ast.TipoRetornado{}
 	retorno.Tipo = Ast.STRING
 	switch resultado_expresion.Tipo {

@@ -9,7 +9,7 @@ type Primitivo struct {
 	Valor interface{}
 }
 
-func (p Primitivo) GetValue(entorno Ast.Scope) Ast.TipoRetornado {
+func (p Primitivo) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 	return Ast.TipoRetornado{
 		Tipo:  p.Tipo,
 		Valor: p.Valor,

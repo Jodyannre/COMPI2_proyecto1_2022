@@ -27,6 +27,12 @@ func (s *BaseNparserListener) EnterInicio(ctx *InicioContext) {}
 // ExitInicio is called when production inicio is exited.
 func (s *BaseNparserListener) ExitInicio(ctx *InicioContext) {}
 
+// EnterBloque is called when production bloque is entered.
+func (s *BaseNparserListener) EnterBloque(ctx *BloqueContext) {}
+
+// ExitBloque is called when production bloque is exited.
+func (s *BaseNparserListener) ExitBloque(ctx *BloqueContext) {}
+
 // EnterInstrucciones is called when production instrucciones is entered.
 func (s *BaseNparserListener) EnterInstrucciones(ctx *InstruccionesContext) {}
 
@@ -62,3 +68,45 @@ func (s *BaseNparserListener) EnterTipo_dato(ctx *Tipo_datoContext) {}
 
 // ExitTipo_dato is called when production tipo_dato is exited.
 func (s *BaseNparserListener) ExitTipo_dato(ctx *Tipo_datoContext) {}
+
+// EnterControl_if is called when production control_if is entered.
+func (s *BaseNparserListener) EnterControl_if(ctx *Control_ifContext) {}
+
+// ExitControl_if is called when production control_if is exited.
+func (s *BaseNparserListener) ExitControl_if(ctx *Control_ifContext) {}
+
+// EnterBloque_else_if is called when production bloque_else_if is entered.
+func (s *BaseNparserListener) EnterBloque_else_if(ctx *Bloque_else_ifContext) {}
+
+// ExitBloque_else_if is called when production bloque_else_if is exited.
+func (s *BaseNparserListener) ExitBloque_else_if(ctx *Bloque_else_ifContext) {}
+
+// EnterElse_if is called when production else_if is entered.
+func (s *BaseNparserListener) EnterElse_if(ctx *Else_ifContext) {}
+
+// ExitElse_if is called when production else_if is exited.
+func (s *BaseNparserListener) ExitElse_if(ctx *Else_ifContext) {}
+
+// EnterControl_if_exp is called when production control_if_exp is entered.
+func (s *BaseNparserListener) EnterControl_if_exp(ctx *Control_if_expContext) {}
+
+// ExitControl_if_exp is called when production control_if_exp is exited.
+func (s *BaseNparserListener) ExitControl_if_exp(ctx *Control_if_expContext) {}
+
+// EnterBloque_else_if_exp is called when production bloque_else_if_exp is entered.
+func (s *BaseNparserListener) EnterBloque_else_if_exp(ctx *Bloque_else_if_expContext) {}
+
+// ExitBloque_else_if_exp is called when production bloque_else_if_exp is exited.
+func (s *BaseNparserListener) ExitBloque_else_if_exp(ctx *Bloque_else_if_expContext) {}
+
+// EnterElse_if_exp is called when production else_if_exp is entered.
+func (s *BaseNparserListener) EnterElse_if_exp(ctx *Else_if_expContext) {}
+
+// ExitElse_if_exp is called when production else_if_exp is exited.
+func (s *BaseNparserListener) ExitElse_if_exp(ctx *Else_if_expContext) {}
+
+// EnterControl_expresion is called when production control_expresion is entered.
+func (s *BaseNparserListener) EnterControl_expresion(ctx *Control_expresionContext) {}
+
+// ExitControl_expresion is called when production control_expresion is exited.
+func (s *BaseNparserListener) ExitControl_expresion(ctx *Control_expresionContext) {}

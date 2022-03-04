@@ -11,6 +11,7 @@ options{
     import "Back/analizador/Ast"
     import "Back/analizador/expresiones"
     import "Back/analizador/instrucciones"
+    import "Back/analizador/exp_ins"
 }
 
 /* 
@@ -23,6 +24,14 @@ inicio returns[*arraylist.List lista]
             : instrucciones	
             {
                 $lista = $instrucciones.list
+            }
+;
+
+
+bloque returns[*arraylist.List list] 
+            : LLAVE_IZQ instrucciones LLAVE_DER	
+            {
+                $list = $instrucciones.list
             }
 ;
 
@@ -41,7 +50,8 @@ instrucciones returns [*arraylist.List list]
 instruccion returns[interface{} ex] 
 			:expresion 		    	{$ex = $expresion.ex}	
             |declaracion PUNTOCOMA  {$ex = $declaracion.ex}	
-            |asignacion PUNTOCOMA   {$ex = $asignacion.ex}	    		     
+            |asignacion PUNTOCOMA   {$ex = $asignacion.ex}
+            |control_if             {$ex = $control_if.ex}	    		     
 ;
 
 /* 
@@ -60,6 +70,13 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
             false,false,Ast.VOID,$expresion.ex,fila,columna)
         }
+    | LET ID IGUAL control_expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
+            false,false,Ast.VOID,$control_expresion.ex,fila,columna)
+        }
     | LET ID DOSPUNTOS tipo_dato IGUAL expresion
         {
             fila := $LET.line
@@ -67,13 +84,27 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
             false,false,Ast.VOID,$expresion.ex,fila,columna)            
         }
+    | LET ID DOSPUNTOS tipo_dato IGUAL control_expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos
+            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
+            false,false,Ast.VOID,$control_expresion.ex,fila,columna)            
+        }
     | LET MUT ID IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
-            true,false,Ast.VOID,$expresion.ex,fila,columna)                 
+                true,false,Ast.VOID,$expresion.ex,fila,columna)                 
         }
+    | LET MUT ID IGUAL control_expresion
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
+            true,false,Ast.VOID,$control_expresion.ex,fila,columna)  
+    }
     | LET MUT ID DOSPUNTOS tipo_dato
         {
             valor := expresiones.NewPrimitivo(nil, Ast.NULL)
@@ -89,6 +120,13 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
             true,false,Ast.VOID,$expresion.ex,fila,columna)               
         }
+    | LET MUT ID DOSPUNTOS tipo_dato IGUAL control_expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos
+            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
+            true,false,Ast.VOID,$control_expresion.ex,fila,columna)               
+        }
     //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
 ;
 
@@ -99,6 +137,12 @@ asignacion returns[Ast.Instruccion ex]
         fila := $ID.line
         columna := $ID.pos
         $ex = instrucciones.NewAsignacion($ID.text,$expresion.ex,fila,columna)
+    }
+    | ID IGUAL control_if_exp
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = instrucciones.NewAsignacion($ID.text,$control_if_exp.ex,fila,columna)
     }
 ;
 
@@ -218,4 +262,147 @@ tipo_dato returns[Ast.TipoDato ex]
     |   STR     {$ex = Ast.STR}
     |   STRING  {$ex = Ast.STRING}
     |   USIZE   {$ex = Ast.USIZE}
+;
+
+
+
+
+
+control_if returns[Ast.Instruccion ex]
+	:IF PAR_IZQ expresion PAR_DER bloqueIf = bloque
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+		lista_null := arraylist.New()
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_null,Ast.IF,fila,columna,false)
+	}	
+	|IF PAR_IZQ expresion PAR_DER bloqueIf = bloque ELSE bloqueElse = bloque
+	  
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+        lista_entonces := arraylist.New()
+        lista_null := arraylist.New()
+        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE,fila,columna,false)
+		lista_entonces.Add(Else)
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)	
+	}
+	|IF PAR_IZQ expresion PAR_DER bloqueIf = bloque bloque_else_if
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+		lista_entonces := $bloque_else_if.list
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)		
+	}
+	|IF PAR_IZQ expresion PAR_DER bloqueIf = bloque bloque_else_if ELSE bloqueElse = bloque
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+        lista_null := arraylist.New()
+        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE,fila,columna,false)
+		lista_entonces := $bloque_else_if.list
+        lista_entonces.Add(Else)
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)		
+	}
+;
+
+
+bloque_else_if returns [*arraylist.List list]
+@init{ $list = arraylist.New()}
+: lista += else_if+ {
+                    listas := localctx.(*Bloque_else_ifContext).GetLista()
+                    for _, e := range listas {
+                        $list.Add(e.GetEx())
+                    }
+    }
+;
+
+
+else_if returns [Ast.Instruccion ex]
+    : ELSE IF PAR_IZQ expresion PAR_DER bloque
+    {
+        fila:= $ELSE.line
+		columna:= $PAR_IZQ.pos
+		columna++
+        lista_null := arraylist.New()
+        $ex = exp_ins.NewIF($expresion.ex,$bloque.list,lista_null,Ast.ELSEIF,fila,columna,false)	
+    }
+;
+
+
+
+
+
+control_if_exp returns[Ast.Instruccion ex]
+	:IF PAR_IZQ expresion PAR_DER bloqueIf = bloque
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+		lista_null := arraylist.New()
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_null,Ast.IF_EXPRESION,fila,columna,true)
+	}	
+	|IF PAR_IZQ expresion PAR_DER bloqueIf = bloque ELSE bloqueElse = bloque
+	  
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+        lista_entonces := arraylist.New()
+        lista_null := arraylist.New()
+        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE_EXPRESION,fila,columna,true)
+		lista_entonces.Add(Else)
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)	
+	}
+	|IF PAR_IZQ expresion PAR_DER bloqueIf = bloque bloque_else_if_exp
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+		lista_entonces := $bloque_else_if_exp.list
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
+	}
+	|IF PAR_IZQ expresion PAR_DER bloqueIf = bloque bloque_else_if_exp ELSE bloqueElse = bloque
+	{
+		fila:= $IF.line
+		columna:= $PAR_IZQ.pos
+		columna++
+        lista_null := arraylist.New()
+        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE_EXPRESION,fila,columna,true)
+		lista_entonces := $bloque_else_if_exp.list
+        lista_entonces.Add(Else)
+		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
+	}
+;
+
+
+bloque_else_if_exp returns [*arraylist.List list]
+@init{ $list = arraylist.New()}
+: lista += else_if_exp+ {
+                    listas := localctx.(*Bloque_else_if_expContext).GetLista()
+                    for _, e := range listas {
+                        $list.Add(e.GetEx())
+                    }
+    }
+;
+
+
+else_if_exp returns [Ast.Instruccion ex]
+    : ELSE IF PAR_IZQ expresion PAR_DER bloque
+    {
+        fila:= $ELSE.line
+		columna:= $PAR_IZQ.pos
+		columna++
+        lista_null := arraylist.New()
+        $ex = exp_ins.NewIF($expresion.ex,$bloque.list,lista_null,Ast.ELSEIF_EXPRESION,fila,columna,true)	
+    }
+;
+
+
+control_expresion returns [Ast.Instruccion ex]
+    : control_if_exp {$ex = $control_if_exp.ex}
 ;

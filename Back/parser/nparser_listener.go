@@ -11,6 +11,9 @@ type NparserListener interface {
 	// EnterInicio is called when entering the inicio production.
 	EnterInicio(c *InicioContext)
 
+	// EnterBloque is called when entering the bloque production.
+	EnterBloque(c *BloqueContext)
+
 	// EnterInstrucciones is called when entering the instrucciones production.
 	EnterInstrucciones(c *InstruccionesContext)
 
@@ -29,8 +32,32 @@ type NparserListener interface {
 	// EnterTipo_dato is called when entering the tipo_dato production.
 	EnterTipo_dato(c *Tipo_datoContext)
 
+	// EnterControl_if is called when entering the control_if production.
+	EnterControl_if(c *Control_ifContext)
+
+	// EnterBloque_else_if is called when entering the bloque_else_if production.
+	EnterBloque_else_if(c *Bloque_else_ifContext)
+
+	// EnterElse_if is called when entering the else_if production.
+	EnterElse_if(c *Else_ifContext)
+
+	// EnterControl_if_exp is called when entering the control_if_exp production.
+	EnterControl_if_exp(c *Control_if_expContext)
+
+	// EnterBloque_else_if_exp is called when entering the bloque_else_if_exp production.
+	EnterBloque_else_if_exp(c *Bloque_else_if_expContext)
+
+	// EnterElse_if_exp is called when entering the else_if_exp production.
+	EnterElse_if_exp(c *Else_if_expContext)
+
+	// EnterControl_expresion is called when entering the control_expresion production.
+	EnterControl_expresion(c *Control_expresionContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
+
+	// ExitBloque is called when exiting the bloque production.
+	ExitBloque(c *BloqueContext)
 
 	// ExitInstrucciones is called when exiting the instrucciones production.
 	ExitInstrucciones(c *InstruccionesContext)
@@ -49,4 +76,25 @@ type NparserListener interface {
 
 	// ExitTipo_dato is called when exiting the tipo_dato production.
 	ExitTipo_dato(c *Tipo_datoContext)
+
+	// ExitControl_if is called when exiting the control_if production.
+	ExitControl_if(c *Control_ifContext)
+
+	// ExitBloque_else_if is called when exiting the bloque_else_if production.
+	ExitBloque_else_if(c *Bloque_else_ifContext)
+
+	// ExitElse_if is called when exiting the else_if production.
+	ExitElse_if(c *Else_ifContext)
+
+	// ExitControl_if_exp is called when exiting the control_if_exp production.
+	ExitControl_if_exp(c *Control_if_expContext)
+
+	// ExitBloque_else_if_exp is called when exiting the bloque_else_if_exp production.
+	ExitBloque_else_if_exp(c *Bloque_else_if_expContext)
+
+	// ExitElse_if_exp is called when exiting the else_if_exp production.
+	ExitElse_if_exp(c *Else_if_expContext)
+
+	// ExitControl_expresion is called when exiting the control_expresion production.
+	ExitControl_expresion(c *Control_expresionContext)
 }
