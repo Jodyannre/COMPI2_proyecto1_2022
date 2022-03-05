@@ -7,7 +7,7 @@ import (
 )
 
 type CustomSyntaxError struct {
-	Linea   int
+	Fila    int
 	Columna int
 	Msg     string
 	Tipo    Ast.TipoDato
@@ -15,16 +15,16 @@ type CustomSyntaxError struct {
 }
 
 type CustomError struct {
-	Linea   int
+	Fila    int
 	Columna int
 	Msg     string
 	Tipo    Ast.TipoDato
 	Ambito  string
 }
 
-func NewError(linea int, columna int, msg string) CustomSyntaxError {
+func NewError(fila int, columna int, msg string) CustomSyntaxError {
 	return CustomSyntaxError{
-		Linea:   linea,
+		Fila:    fila,
 		Columna: columna,
 		Msg:     msg,
 	}
@@ -37,8 +37,15 @@ type CustomErrorListener struct {
 
 func (c *CustomErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{}, line, column int, msg string, e antlr.RecognitionException) {
 	c.Errores = append(c.Errores, CustomSyntaxError{
-		Linea:   line,
+		Fila:    line,
 		Columna: column,
 		Msg:     msg,
 	})
+}
+
+func (op CustomSyntaxError) GetFila() int {
+	return op.Fila
+}
+func (op CustomSyntaxError) GetColumna() int {
+	return op.Columna
 }

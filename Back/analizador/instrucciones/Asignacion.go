@@ -33,7 +33,15 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 	//Obtener el valor del id
 	simbolo_id := scope.GetSimbolo(a.Id)
 	//Verificar que los tipos sean correctos
-	valor := a.Valor.(Ast.Expresion).GetValue(scope)
+	//Primero verificar que no es un if expresion
+	_, tipoIn := a.Valor.(Ast.Abstracto).GetTipo()
+	var preValor interface{}
+	if tipoIn == Ast.IF_EXPRESION || tipoIn == Ast.MATCH_EXPRESION {
+		preValor = a.Valor.(Ast.Instruccion).Run(scope)
+	} else {
+		preValor = a.Valor.(Ast.Expresion).GetValue(scope)
+	}
+	valor := preValor.(Ast.TipoRetornado)
 
 	if existe {
 		//Primero verificar si es mutable
@@ -88,4 +96,11 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 		Tipo:  Ast.EJECUTADO,
 		Valor: true,
 	}
+}
+
+func (op Asignacion) GetFila() int {
+	return op.Fila
+}
+func (op Asignacion) GetColumna() int {
+	return op.Columna
 }

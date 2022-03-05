@@ -83,6 +83,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 				Tipo:  Ast.NULL,
 			}
 			for n < i.Instrucciones.Len() {
+
 				//Verificar que la instrucción no sea null
 				if i.Instrucciones.GetValue(n) == nil {
 					n++
@@ -90,13 +91,36 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 				}
 				elemento2 := i.Instrucciones.GetValue(n).(Ast.Abstracto)
 				tipo_abstracto, _ := elemento2.GetTipo()
-				if tipo_abstracto == Ast.EXPRESION {
+				if tipo_abstracto == Ast.EXPRESION && i.Tipo == Ast.IF_EXPRESION {
 					//Si es un if expresión, tiene que retornar algo
+
+					//Verificar que sea la última o error
+					if n != i.Instrucciones.Len()-1 {
+						//Error porque no puede venir una expresión sin ser la última
+						msg := "Semantic error, an instruction was expected." +
+							" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
+						nError := errores.NewError(i.Fila, i.Columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						scope.Errores.Add(nError)
+						scope.Consola += msg + "\n"
+						return Ast.TipoRetornado{
+							Valor: nError,
+							Tipo:  Ast.ERROR_SEMANTICO,
+						}
+					}
+
 					expresion := i.Instrucciones.GetValue(n).(Ast.Expresion)
 					ultimaExpresion = expresion.GetValue(scope)
 				} else if tipo_abstracto == Ast.INSTRUCCION {
 					instruccion := i.Instrucciones.GetValue(n).(Ast.Instruccion)
 					resultado := instruccion.Run(scope)
+					//Verificar si viene un break o un return
+					if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
+						resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION ||
+						resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
+						resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
+						return resultado.(Ast.TipoRetornado)
+					}
 
 					//Verificar si el resultado es un bool o un string
 					if resultado.(Ast.TipoRetornado).Tipo == Ast.STRING {
@@ -108,6 +132,17 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 						scope.Errores.Add(resultado.(Ast.TipoRetornado).Valor)
 						scope.Consola += resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
 					}
+				} else if tipo_abstracto == Ast.EXPRESION {
+					msg := "Semantic error, an instruction was expected." +
+						" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
+					nError := errores.NewError(i.Fila, i.Columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Valor: nError,
+						Tipo:  Ast.ERROR_SEMANTICO,
+					}
 				}
 				n++
 			}
@@ -118,6 +153,8 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 				nError := errores.NewError(i.Fila, i.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				scope.Errores.Add(nError)
+				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
 					Valor: nError,
 					Tipo:  Ast.ERROR_SEMANTICO,
@@ -164,6 +201,8 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 			" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 		nError := errores.NewError(i.Fila, i.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
@@ -174,4 +213,11 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 		Valor: true,
 		Tipo:  Ast.EJECUTADO,
 	}
+}
+
+func (op IF) GetFila() int {
+	return op.Fila
+}
+func (op IF) GetColumna() int {
+	return op.Columna
 }

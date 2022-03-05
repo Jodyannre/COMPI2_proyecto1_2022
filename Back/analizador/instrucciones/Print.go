@@ -6,22 +6,22 @@ import (
 	"strconv"
 )
 
-type Imprimir struct {
+type Print struct {
 	Expresiones Ast.Expresion
 	Fila        int
 	Columna     int
 }
 
-func NewImprimir(val Ast.Expresion, fila, columna int) Imprimir {
-	nuevo := Imprimir{Expresiones: val, Fila: fila, Columna: columna}
+func NewPrint(val Ast.Expresion, fila, columna int) Print {
+	nuevo := Print{Expresiones: val, Fila: fila, Columna: columna}
 	return nuevo
 }
 
-func (i Imprimir) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
+func (i Print) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.INSTRUCCION, Ast.PRINT
 }
 
-func (i Imprimir) Run(scope *Ast.Scope) interface{} {
+func (i Print) Run(scope *Ast.Scope) interface{} {
 	resultado_expresion := i.Expresiones.GetValue(scope)
 	retorno := Ast.TipoRetornado{}
 	retorno.Tipo = Ast.STRING
@@ -48,4 +48,11 @@ func (i Imprimir) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 	return retorno
+}
+
+func (op Print) GetFila() int {
+	return op.Fila
+}
+func (op Print) GetColumna() int {
+	return op.Columna
 }

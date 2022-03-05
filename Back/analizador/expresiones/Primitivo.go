@@ -5,8 +5,10 @@ import (
 )
 
 type Primitivo struct {
-	Tipo  Ast.TipoDato
-	Valor interface{}
+	Tipo    Ast.TipoDato
+	Valor   interface{}
+	Fila    int
+	Columna int
 }
 
 func (p Primitivo) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
@@ -17,10 +19,17 @@ func (p Primitivo) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 }
 
 func (p Primitivo) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
-	return Ast.EXPRESION, Ast.PRIMITIVO
+	return Ast.EXPRESION, p.Tipo
 }
 
-func NewPrimitivo(val interface{}, tipo Ast.TipoDato) Primitivo {
-	nuevo := Primitivo{Tipo: tipo, Valor: val}
+func NewPrimitivo(val interface{}, tipo Ast.TipoDato, fila, columna int) Primitivo {
+	nuevo := Primitivo{Tipo: tipo, Valor: val, Fila: fila, Columna: columna}
 	return nuevo
+}
+
+func (p Primitivo) GetFila() int {
+	return p.Fila
+}
+func (p Primitivo) GetColumna() int {
+	return p.Columna
 }

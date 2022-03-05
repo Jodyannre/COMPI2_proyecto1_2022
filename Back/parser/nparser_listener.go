@@ -53,6 +53,45 @@ type NparserListener interface {
 	// EnterControl_expresion is called when entering the control_expresion production.
 	EnterControl_expresion(c *Control_expresionContext)
 
+	// EnterControl_match is called when entering the control_match production.
+	EnterControl_match(c *Control_matchContext)
+
+	// EnterControl_case is called when entering the control_case production.
+	EnterControl_case(c *Control_caseContext)
+
+	// EnterCases is called when entering the cases production.
+	EnterCases(c *CasesContext)
+
+	// EnterCase_match is called when entering the case_match production.
+	EnterCase_match(c *Case_matchContext)
+
+	// EnterControl_match_exp is called when entering the control_match_exp production.
+	EnterControl_match_exp(c *Control_match_expContext)
+
+	// EnterControl_case_exp is called when entering the control_case_exp production.
+	EnterControl_case_exp(c *Control_case_expContext)
+
+	// EnterCases_exp is called when entering the cases_exp production.
+	EnterCases_exp(c *Cases_expContext)
+
+	// EnterCase_match_exp is called when entering the case_match_exp production.
+	EnterCase_match_exp(c *Case_match_expContext)
+
+	// EnterIreturn is called when entering the ireturn production.
+	EnterIreturn(c *IreturnContext)
+
+	// EnterIbreak is called when entering the ibreak production.
+	EnterIbreak(c *IbreakContext)
+
+	// EnterIcontinue is called when entering the icontinue production.
+	EnterIcontinue(c *IcontinueContext)
+
+	// EnterControl_loop is called when entering the control_loop production.
+	EnterControl_loop(c *Control_loopContext)
+
+	// EnterControl_loop_exp is called when entering the control_loop_exp production.
+	EnterControl_loop_exp(c *Control_loop_expContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -97,4 +136,43 @@ type NparserListener interface {
 
 	// ExitControl_expresion is called when exiting the control_expresion production.
 	ExitControl_expresion(c *Control_expresionContext)
+
+	// ExitControl_match is called when exiting the control_match production.
+	ExitControl_match(c *Control_matchContext)
+
+	// ExitControl_case is called when exiting the control_case production.
+	ExitControl_case(c *Control_caseContext)
+
+	// ExitCases is called when exiting the cases production.
+	ExitCases(c *CasesContext)
+
+	// ExitCase_match is called when exiting the case_match production.
+	ExitCase_match(c *Case_matchContext)
+
+	// ExitControl_match_exp is called when exiting the control_match_exp production.
+	ExitControl_match_exp(c *Control_match_expContext)
+
+	// ExitControl_case_exp is called when exiting the control_case_exp production.
+	ExitControl_case_exp(c *Control_case_expContext)
+
+	// ExitCases_exp is called when exiting the cases_exp production.
+	ExitCases_exp(c *Cases_expContext)
+
+	// ExitCase_match_exp is called when exiting the case_match_exp production.
+	ExitCase_match_exp(c *Case_match_expContext)
+
+	// ExitIreturn is called when exiting the ireturn production.
+	ExitIreturn(c *IreturnContext)
+
+	// ExitIbreak is called when exiting the ibreak production.
+	ExitIbreak(c *IbreakContext)
+
+	// ExitIcontinue is called when exiting the icontinue production.
+	ExitIcontinue(c *IcontinueContext)
+
+	// ExitControl_loop is called when exiting the control_loop production.
+	ExitControl_loop(c *Control_loopContext)
+
+	// ExitControl_loop_exp is called when exiting the control_loop_exp production.
+	ExitControl_loop_exp(c *Control_loop_expContext)
 }

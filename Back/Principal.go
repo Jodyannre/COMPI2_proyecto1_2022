@@ -25,9 +25,28 @@ type Key struct {
 func main() {
 
 	var input string = `
-	let mut variable1:bool = if (true){
-		false
+	let mut variable1:i64 = 
+	match 68 {
+		1|2|3|4|5 =>{
+			30
+		},
+		34|50 =>{
+			40
+		},
+		_ =>{
+			50
+		},
 	};
+	`
+
+	input = `
+	let mut variable:i64 = 5;
+	loop {
+		if variable == 10 {
+			break 5;
+		}
+		variable = variable + 5;
+	}
 	`
 
 	//Obteniendo el input
@@ -74,7 +93,7 @@ func main() {
 		nvisitor.Errores.Add(errores_lexicos.Errores[i])
 		//Actualizar la consola
 		nvisitor.UpdateConsola("Lexical error, " + errores_lexicos.Errores[i].Msg + " -- Line: " +
-			strconv.Itoa(errores_lexicos.Errores[i].Linea) + " Column: " +
+			strconv.Itoa(errores_lexicos.Errores[i].Fila) + " Column: " +
 			strconv.Itoa(errores_lexicos.Errores[i].Columna))
 	}
 
@@ -85,7 +104,7 @@ func main() {
 		nvisitor.Errores.Add(errores_sintacticos.Errores[i])
 		//Actualizar la consola
 		nvisitor.UpdateConsola("Syntax error , " + errores_sintacticos.Errores[i].Msg + " -- Line: " +
-			strconv.Itoa(errores_sintacticos.Errores[i].Linea) + " Column: " +
+			strconv.Itoa(errores_sintacticos.Errores[i].Fila) + " Column: " +
 			strconv.Itoa(errores_sintacticos.Errores[i].Columna))
 	}
 

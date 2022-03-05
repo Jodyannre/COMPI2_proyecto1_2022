@@ -2,7 +2,7 @@ package Ast
 
 type TipoDato int
 
-var ValorTipoDato = [50]string{
+var ValorTipoDato = [55]string{
 	"I64",
 	"F64",
 	"STRING_OWNED",
@@ -53,6 +53,11 @@ var ValorTipoDato = [50]string{
 	"VARIABLE",
 	"INDEFINIDO",
 	"VOID",
+	"RETORNO",
+	"EJECUTADO",
+	"CASE",
+	"CASE_EXPRESION",
+	"DEFAULT",
 }
 
 type Key struct {
@@ -113,6 +118,11 @@ const (
 	VOID
 	RETORNO
 	EJECUTADO
+	CASE
+	CASE_EXPRESION
+	DEFAULT
+	BREAK_EXPRESION
+	RETURN_EXPRESION
 )
 
 type TipoRetornado struct {

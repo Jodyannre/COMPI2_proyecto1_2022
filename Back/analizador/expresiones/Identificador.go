@@ -5,8 +5,10 @@ import (
 )
 
 type Identificador struct {
-	Tipo  Ast.TipoDato
-	Valor string
+	Tipo    Ast.TipoDato
+	Valor   string
+	Fila    int
+	Columna int
 }
 
 func (p Identificador) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
@@ -26,6 +28,13 @@ func (p Identificador) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	}
 }
 
-func NewIdentificador(val string, tipo Ast.TipoDato) Identificador {
-	return Identificador{Tipo: tipo, Valor: val}
+func NewIdentificador(val string, tipo Ast.TipoDato, fila, columna int) Identificador {
+	return Identificador{Tipo: tipo, Valor: val, Fila: fila, Columna: columna}
+}
+
+func (op Identificador) GetFila() int {
+	return op.Fila
+}
+func (op Identificador) GetColumna() int {
+	return op.Columna
 }

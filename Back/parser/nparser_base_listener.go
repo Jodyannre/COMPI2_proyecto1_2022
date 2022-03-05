@@ -110,3 +110,81 @@ func (s *BaseNparserListener) EnterControl_expresion(ctx *Control_expresionConte
 
 // ExitControl_expresion is called when production control_expresion is exited.
 func (s *BaseNparserListener) ExitControl_expresion(ctx *Control_expresionContext) {}
+
+// EnterControl_match is called when production control_match is entered.
+func (s *BaseNparserListener) EnterControl_match(ctx *Control_matchContext) {}
+
+// ExitControl_match is called when production control_match is exited.
+func (s *BaseNparserListener) ExitControl_match(ctx *Control_matchContext) {}
+
+// EnterControl_case is called when production control_case is entered.
+func (s *BaseNparserListener) EnterControl_case(ctx *Control_caseContext) {}
+
+// ExitControl_case is called when production control_case is exited.
+func (s *BaseNparserListener) ExitControl_case(ctx *Control_caseContext) {}
+
+// EnterCases is called when production cases is entered.
+func (s *BaseNparserListener) EnterCases(ctx *CasesContext) {}
+
+// ExitCases is called when production cases is exited.
+func (s *BaseNparserListener) ExitCases(ctx *CasesContext) {}
+
+// EnterCase_match is called when production case_match is entered.
+func (s *BaseNparserListener) EnterCase_match(ctx *Case_matchContext) {}
+
+// ExitCase_match is called when production case_match is exited.
+func (s *BaseNparserListener) ExitCase_match(ctx *Case_matchContext) {}
+
+// EnterControl_match_exp is called when production control_match_exp is entered.
+func (s *BaseNparserListener) EnterControl_match_exp(ctx *Control_match_expContext) {}
+
+// ExitControl_match_exp is called when production control_match_exp is exited.
+func (s *BaseNparserListener) ExitControl_match_exp(ctx *Control_match_expContext) {}
+
+// EnterControl_case_exp is called when production control_case_exp is entered.
+func (s *BaseNparserListener) EnterControl_case_exp(ctx *Control_case_expContext) {}
+
+// ExitControl_case_exp is called when production control_case_exp is exited.
+func (s *BaseNparserListener) ExitControl_case_exp(ctx *Control_case_expContext) {}
+
+// EnterCases_exp is called when production cases_exp is entered.
+func (s *BaseNparserListener) EnterCases_exp(ctx *Cases_expContext) {}
+
+// ExitCases_exp is called when production cases_exp is exited.
+func (s *BaseNparserListener) ExitCases_exp(ctx *Cases_expContext) {}
+
+// EnterCase_match_exp is called when production case_match_exp is entered.
+func (s *BaseNparserListener) EnterCase_match_exp(ctx *Case_match_expContext) {}
+
+// ExitCase_match_exp is called when production case_match_exp is exited.
+func (s *BaseNparserListener) ExitCase_match_exp(ctx *Case_match_expContext) {}
+
+// EnterIreturn is called when production ireturn is entered.
+func (s *BaseNparserListener) EnterIreturn(ctx *IreturnContext) {}
+
+// ExitIreturn is called when production ireturn is exited.
+func (s *BaseNparserListener) ExitIreturn(ctx *IreturnContext) {}
+
+// EnterIbreak is called when production ibreak is entered.
+func (s *BaseNparserListener) EnterIbreak(ctx *IbreakContext) {}
+
+// ExitIbreak is called when production ibreak is exited.
+func (s *BaseNparserListener) ExitIbreak(ctx *IbreakContext) {}
+
+// EnterIcontinue is called when production icontinue is entered.
+func (s *BaseNparserListener) EnterIcontinue(ctx *IcontinueContext) {}
+
+// ExitIcontinue is called when production icontinue is exited.
+func (s *BaseNparserListener) ExitIcontinue(ctx *IcontinueContext) {}
+
+// EnterControl_loop is called when production control_loop is entered.
+func (s *BaseNparserListener) EnterControl_loop(ctx *Control_loopContext) {}
+
+// ExitControl_loop is called when production control_loop is exited.
+func (s *BaseNparserListener) ExitControl_loop(ctx *Control_loopContext) {}
+
+// EnterControl_loop_exp is called when production control_loop_exp is entered.
+func (s *BaseNparserListener) EnterControl_loop_exp(ctx *Control_loop_expContext) {}
+
+// ExitControl_loop_exp is called when production control_loop_exp is exited.
+func (s *BaseNparserListener) ExitControl_loop_exp(ctx *Control_loop_expContext) {}

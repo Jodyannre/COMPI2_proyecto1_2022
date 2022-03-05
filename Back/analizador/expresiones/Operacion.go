@@ -61,6 +61,13 @@ func (op Operacion) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.EXPRESION, Ast.PRIMITIVO
 }
 
+func (op Operacion) GetFila() int {
+	return op.Fila
+}
+func (op Operacion) GetColumna() int {
+	return op.Columna
+}
+
 func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 	var tipo_izq Ast.TipoRetornado
 	var tipo_der Ast.TipoRetornado

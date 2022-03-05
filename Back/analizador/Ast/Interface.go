@@ -10,4 +10,6 @@ type Instruccion interface {
 
 type Abstracto interface {
 	GetTipo() (TipoDato, TipoDato)
+	GetFila() int
+	GetColumna() int
 }

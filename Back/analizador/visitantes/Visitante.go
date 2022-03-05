@@ -70,7 +70,7 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 		if tipo.(Ast.TipoDato) != Ast.DECLARACION {
 			//Declarar variables globales
 			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
 				//Hay error y agregarlo a la lista de errores
 				//v.Errores.Add(respuesta)
 				EntornoGlobal.Errores.Add(respuesta)
