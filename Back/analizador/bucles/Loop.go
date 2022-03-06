@@ -38,7 +38,18 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 	for {
 
 		if contadorSeguridad == 25000 {
-			break
+			msg := "Semantic error, infinite loop." +
+				" -- Line:" + strconv.Itoa(l.Fila) + " Column: " +
+				strconv.Itoa(l.Columna)
+			nError := errores.NewError(l.Fila, l.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			newScope.Errores.Add(nError)
+			newScope.Consola += msg + "\n"
+			newScope.UpdateScopeGlobal()
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR_SEMANTICO,
+				Valor: nError,
+			}
 		}
 
 		//Ejecutar las instrucciones
@@ -68,7 +79,14 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 				resultado = instruccion.(Ast.Instruccion).Run(scope)
 			}
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
-				return resultado
+				continue
+			}
+
+			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
+				error := resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError)
+				newScope.Errores.Add(error)
+				newScope.Consola += error.Msg + "\n"
+				continue
 			}
 
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
@@ -76,6 +94,7 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 			}
 
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK && l.Tipo != Ast.LOOP_EXPRESION {
+				newScope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Valor: true,
 					Tipo:  Ast.EJECUTADO,
@@ -102,6 +121,7 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION && l.Tipo == Ast.LOOP_EXPRESION {
 				//Retorna un valor
 				valor := resultado.(Ast.TipoRetornado).Valor
+				newScope.UpdateScopeGlobal()
 				return valor
 			}
 
@@ -123,19 +143,6 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 			}
 		}
 		contadorSeguridad++
-	}
-
-	msg := "Semantic error, infinite loop." +
-		" -- Line:" + strconv.Itoa(l.Fila) + " Column: " +
-		strconv.Itoa(l.Columna)
-	nError := errores.NewError(l.Fila, l.Columna, msg)
-	nError.Tipo = Ast.ERROR_SEMANTICO
-	newScope.Errores.Add(nError)
-	newScope.Consola += msg + "\n"
-	newScope.UpdateScopeGlobal()
-	return Ast.TipoRetornado{
-		Tipo:  Ast.ERROR_SEMANTICO,
-		Valor: nError,
 	}
 }
 

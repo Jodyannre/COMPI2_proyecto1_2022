@@ -59,6 +59,8 @@ instruccion returns[interface{} ex]
             |ibreak PUNTOCOMA       {$ex = $ibreak.ex}             
             |icontinue PUNTOCOMA    {$ex = $icontinue.ex} 
             |ireturn PUNTOCOMA      {$ex = $ireturn.ex} 
+            |printNormal PUNTOCOMA  {$ex = $printNormal.ex} 
+            |printFormato PUNTOCOMA {$ex = $printFormato.ex} 
 ;
 
 /* 
@@ -617,4 +619,35 @@ control_loop_exp returns[Ast.Instruccion ex]
         columna := $LOOP.pos
         $ex = bucles.NewLoop(Ast.LOOP_EXPRESION,$bloque.list,fila,columna)
     }
+;
+
+printNormal returns[Ast.Instruccion ex]
+    : PRINT PAR_IZQ expresion PAR_DER
+        {
+            fila := $PRINT.line
+            columna := $PRINT.pos
+            $ex = instrucciones.NewPrint($expresion.ex,Ast.PRINT,fila,columna)            
+        }
+;
+
+printFormato returns[Ast.Instruccion ex]
+    : PRINT PAR_IZQ CADENA COMA expresiones=elementosPrint PAR_DER
+        {
+            fila := $PRINT.line
+            columna := $PRINT.pos
+            $ex = instrucciones.NewPrintF($expresiones.list,$CADENA.text,Ast.PRINTF,fila,columna)       
+        }
+;
+
+elementosPrint returns[*arraylist.List list]
+@init{$list = arraylist.New()}
+    : lista_elementos = elementosPrint COMA expresion 
+        {
+            $lista_elementos.list.Add($expresion.ex)
+            $list = $lista_elementos.list
+        }
+    | expresion 
+        {
+            $list.Add($expresion.ex)
+        }
 ;

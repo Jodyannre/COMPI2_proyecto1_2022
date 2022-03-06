@@ -51,7 +51,7 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 		if tipo.(Ast.TipoDato) == Ast.DECLARACION {
 			//Declarar variables globales
 			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
 				//Hay error y agregarlo a la lista de errores
 				v.Errores.Add(respuesta)
 				v.Consola += respuesta.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
@@ -70,15 +70,11 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 		if tipo.(Ast.TipoDato) != Ast.DECLARACION {
 			//Declarar variables globales
 			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
 				//Hay error y agregarlo a la lista de errores
 				//v.Errores.Add(respuesta)
 				EntornoGlobal.Errores.Add(respuesta)
 				EntornoGlobal.Consola += respuesta.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
-			} else
-			//Verificar que sea un string para agregarlo a la consola
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.STRING {
-				EntornoGlobal.Consola += respuesta.(Ast.TipoRetornado).Valor.(string) + "\n"
 			}
 		}
 	}

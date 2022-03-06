@@ -1,17 +1,11 @@
 package main
 
 import (
-
-	//"primeraGramatica/Analizador/Ast"
-
-	//"fmt"
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
 	"Back/analizador/visitantes"
 	"Back/parser"
 	"fmt"
-
-	//"fmt"
 	"strconv"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
@@ -23,7 +17,45 @@ type Key struct {
 }
 
 func main() {
+	/*
+		match, _ := regexp.MatchString("[{ *}|{:?}]", "peach {   } hola mundo {:?}")
+		fmt.Println(match)
+		formato1, _ := regexp.Compile("{ *}|{:[\x3F]}")
+		formato2, _ := regexp.Compile("lala")
+		cadena := "El resultado de {:?} se obtiene por sumar {   }{}, pero el {} me gusta más."
 
+		fmt.Println(formato1.MatchString(cadena))
+		fmt.Println(formato2.MatchString(cadena))
+
+		nuevo := formato1.Split(cadena, -1)
+		array := arraylist.New()
+		array2 := formato1.FindAllStringIndex(cadena, -1)
+		subString := cadena[42:47]
+		subString = strings.Replace(subString, " ", "", -1)
+		fmt.Println(subString)
+		fmt.Println(array2)
+		var salida string
+		array.Add("5")
+		array.Add("2")
+		array.Add("3")
+		array.Add("6")
+		for i := range nuevo {
+			if nuevo[i] == "" && i < 1 {
+				//En el primero agrego el primer elemento
+				salida += array.GetValue(i).(string)
+			} else if nuevo[i] == "" && i == len(nuevo)-1 {
+				//En el último no hago nada
+			} else {
+				if i >= array.Len() {
+					salida += nuevo[i]
+				} else {
+					salida += nuevo[i] + array.GetValue(i).(string)
+				}
+			}
+		}
+
+		fmt.Println(salida)
+	*/
 	var input string = `
 	let mut variable1:i64 = 
 	match 68 {
@@ -40,13 +72,7 @@ func main() {
 	`
 
 	input = `
-	let mut variable:i64 = 5;
-	loop {
-		if variable == 10 {
-			break 5;
-		}
-		variable = variable + 5;
-	}
+	println!("hola mundo");
 	`
 
 	//Obteniendo el input

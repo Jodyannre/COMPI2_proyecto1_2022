@@ -108,7 +108,6 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 							Tipo:  Ast.ERROR_SEMANTICO,
 						}
 					}
-
 					expresion := i.Instrucciones.GetValue(n).(Ast.Expresion)
 					ultimaExpresion = expresion.GetValue(scope)
 				} else if tipo_abstracto == Ast.INSTRUCCION {
@@ -127,10 +126,15 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 						//Agregar a la consola
 						scope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
 					}
-					if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR {
-						//Agregar a errores
-						scope.Errores.Add(resultado.(Ast.TipoRetornado).Valor)
-						scope.Consola += resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
+					/*
+						if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
+							//No hace nada
+						}
+					*/
+					if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
+						error := resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError)
+						scope.Errores.Add(error)
+						scope.Consola += error.Msg + "\n"
 					}
 				} else if tipo_abstracto == Ast.EXPRESION {
 					msg := "Semantic error, an instruction was expected." +
@@ -159,6 +163,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					Valor: nError,
 					Tipo:  Ast.ERROR_SEMANTICO,
 				}
+
 			} else if expresion {
 				//Si esta retornado algún valor
 				return ultimaExpresion.(Ast.TipoRetornado)
@@ -183,8 +188,8 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					newScope.Consola += resultado.Valor.(errores.CustomSyntaxError).Msg + "\n"
 					newScope.UpdateScopeGlobal()
 					return Ast.TipoRetornado{
-						Valor: true,
-						Tipo:  Ast.BOOLEAN,
+						Valor: resultado.Valor,
+						Tipo:  Ast.ERROR_SEMANTICO,
 					}
 				}
 

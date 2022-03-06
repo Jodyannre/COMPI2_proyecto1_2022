@@ -33,7 +33,7 @@ TO_STRING       : 'to_string';
 TO_OWNED        : 'to_owned';
 TRUE            : 'true';
 FALSE           : 'false';
-PRINT           : 'println';
+PRINT           : 'println!';
 FN              : 'fn';
 ABS             : 'abs';
 SQRT            : 'sqrt';

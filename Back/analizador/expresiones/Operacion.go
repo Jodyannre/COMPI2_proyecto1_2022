@@ -88,7 +88,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 		nError := errores.NewError(op.Fila, op.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
 			Valor: nError,
 		}
 	}
@@ -142,7 +142,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			nError := errores.NewError(op.Fila, op.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 		}
@@ -191,7 +191,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				nError := errores.NewError(op.Fila, op.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
 				return Ast.TipoRetornado{
-					Tipo:  Ast.ERROR,
+					Tipo:  Ast.ERROR_SEMANTICO_NO,
 					Valor: nError,
 				}
 			}
@@ -238,7 +238,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			nError := errores.NewError(op.Fila, op.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 		}
@@ -283,7 +283,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			nError := errores.NewError(op.Fila, op.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 
@@ -328,7 +328,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			nError := errores.NewError(op.Fila, op.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 
@@ -373,7 +373,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			nError := errores.NewError(op.Fila, op.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 
@@ -387,7 +387,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			nError := errores.NewError(op.Fila, op.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 
@@ -539,7 +539,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 		nError := errores.NewError(op.Fila, op.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
 			Valor: nError,
 		}
 	}

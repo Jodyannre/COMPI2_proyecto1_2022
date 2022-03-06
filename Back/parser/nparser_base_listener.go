@@ -188,3 +188,21 @@ func (s *BaseNparserListener) EnterControl_loop_exp(ctx *Control_loop_expContext
 
 // ExitControl_loop_exp is called when production control_loop_exp is exited.
 func (s *BaseNparserListener) ExitControl_loop_exp(ctx *Control_loop_expContext) {}
+
+// EnterPrintNormal is called when production printNormal is entered.
+func (s *BaseNparserListener) EnterPrintNormal(ctx *PrintNormalContext) {}
+
+// ExitPrintNormal is called when production printNormal is exited.
+func (s *BaseNparserListener) ExitPrintNormal(ctx *PrintNormalContext) {}
+
+// EnterPrintFormato is called when production printFormato is entered.
+func (s *BaseNparserListener) EnterPrintFormato(ctx *PrintFormatoContext) {}
+
+// ExitPrintFormato is called when production printFormato is exited.
+func (s *BaseNparserListener) ExitPrintFormato(ctx *PrintFormatoContext) {}
+
+// EnterElementosPrint is called when production elementosPrint is entered.
+func (s *BaseNparserListener) EnterElementosPrint(ctx *ElementosPrintContext) {}
+
+// ExitElementosPrint is called when production elementosPrint is exited.
+func (s *BaseNparserListener) ExitElementosPrint(ctx *ElementosPrintContext) {}

@@ -166,10 +166,9 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 		resultado_retornado = caso.Run(scope).(Ast.TipoRetornado)
 	}
 
-	if resultado_retornado.Tipo == Ast.ERROR || m.Tipo == Ast.MATCH_EXPRESION {
+	if resultado_retornado.Tipo == Ast.ERROR_SEMANTICO || m.Tipo == Ast.MATCH_EXPRESION {
 		return resultado_retornado
 	}
-
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
 		Valor: nil,
@@ -256,11 +255,18 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 				//Agregar a la consola
 				newScope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
 			}
-			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR {
-				//Agregar a errores
-				newScope.Errores.Add(resultado.(Ast.TipoRetornado).Valor)
-				newScope.Consola += resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
+			/*
+				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
+					//Agregar a errores
+					continue
+				}
+			*/
+			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
+				error := resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError)
+				newScope.Errores.Add(error)
+				newScope.Consola += error.Msg + "\n"
 			}
+
 		} else if tipo_abstracto == Ast.EXPRESION {
 			msg := "Semantic error, an instruction was expected." +
 				" -- Line:" + strconv.Itoa(c.Fila) + " Column: " + strconv.Itoa(c.Columna)
@@ -293,13 +299,14 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 		}
 	} else if expresion {
 		//Si esta retornado algún valor
+		newScope.UpdateScopeGlobal()
 		return ultimaExpresion
 	}
 
 	newScope.UpdateScopeGlobal()
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
-		Valor: nil,
+		Valor: true,
 	}
 }
 

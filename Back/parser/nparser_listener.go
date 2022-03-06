@@ -92,6 +92,15 @@ type NparserListener interface {
 	// EnterControl_loop_exp is called when entering the control_loop_exp production.
 	EnterControl_loop_exp(c *Control_loop_expContext)
 
+	// EnterPrintNormal is called when entering the printNormal production.
+	EnterPrintNormal(c *PrintNormalContext)
+
+	// EnterPrintFormato is called when entering the printFormato production.
+	EnterPrintFormato(c *PrintFormatoContext)
+
+	// EnterElementosPrint is called when entering the elementosPrint production.
+	EnterElementosPrint(c *ElementosPrintContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -175,4 +184,13 @@ type NparserListener interface {
 
 	// ExitControl_loop_exp is called when exiting the control_loop_exp production.
 	ExitControl_loop_exp(c *Control_loop_expContext)
+
+	// ExitPrintNormal is called when exiting the printNormal production.
+	ExitPrintNormal(c *PrintNormalContext)
+
+	// ExitPrintFormato is called when exiting the printFormato production.
+	ExitPrintFormato(c *PrintFormatoContext)
+
+	// ExitElementosPrint is called when exiting the elementosPrint production.
+	ExitElementosPrint(c *ElementosPrintContext)
 }

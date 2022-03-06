@@ -53,7 +53,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 		}
@@ -65,7 +65,8 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			scope.UpdateSimbolo(a.Id, simbolo_id)
 		} else {
 			//Revisar si el retorno es un error
-			if valor.Tipo == Ast.ERROR {
+			if valor.Tipo == Ast.ERROR_SEMANTICO_NO ||
+				valor.Tipo == Ast.ERROR_SEMANTICO {
 				return valor
 			}
 			//Error de tipos, generar un error semántico
@@ -77,7 +78,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
+				Tipo:  Ast.ERROR_SEMANTICO_NO,
 				Valor: nError,
 			}
 		}
@@ -88,7 +89,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 		nError := errores.NewError(a.Fila, a.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
 			Valor: nError,
 		}
 	}

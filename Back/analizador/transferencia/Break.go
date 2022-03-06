@@ -26,22 +26,21 @@ func NewBreak(tipo Ast.TipoDato, expresion Ast.Expresion, fila, columna int) Bre
 }
 
 func (b Break) Run(scope *Ast.Scope) interface{} {
-	valor := b.Expresion.GetValue(scope)
-
-	if valor.Tipo == Ast.ERROR_SEMANTICO {
-		return valor
-	}
 
 	if b.Tipo == Ast.BREAK {
 
 		return Ast.TipoRetornado{
-			Tipo:  b.Tipo,
+			Tipo:  Ast.BREAK,
 			Valor: false,
 		}
 	}
+	valor := b.Expresion.GetValue(scope)
+	if valor.Tipo == Ast.ERROR_SEMANTICO {
+		return valor
+	}
 
 	return Ast.TipoRetornado{
-		Tipo: b.Tipo,
+		Tipo: Ast.BREAK_EXPRESION,
 		Valor: Ast.TipoRetornado{
 			Tipo:  valor.Tipo,
 			Valor: valor.Valor,

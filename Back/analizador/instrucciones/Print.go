@@ -3,56 +3,270 @@ package instrucciones
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"fmt"
+	"regexp"
 	"strconv"
+	"strings"
+
+	"github.com/colegno/arraylist"
 )
 
 type Print struct {
 	Expresiones Ast.Expresion
+	Tipo        Ast.TipoDato
 	Fila        int
 	Columna     int
 }
 
-func NewPrint(val Ast.Expresion, fila, columna int) Print {
-	nuevo := Print{Expresiones: val, Fila: fila, Columna: columna}
-	return nuevo
+type PrintF struct {
+	Expresiones *arraylist.List
+	Cadena      string
+	Tipo        Ast.TipoDato
+	Fila        int
+	Columna     int
+}
+
+func NewPrint(val Ast.Expresion, tipo Ast.TipoDato, fila, columna int) Print {
+	nP := Print{
+		Expresiones: val,
+		Fila:        fila,
+		Columna:     columna,
+		Tipo:        tipo,
+	}
+	return nP
+}
+
+func NewPrintF(expresiones *arraylist.List, cadena string, tipo Ast.TipoDato, fila, columna int) PrintF {
+	nP := PrintF{
+		Expresiones: expresiones,
+		Cadena:      cadena,
+		Tipo:        tipo,
+		Fila:        fila,
+		Columna:     columna,
+	}
+	return nP
 }
 
 func (i Print) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.INSTRUCCION, Ast.PRINT
 }
 
-func (i Print) Run(scope *Ast.Scope) interface{} {
-	resultado_expresion := i.Expresiones.GetValue(scope)
-	retorno := Ast.TipoRetornado{}
-	retorno.Tipo = Ast.STRING
-	switch resultado_expresion.Tipo {
-	case Ast.BOOLEAN:
-		retorno.Valor = strconv.FormatBool(resultado_expresion.Valor.(bool))
-	case Ast.I64:
-		retorno.Valor = strconv.Itoa(resultado_expresion.Valor.(int))
-	case Ast.F64:
-		retorno.Valor = strconv.FormatFloat(resultado_expresion.Valor.(float64), 'E', -1, 64)
-	case Ast.STRING:
-		retorno.Valor = resultado_expresion.Valor.(string)
-	default:
+func (i PrintF) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
+	return Ast.INSTRUCCION, Ast.PRINTF
+}
+
+func (p Print) Run(scope *Ast.Scope) interface{} {
+	resultado_expresion := p.Expresiones.GetValue(scope)
+	valor := ""
+	//Si resultado es error, que lo retorne
+	if resultado_expresion.Tipo == Ast.ERROR_SEMANTICO ||
+		resultado_expresion.Tipo == Ast.ERROR_SEMANTICO_NO {
+		return resultado_expresion
+	}
+	if resultado_expresion.Tipo == Ast.STR {
+		valor = resultado_expresion.Valor.(string)
+	} else {
 		//Error, no es un tipo que se pueda imprimir
 		//O es una operación que dio como resultado null
 		//No existe, generar un error semántico
-		msg := "Semantic error, error in the parameters of the \"Print\" function." +
-			" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
-		nError := errores.NewError(i.Fila, i.Columna, msg)
+		msg := "Semantic error, a literal was expected, " + Ast.ValorTipoDato[resultado_expresion.Tipo] +
+			" type was found." +
+			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
+		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
 			Valor: nError,
 		}
 	}
-	return retorno
+	//Actualizar consola del scope
+	scope.Consola += valor + "\n"
+	return Ast.TipoRetornado{
+		Tipo:  Ast.EJECUTADO,
+		Valor: true,
+	}
+}
+
+func (p PrintF) Run(scope *Ast.Scope) interface{} {
+	//Formatos de los regex
+	var salida string
+	var valor interface{}
+	regex, _ := regexp.Compile("{ *}|{:[\x3F]}")
+	posiciones_regex := regex.FindAllStringIndex(p.Cadena, -1)
+	encontrados := regex.MatchString(p.Cadena)    //Formato para encontrar los {} y {:?}
+	elementos_string := regex.Split(p.Cadena, -1) //Cadena cortada por elementos
+	//posciciones := regex.FindAllStringIndex(p.Cadena, -1) //Array de posiciones de los elementos {} encontrados
+	retorno := Ast.TipoRetornado{}
+	retorno.Tipo = Ast.STRING
+	if !encontrados {
+		//No se encontraron, es un print normal
+		return Ast.TipoRetornado{
+			Valor: false,
+			Tipo:  Ast.BOOLEAN,
+		}
+	}
+	if len(elementos_string)-1 != p.Expresiones.Len() {
+		//Error, la cantidad de expresiones es diferente de la que se esperaba
+		msg := "Semantic error, the number of expressions expected (" + strconv.Itoa(len(elementos_string)-1) + ")" +
+			"is different within the print statement (" + strconv.Itoa(p.Expresiones.Len()) + ")." +
+			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
+		nError := errores.NewError(p.Fila, p.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
+			Valor: nError,
+		}
+
+	}
+	var cadena = ""
+	var preCadena Ast.TipoRetornado
+
+	for i := range elementos_string {
+		//verificar los tipos
+
+		if elementos_string[i] == "" && i < 1 {
+			//En el primero agrego el primer elemento
+			resultado := p.GetCompareValues(scope, i, posiciones_regex[i])
+			if resultado.Tipo != Ast.ERROR_SEMANTICO_NO &&
+				resultado.Tipo != Ast.ERROR_SEMANTICO {
+				salida += resultado.Valor.(string)
+			} else {
+				return resultado
+			}
+		} else if elementos_string[i] == "" && i == len(elementos_string)-1 {
+			//En el último no hago nada
+		} else {
+
+			if i >= p.Expresiones.Len() {
+				salida += elementos_string[i]
+			} else {
+				resultado := p.GetCompareValues(scope, i, posiciones_regex[i])
+				if resultado.Tipo != Ast.ERROR_SEMANTICO_NO {
+					valor = p.Expresiones.GetValue(i).(Ast.Expresion).GetValue(scope)
+					preCadena = To_String(valor.(Ast.TipoRetornado)).(Ast.TipoRetornado)
+					valor = p.Expresiones.GetValue(i).(Ast.Expresion).GetValue(scope)
+					if preCadena.Tipo == Ast.ERROR_SEMANTICO_NO {
+						//Crear el error y retornarlo
+						msg := "Semantic error, a literal was expected," +
+							Ast.ValorTipoDato[valor.(Ast.TipoRetornado).Tipo] + " was found" +
+							" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
+						nError := errores.NewError(p.Fila, p.Columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						return Ast.TipoRetornado{
+							Tipo:  Ast.ERROR_SEMANTICO_NO,
+							Valor: nError,
+						}
+					} else {
+						cadena = preCadena.Valor.(string)
+					}
+				} else {
+					return resultado
+				}
+				salida += elementos_string[i] + cadena
+			}
+		}
+	}
+	scope.Consola += salida
+	return Ast.TipoRetornado{
+		Valor: true,
+		Tipo:  Ast.EJECUTADO,
+	}
+}
+
+func To_String(valor Ast.TipoRetornado) interface{} {
+	salida := ""
+	preSalida := Ast.TipoRetornado{
+		Tipo:  Ast.STRING,
+		Valor: "",
+	}
+	switch valor.Tipo {
+	case Ast.I64:
+		salida = strconv.Itoa(valor.Valor.(int))
+	case Ast.F64:
+		salida = fmt.Sprintf("%f", valor.Valor.(float64))
+	case Ast.STR:
+		salida = valor.Valor.(string)
+	case Ast.BOOLEAN:
+		salida = strconv.FormatBool(valor.Valor.(bool))
+	case Ast.STRING | Ast.STRING_OWNED:
+		salida = valor.Valor.(string)
+	case Ast.VECTOR:
+		//De momento no tengo idea, pendiente
+	case Ast.ARRAY:
+		//De momento no tengo idea, pendiente
+	default:
+		preSalida = Ast.TipoRetornado{
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
+			Valor: "Da igual",
+		}
+	}
+	if preSalida.Tipo != Ast.ERROR_SEMANTICO_NO {
+		preSalida.Valor = salida
+	}
+
+	return salida
+}
+
+func TypeString(tipo Ast.TipoDato, cadena string) Ast.TipoDato {
+	var tipoPrint Ast.TipoDato
+	if tipo > 7 {
+		return Ast.ERROR
+	}
+	if cadena == "{}" {
+		tipoPrint = validacion_String[0][tipo]
+	} else {
+		tipoPrint = validacion_String[1][tipo]
+	}
+
+	return tipoPrint
+}
+
+var validacion_String = [2][10]Ast.TipoDato{
+	{Ast.ERROR, Ast.ERROR, Ast.ERROR, Ast.ERROR, Ast.STRING, Ast.ERROR, Ast.ERROR, Ast.ERROR, Ast.ERROR, Ast.ERROR},
+	{Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.ERROR},
+	//I64-F64-String_owned-string-str-boolean-char-vector-array-struct
+}
+
+func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.TipoRetornado {
+	salida := ""
+	//En el primero agrego el primer elemento
+	valor := p.Expresiones.GetValue(i).(Ast.Expresion).GetValue(scope)
+	//Verificar que el tipo espera es el que se va a imprimir
+	subString := p.Cadena[42:47]
+	subString = strings.Replace(subString, " ", "", -1)
+	//Verificar si el tipo es correcto dentro del string
+	resultado := TypeString(valor.Tipo, subString)
+
+	if resultado != Ast.ERROR {
+		salida += valor.Valor.(string)
+	} else {
+		//Error, no se puede imprimir eso
+		msg := "Semantic error, can´t format " + Ast.ValorTipoDato[valor.Tipo] +
+			" type with " + subString + "." +
+			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
+		nError := errores.NewError(p.Fila, p.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR_SEMANTICO_NO,
+			Valor: nError,
+		}
+	}
+	return Ast.TipoRetornado{
+		Valor: salida,
+		Tipo:  Ast.STRING,
+	}
 }
 
 func (op Print) GetFila() int {
 	return op.Fila
 }
 func (op Print) GetColumna() int {
+	return op.Columna
+}
+
+func (op PrintF) GetFila() int {
+	return op.Fila
+}
+func (op PrintF) GetColumna() int {
 	return op.Columna
 }
