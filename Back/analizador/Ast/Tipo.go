@@ -133,3 +133,15 @@ type TipoRetornado struct {
 	Tipo  TipoDato
 	Valor interface{}
 }
+
+func EsTransferencia(tipo TipoDato) bool {
+	if tipo == BREAK ||
+		tipo == BREAK_EXPRESION ||
+		tipo == RETURN ||
+		tipo == RETURN_EXPRESION ||
+		tipo == CONTINUE {
+		return true
+	} else {
+		return false
+	}
+}

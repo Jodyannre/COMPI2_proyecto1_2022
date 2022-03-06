@@ -74,10 +74,9 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 		nError.Tipo = Ast.ERROR_SEMANTICO
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
-		scope.UpdateScopeGlobal()
 		return Ast.TipoRetornado{
 			Valor: nError,
-			Tipo:  Ast.ERROR_SEMANTICO,
+			Tipo:  Ast.ERROR,
 		}
 	}
 
@@ -102,10 +101,9 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 				nError.Tipo = Ast.ERROR_SEMANTICO
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Valor: nError,
-					Tipo:  Ast.ERROR_SEMANTICO,
+					Tipo:  Ast.ERROR,
 				}
 			}
 
@@ -128,10 +126,9 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 			nError.Tipo = Ast.ERROR_SEMANTICO
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
-			scope.UpdateScopeGlobal()
 			return Ast.TipoRetornado{
 				Valor: nError,
-				Tipo:  Ast.ERROR_SEMANTICO,
+				Tipo:  Ast.ERROR,
 			}
 		}
 
@@ -165,13 +162,22 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 		caso := m.Cases.GetValue(m.Cases.Len() - 1).(Case)
 		resultado_retornado = caso.Run(scope).(Ast.TipoRetornado)
 	}
-
-	if resultado_retornado.Tipo == Ast.ERROR_SEMANTICO || m.Tipo == Ast.MATCH_EXPRESION {
+	if resultado_retornado.Tipo == Ast.BREAK ||
+		resultado_retornado.Tipo == Ast.BREAK_EXPRESION ||
+		resultado_retornado.Tipo == Ast.RETURN ||
+		resultado_retornado.Tipo == Ast.RETURN_EXPRESION ||
+		resultado_retornado.Tipo == Ast.CONTINUE &&
+			m.Tipo != Ast.MATCH_EXPRESION {
 		return resultado_retornado
 	}
+
+	if resultado_retornado.Tipo == Ast.ERROR || m.Tipo == Ast.MATCH_EXPRESION {
+		return resultado_retornado
+	}
+
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
-		Valor: nil,
+		Valor: true,
 	}
 }
 
@@ -193,7 +199,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 	for i = 0; i < c.Instrucciones.Len(); i++ {
 		//Verificar el tipo de entrada
 		instruccion = c.Instrucciones.GetValue(i).(Ast.Abstracto)
-		tipo_abstracto, _ := instruccion.(Ast.Abstracto).GetTipo()
+		tipo_abstracto, tipoParticular := instruccion.(Ast.Abstracto).GetTipo()
 
 		if tipo_abstracto == Ast.EXPRESION && c.Tipo == Ast.CASE_EXPRESION {
 			//Si es un if expresión, tiene que retornar algo
@@ -210,7 +216,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 				newScope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Valor: nError,
-					Tipo:  Ast.ERROR_SEMANTICO,
+					Tipo:  Ast.ERROR,
 				}
 			}
 
@@ -218,23 +224,27 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 			ultimaExpresion = expresion.GetValue(&newScope)
 		} else if tipo_abstracto == Ast.INSTRUCCION {
 
+			if tipoParticular == Ast.BREAK ||
+				tipoParticular == Ast.BREAK_EXPRESION ||
+				tipoParticular == Ast.RETURN ||
+				tipoParticular == Ast.RETURN_EXPRESION ||
+				tipoParticular == Ast.CONTINUE &&
+					c.Tipo != Ast.CASE_EXPRESION {
+				return Ast.TipoRetornado{
+					Tipo:  tipoParticular,
+					Valor: c.Instrucciones.GetValue(i).(Ast.Instruccion),
+				}
+			}
+
 			instruccion := c.Instrucciones.GetValue(i).(Ast.Instruccion)
 			resultado := instruccion.Run(&newScope)
-
-			//Verificar si es un break o un return
-			if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION &&
-					c.Tipo != Ast.CASE_EXPRESION {
-				return resultado.(Ast.TipoRetornado)
-			}
 
 			//Error si viene un break o un return dentro de un case expresion
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
 				resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION ||
 				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION &&
+				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION ||
+				resultado.(Ast.TipoRetornado).Tipo == Ast.CONTINUE &&
 					c.Tipo == Ast.CASE_EXPRESION {
 				temp := resultado.(Ast.TipoRetornado).Valor.(Ast.Abstracto)
 				msg := "Semantic error, transfer statements are not allowed within a case statement." +
@@ -246,15 +256,17 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 				newScope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Valor: nError,
-					Tipo:  Ast.ERROR_SEMANTICO,
+					Tipo:  Ast.ERROR,
 				}
 			}
 
 			//Verificar si el resultado es un bool o un string
-			if resultado.(Ast.TipoRetornado).Tipo == Ast.STRING {
-				//Agregar a la consola
-				newScope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
-			}
+			/*
+				if resultado.(Ast.TipoRetornado).Tipo == Ast.STRING {
+					//Agregar a la consola
+					newScope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
+				}
+			*/
 			/*
 				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
 					//Agregar a errores
@@ -277,7 +289,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 			newScope.UpdateScopeGlobal()
 			return Ast.TipoRetornado{
 				Valor: nError,
-				Tipo:  Ast.ERROR_SEMANTICO,
+				Tipo:  Ast.ERROR,
 			}
 		}
 		i++
@@ -295,7 +307,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 		newScope.UpdateScopeGlobal()
 		return Ast.TipoRetornado{
 			Valor: nError,
-			Tipo:  Ast.ERROR_SEMANTICO,
+			Tipo:  Ast.ERROR,
 		}
 	} else if expresion {
 		//Si esta retornado algún valor

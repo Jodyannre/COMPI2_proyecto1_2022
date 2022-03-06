@@ -5,6 +5,7 @@ import (
 	"Back/analizador/errores"
 	"Back/parser"
 	"fmt"
+	"strconv"
 
 	"github.com/colegno/arraylist"
 )
@@ -51,10 +52,9 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 		if tipo.(Ast.TipoDato) == Ast.DECLARACION {
 			//Declarar variables globales
 			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
-				//Hay error y agregarlo a la lista de errores
-				v.Errores.Add(respuesta)
-				v.Consola += respuesta.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+				//Hay error pero ya esta agregado
+				continue
 			}
 		}
 	}
@@ -70,14 +70,38 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 		if tipo.(Ast.TipoDato) != Ast.DECLARACION {
 			//Declarar variables globales
 			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
-				//Hay error y agregarlo a la lista de errores
-				//v.Errores.Add(respuesta)
-				EntornoGlobal.Errores.Add(respuesta)
-				EntornoGlobal.Consola += respuesta.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError).Msg + "\n"
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+				//Hay error, pero ya esta agregado
+				continue
+			}
+
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
+				respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION {
+				//Error de break o return
+				fila := respuesta.(Ast.Abstracto).GetFila()
+				columna := respuesta.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, break statement outside a loop" +
+					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				EntornoGlobal.Errores.Add(nError)
+				EntornoGlobal.Consola += msg + "\n"
+			}
+
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
+				respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
+				fila := respuesta.(Ast.Abstracto).GetFila()
+				columna := respuesta.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, return statement outside a function." +
+					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				EntornoGlobal.Errores.Add(nError)
+				EntornoGlobal.Consola += msg + "\n"
 			}
 		}
 	}
+	EntornoGlobal.UpdateScopeGlobal()
 	v.Consola += EntornoGlobal.Consola
 	for i := 0; i < EntornoGlobal.Errores.Len(); i++ {
 		v.Errores.Add(EntornoGlobal.Errores.GetValue(i))

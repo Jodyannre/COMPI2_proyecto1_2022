@@ -31,20 +31,22 @@ func (b Break) Run(scope *Ast.Scope) interface{} {
 
 		return Ast.TipoRetornado{
 			Tipo:  Ast.BREAK,
-			Valor: false,
+			Valor: true,
 		}
 	}
 	valor := b.Expresion.GetValue(scope)
-	if valor.Tipo == Ast.ERROR_SEMANTICO {
+	if valor.Tipo == Ast.ERROR {
 		return valor
 	}
 
+	valorRetornar := Ast.TipoRetornado{
+		Tipo:  valor.Tipo,
+		Valor: valor.Valor,
+	}
+
 	return Ast.TipoRetornado{
-		Tipo: Ast.BREAK_EXPRESION,
-		Valor: Ast.TipoRetornado{
-			Tipo:  valor.Tipo,
-			Valor: valor.Valor,
-		},
+		Tipo:  b.Tipo,
+		Valor: valorRetornar,
 	}
 }
 

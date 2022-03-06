@@ -69,8 +69,7 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 	valor := preValor.(Ast.TipoRetornado)
 
 	//Revisar si el retorno es un error
-	if valor.Tipo == Ast.ERROR_SEMANTICO_NO ||
-		valor.Tipo == Ast.ERROR_SEMANTICO {
+	if valor.Tipo == Ast.ERROR {
 		return valor
 	}
 
@@ -118,8 +117,10 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
 		nError := errores.NewError(d.Fila, d.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR_SEMANTICO_NO,
+			Tipo:  Ast.ERROR,
 			Valor: nError,
 		}
 	} else {
@@ -131,8 +132,10 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			" Column: " + strconv.Itoa(d.Columna)
 		nError := errores.NewError(d.Fila, d.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR_SEMANTICO_NO,
+			Tipo:  Ast.ERROR,
 			Valor: nError,
 		}
 	}

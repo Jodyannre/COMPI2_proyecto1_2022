@@ -49,3 +49,7 @@ func (op CustomSyntaxError) GetFila() int {
 func (op CustomSyntaxError) GetColumna() int {
 	return op.Columna
 }
+
+func (e CustomSyntaxError) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
+	return Ast.INSTRUCCION, e.Tipo
+}

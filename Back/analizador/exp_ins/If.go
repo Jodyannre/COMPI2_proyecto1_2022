@@ -3,6 +3,7 @@ package exp_ins
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"fmt"
 	"strconv"
 
 	"github.com/colegno/arraylist"
@@ -89,8 +90,9 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					n++
 					continue
 				}
+
 				elemento2 := i.Instrucciones.GetValue(n).(Ast.Abstracto)
-				tipo_abstracto, _ := elemento2.GetTipo()
+				tipo_abstracto, tipoParticular := elemento2.GetTipo()
 				if tipo_abstracto == Ast.EXPRESION && i.Tipo == Ast.IF_EXPRESION {
 					//Si es un if expresión, tiene que retornar algo
 
@@ -105,36 +107,74 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
 							Valor: nError,
-							Tipo:  Ast.ERROR_SEMANTICO,
+							Tipo:  Ast.ERROR,
 						}
 					}
 					expresion := i.Instrucciones.GetValue(n).(Ast.Expresion)
 					ultimaExpresion = expresion.GetValue(scope)
 				} else if tipo_abstracto == Ast.INSTRUCCION {
 					instruccion := i.Instrucciones.GetValue(n).(Ast.Instruccion)
-					resultado := instruccion.Run(scope)
-					//Verificar si viene un break o un return
-					if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
-						resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION ||
-						resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
-						resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
-						return resultado.(Ast.TipoRetornado)
+					//Es transferencia pero if es normal, solo retornar
+					if tipoParticular == Ast.BREAK ||
+						tipoParticular == Ast.BREAK_EXPRESION ||
+						tipoParticular == Ast.RETURN ||
+						tipoParticular == Ast.RETURN_EXPRESION ||
+						tipoParticular == Ast.CONTINUE &&
+							i.Tipo != Ast.IF_EXPRESION {
+						return Ast.TipoRetornado{
+							Tipo:  tipoParticular,
+							Valor: i.Instrucciones.GetValue(n).(Ast.Instruccion),
+						}
+					}
+					//Es transferencia pero if es expresion, es un error
+					if tipoParticular == Ast.BREAK ||
+						tipoParticular == Ast.BREAK_EXPRESION && i.Tipo == Ast.IF_EXPRESION {
+						//Error de break o return
+						fila := instruccion.(Ast.Abstracto).GetFila()
+						columna := instruccion.(Ast.Abstracto).GetColumna()
+						msg := "Semantic error, break statement outside a loop" +
+							" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+						nError := errores.NewError(fila, columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						scope.Errores.Add(nError)
+						scope.Consola += msg + "\n"
+						return Ast.TipoRetornado{
+							Tipo:  Ast.ERROR,
+							Valor: nError,
+						}
 					}
 
-					//Verificar si el resultado es un bool o un string
-					if resultado.(Ast.TipoRetornado).Tipo == Ast.STRING {
-						//Agregar a la consola
-						scope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
-					}
-					/*
-						if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
-							//No hace nada
+					if tipoParticular == Ast.RETURN ||
+						tipoParticular == Ast.RETURN_EXPRESION && i.Tipo == Ast.IF_EXPRESION {
+						fila := instruccion.(Ast.Abstracto).GetFila()
+						columna := instruccion.(Ast.Abstracto).GetColumna()
+						msg := "Semantic error, return statement outside a function." +
+							" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+						nError := errores.NewError(fila, columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						scope.Errores.Add(nError)
+						scope.Consola += msg + "\n"
+						return Ast.TipoRetornado{
+							Tipo:  Ast.ERROR,
+							Valor: nError,
 						}
+					}
+
+					resultado := instruccion.Run(scope)
+
+					//Verificar si el resultado es un bool o un string
+					/*
+						if resultado.(Ast.TipoRetornado).Tipo == Ast.STRING {
+							//Agregar a la consola
+							scope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
+						}
+
+							if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
+								//No hace nada
+							}
 					*/
-					if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
-						error := resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError)
-						scope.Errores.Add(error)
-						scope.Consola += error.Msg + "\n"
+					if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+						fmt.Println(resultado)
 					}
 				} else if tipo_abstracto == Ast.EXPRESION {
 					msg := "Semantic error, an instruction was expected." +
@@ -145,7 +185,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
 						Valor: nError,
-						Tipo:  Ast.ERROR_SEMANTICO,
+						Tipo:  Ast.ERROR,
 					}
 				}
 				n++
@@ -161,7 +201,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
 					Valor: nError,
-					Tipo:  Ast.ERROR_SEMANTICO,
+					Tipo:  Ast.ERROR,
 				}
 
 			} else if expresion {
@@ -184,13 +224,22 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					}
 				}
 				if resultado.Tipo == Ast.ERROR {
-					newScope.Errores.Add(resultado.Valor)
-					newScope.Consola += resultado.Valor.(errores.CustomSyntaxError).Msg + "\n"
+					//newScope.Errores.Add(resultado.Valor)
+					//newScope.Consola += resultado.Valor.(errores.CustomSyntaxError).Msg + "\n"
 					newScope.UpdateScopeGlobal()
 					return Ast.TipoRetornado{
 						Valor: resultado.Valor,
-						Tipo:  Ast.ERROR_SEMANTICO,
+						Tipo:  Ast.ERROR,
 					}
+				}
+
+				if resultado.Tipo == Ast.BREAK ||
+					resultado.Tipo == Ast.BREAK_EXPRESION ||
+					resultado.Tipo == Ast.RETURN ||
+					resultado.Tipo == Ast.RETURN_EXPRESION ||
+					resultado.Tipo == Ast.CONTINUE {
+					newScope.UpdateScopeGlobal()
+					return resultado
 				}
 
 			}

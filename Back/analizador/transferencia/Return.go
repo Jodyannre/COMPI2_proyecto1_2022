@@ -28,24 +28,26 @@ func NewReturn(tipo Ast.TipoDato, expresion Ast.Expresion, fila, columna int) Re
 func (r Return) Run(scope *Ast.Scope) interface{} {
 	valor := r.Expresion.GetValue(scope)
 
-	if valor.Tipo == Ast.ERROR_SEMANTICO {
+	if valor.Tipo == Ast.ERROR {
 		return valor
 	}
 
 	if r.Tipo == Ast.RETURN {
 
 		return Ast.TipoRetornado{
-			Tipo:  r.Tipo,
-			Valor: false,
+			Tipo:  Ast.RETURN,
+			Valor: true,
 		}
 	}
 
+	valorRetornar := Ast.TipoRetornado{
+		Tipo:  valor.Tipo,
+		Valor: valor.Valor,
+	}
+
 	return Ast.TipoRetornado{
-		Tipo: r.Tipo,
-		Valor: Ast.TipoRetornado{
-			Tipo:  valor.Tipo,
-			Valor: valor.Valor,
-		},
+		Tipo:  r.Tipo,
+		Valor: valorRetornar,
 	}
 }
 

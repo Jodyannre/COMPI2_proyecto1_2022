@@ -52,8 +52,10 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR_SEMANTICO_NO,
+				Tipo:  Ast.ERROR,
 				Valor: nError,
 			}
 		}
@@ -65,8 +67,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			scope.UpdateSimbolo(a.Id, simbolo_id)
 		} else {
 			//Revisar si el retorno es un error
-			if valor.Tipo == Ast.ERROR_SEMANTICO_NO ||
-				valor.Tipo == Ast.ERROR_SEMANTICO {
+			if valor.Tipo == Ast.ERROR {
 				return valor
 			}
 			//Error de tipos, generar un error semántico
@@ -77,8 +78,10 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR_SEMANTICO_NO,
+				Tipo:  Ast.ERROR,
 				Valor: nError,
 			}
 		}
@@ -88,8 +91,10 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(a.Fila) + " Column: " + strconv.Itoa(a.Columna)
 		nError := errores.NewError(a.Fila, a.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR_SEMANTICO_NO,
+			Tipo:  Ast.ERROR,
 			Valor: nError,
 		}
 	}
