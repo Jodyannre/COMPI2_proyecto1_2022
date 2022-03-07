@@ -36,7 +36,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 	//Primero verificar que no es un if expresion
 	_, tipoIn := a.Valor.(Ast.Abstracto).GetTipo()
 	var preValor interface{}
-	if tipoIn == Ast.IF_EXPRESION || tipoIn == Ast.MATCH_EXPRESION {
+	if tipoIn == Ast.IF_EXPRESION || tipoIn == Ast.MATCH_EXPRESION || tipoIn == Ast.LOOP_EXPRESION {
 		preValor = a.Valor.(Ast.Instruccion).Run(scope)
 	} else {
 		preValor = a.Valor.(Ast.Expresion).GetValue(scope)

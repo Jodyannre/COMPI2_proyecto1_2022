@@ -101,6 +101,9 @@ type NparserListener interface {
 	// EnterElementosPrint is called when entering the elementosPrint production.
 	EnterElementosPrint(c *ElementosPrintContext)
 
+	// EnterControl_while is called when entering the control_while production.
+	EnterControl_while(c *Control_whileContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -193,4 +196,7 @@ type NparserListener interface {
 
 	// ExitElementosPrint is called when exiting the elementosPrint production.
 	ExitElementosPrint(c *ElementosPrintContext)
+
+	// ExitControl_while is called when exiting the control_while production.
+	ExitControl_while(c *Control_whileContext)
 }

@@ -56,11 +56,13 @@ instruccion returns[interface{} ex]
             |control_if             {$ex = $control_if.ex}	 
             |control_match          {$ex = $control_match.ex}   
             |control_loop           {$ex = $control_loop.ex}
+            |control_while          {$ex = $control_while.ex}
             |ibreak PUNTOCOMA       {$ex = $ibreak.ex}             
             |icontinue PUNTOCOMA    {$ex = $icontinue.ex} 
             |ireturn PUNTOCOMA      {$ex = $ireturn.ex} 
             |printNormal PUNTOCOMA  {$ex = $printNormal.ex} 
             |printFormato PUNTOCOMA {$ex = $printFormato.ex} 
+
 ;
 
 /* 
@@ -147,11 +149,11 @@ asignacion returns[Ast.Instruccion ex]
         columna := $ID.pos
         $ex = instrucciones.NewAsignacion($ID.text,$expresion.ex,fila,columna)
     }
-    | ID IGUAL control_if_exp
+    | ID IGUAL control_expresion
     {
         fila := $ID.line
         columna := $ID.pos
-        $ex = instrucciones.NewAsignacion($ID.text,$control_if_exp.ex,fila,columna)
+        $ex = instrucciones.NewAsignacion($ID.text,$control_expresion.ex,fila,columna)
     }
 ;
 
@@ -447,7 +449,6 @@ control_case returns[*arraylist.List list]
 @init{$list = arraylist.New()}
     : lista += cases+ 
         {
-            fmt.Println("Entro a control case")
             listas := localctx.(*Control_caseContext).GetLista()
             for _, e := range listas {
                 $list.Add(e.GetEx())
@@ -461,7 +462,7 @@ control_case returns[*arraylist.List list]
 cases returns[Ast.Instruccion ex]
     : case_match CASE bloque COMA
     {
-        fmt.Println("Entro cases")
+
         fila := $CASE.line
         columna := $CASE.line -1
         //Verificar si lo que vienen es un default
@@ -505,7 +506,6 @@ control_match_exp returns[Ast.Instruccion ex]
     {
         fila := $MATCH.line
         columna := $MATCH.line -1
-        fmt.Println("Entro a control match")
         $ex = exp_ins.NewMatch($expresion.ex,$control_case_exp.list,Ast.MATCH_EXPRESION,fila,columna)
     }
 ;
@@ -635,7 +635,9 @@ printFormato returns[Ast.Instruccion ex]
         {
             fila := $PRINT.line
             columna := $PRINT.pos
-            $ex = instrucciones.NewPrintF($expresiones.list,$CADENA.text,Ast.PRINTF,fila,columna)       
+            valor := $CADENA.text
+            valor = valor[1:len(valor)-1]
+            $ex = instrucciones.NewPrintF($expresiones.list,valor,Ast.PRINTF,fila,columna)       
         }
 ;
 
@@ -649,5 +651,15 @@ elementosPrint returns[*arraylist.List list]
     | expresion 
         {
             $list.Add($expresion.ex)
+        }
+;
+
+
+control_while returns[Ast.Instruccion ex]
+    : WHILE expresion bloque 
+        {
+            fila := $WHILE.line
+            columna := $WHILE.pos
+            $ex = bucles.NewWhile(Ast.WHILE,$expresion.ex,$bloque.list,fila,columna)
         }
 ;

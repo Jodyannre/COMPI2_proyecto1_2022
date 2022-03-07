@@ -30,8 +30,11 @@ func (b Break) Run(scope *Ast.Scope) interface{} {
 	if b.Tipo == Ast.BREAK {
 
 		return Ast.TipoRetornado{
-			Tipo:  Ast.BREAK,
-			Valor: true,
+			Tipo: Ast.BREAK,
+			Valor: Ast.TipoRetornado{
+				Tipo:  Ast.BREAK,
+				Valor: b,
+			},
 		}
 	}
 	valor := b.Expresion.GetValue(scope)

@@ -2,7 +2,7 @@ package Ast
 
 type TipoDato int
 
-var ValorTipoDato = [55]string{
+var ValorTipoDato = [61]string{
 	"I64",
 	"F64",
 	"STRING_OWNED",
@@ -58,6 +58,12 @@ var ValorTipoDato = [55]string{
 	"CASE",
 	"CASE_EXPRESION",
 	"DEFAULT",
+	"BREAK_EXPRESION",
+	"RETURN_EXPRESION",
+	"PRINTF",
+	"PRINT_PRIMITIVOS",
+	"PRINT_ARRAY",
+	"ERROR_SEMANTICO_NO",
 }
 
 type Key struct {
@@ -140,6 +146,14 @@ func EsTransferencia(tipo TipoDato) bool {
 		tipo == RETURN ||
 		tipo == RETURN_EXPRESION ||
 		tipo == CONTINUE {
+		return true
+	} else {
+		return false
+	}
+}
+
+func EsPrimitivo(tipo TipoDato) bool {
+	if tipo <= 6 {
 		return true
 	} else {
 		return false

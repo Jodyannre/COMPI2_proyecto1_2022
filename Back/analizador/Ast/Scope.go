@@ -135,9 +135,11 @@ func (s *Scope) UpdateScopeGlobal() {
 	} else {
 		scope_global = s
 	}
-	scope_global.Consola += s.Consola
-	for i := 0; i < s.Errores.Len(); i++ {
-		elemento := s.Errores.GetValue(i)
-		scope_global.Errores.Add(elemento)
+	if s != scope_global {
+		scope_global.Consola += s.Consola
+		for i := 0; i < s.Errores.Len(); i++ {
+			elemento := s.Errores.GetValue(i)
+			scope_global.Errores.Add(elemento)
+		}
 	}
 }

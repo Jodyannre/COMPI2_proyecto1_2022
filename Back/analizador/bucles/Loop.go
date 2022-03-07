@@ -39,7 +39,7 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 
 	for {
 
-		if contadorSeguridad == 25000 {
+		if contadorSeguridad == 1000 {
 			msg := "Semantic error, infinite loop." +
 				" -- Line:" + strconv.Itoa(l.Fila) + " Column: " +
 				strconv.Itoa(l.Columna)
@@ -114,6 +114,30 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 				return resultado.(Ast.TipoRetornado).Valor
 			}
 
+			if Ast.EsTransferencia(tipoParticular) &&
+				l.Tipo == Ast.LOOP_EXPRESION {
+				if tipoParticular != Ast.BREAK_EXPRESION &&
+					tipoParticular != Ast.CONTINUE {
+					msg := "Semantic error," + Ast.ValorTipoDato[tipoParticular] + " statement not allowed inside this kind of loop." +
+						" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
+						strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
+					nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
+						instruccion.(Ast.Abstracto).GetColumna(), msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					newScope.Errores.Add(nError)
+					newScope.Consola += msg + "\n"
+					newScope.UpdateScopeGlobal()
+					return Ast.TipoRetornado{
+						Valor: nError,
+						Tipo:  Ast.ERROR,
+					}
+				} else if tipoParticular == Ast.BREAK_EXPRESION {
+					//Si ambos son de tipo expresion
+					retornarBreak = true
+				}
+
+			}
+
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
 				resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
 				//Siguiente instrucción
@@ -135,53 +159,12 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 			}
 
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
+				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION ||
+				resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION {
 				newScope.UpdateScopeGlobal()
 				//Terminar loop y retornar el return
 				return resultado
 			}
-			/*
-				if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK && l.Tipo == Ast.LOOP_EXPRESION {
-					//ERROR, tiene que retornar algo
-					msg := "Semantic error, break statement is not returning any value." +
-						" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
-						strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
-					nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
-						instruccion.(Ast.Abstracto).GetColumna(), msg)
-					nError.Tipo = Ast.ERROR_SEMANTICO
-					newScope.Errores.Add(nError)
-					newScope.Consola += msg + "\n"
-					newScope.UpdateScopeGlobal()
-					return Ast.TipoRetornado{
-						Valor: nError,
-						Tipo:  Ast.ERROR,
-					}
-				}
-
-				if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION && l.Tipo == Ast.LOOP_EXPRESION {
-					//Retorna un valor
-					valor := resultado.(Ast.TipoRetornado).Valor
-					newScope.UpdateScopeGlobal()
-					return valor
-				}
-
-				if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION && l.Tipo != Ast.LOOP_EXPRESION {
-					//Error, está retornando un valor dentro de un loop instrucción
-					msg := "Semantic error, break statement is returning a value within a LOOP statement." +
-						" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
-						strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
-					nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
-						instruccion.(Ast.Abstracto).GetColumna(), msg)
-					nError.Tipo = Ast.ERROR_SEMANTICO
-					newScope.Errores.Add(nError)
-					newScope.Consola += msg + "\n"
-					newScope.UpdateScopeGlobal()
-					return Ast.TipoRetornado{
-						Tipo:  Ast.ERROR,
-						Valor: nError,
-					}
-				}
-			*/
 		}
 		contadorSeguridad++
 	}

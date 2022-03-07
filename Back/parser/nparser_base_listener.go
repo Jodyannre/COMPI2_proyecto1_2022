@@ -206,3 +206,9 @@ func (s *BaseNparserListener) EnterElementosPrint(ctx *ElementosPrintContext) {}
 
 // ExitElementosPrint is called when production elementosPrint is exited.
 func (s *BaseNparserListener) ExitElementosPrint(ctx *ElementosPrintContext) {}
+
+// EnterControl_while is called when production control_while is entered.
+func (s *BaseNparserListener) EnterControl_while(ctx *Control_whileContext) {}
+
+// ExitControl_while is called when production control_while is exited.
+func (s *BaseNparserListener) ExitControl_while(ctx *Control_whileContext) {}

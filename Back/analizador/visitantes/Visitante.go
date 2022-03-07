@@ -38,14 +38,14 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 	EntornoGlobal.Global = true
 	//Variables para las declaraciones
 	var actual interface{}
-	var tipo, _ interface{}
+	var tipo, tipoGeneral interface{}
 	var respuesta interface{}
 
 	//Primera pasada para agregar todas las declaraciones de las variables
 	for i := 0; i < instrucciones.Len(); i++ {
 		actual = instrucciones.GetValue(i)
 		if actual != nil {
-			_, tipo = actual.(Ast.Abstracto).GetTipo()
+			tipoGeneral, tipo = actual.(Ast.Abstracto).GetTipo()
 		} else {
 			continue
 		}
@@ -63,8 +63,20 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 	for i := 0; i < instrucciones.Len(); i++ {
 		actual = instrucciones.GetValue(i)
 		if actual != nil {
-			_, tipo = actual.(Ast.Abstracto).GetTipo()
+			tipoGeneral, tipo = actual.(Ast.Abstracto).GetTipo()
 		} else {
+			continue
+		}
+		//Error, no puede haber expresiones sueltas
+		if tipoGeneral == Ast.EXPRESION {
+			fila := respuesta.(Ast.Abstracto).GetFila()
+			columna := respuesta.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, an instruction was expected." +
+				" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			EntornoGlobal.Errores.Add(nError)
+			EntornoGlobal.Consola += msg + "\n"
 			continue
 		}
 		if tipo.(Ast.TipoDato) != Ast.DECLARACION {
@@ -75,24 +87,13 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 				continue
 			}
 
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
-				respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION {
+			if Ast.EsTransferencia(respuesta.(Ast.TipoRetornado).Tipo) {
 				//Error de break o return
-				fila := respuesta.(Ast.Abstracto).GetFila()
-				columna := respuesta.(Ast.Abstracto).GetColumna()
-				msg := "Semantic error, break statement outside a loop" +
-					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
-				nError := errores.NewError(fila, columna, msg)
-				nError.Tipo = Ast.ERROR_SEMANTICO
-				EntornoGlobal.Errores.Add(nError)
-				EntornoGlobal.Consola += msg + "\n"
-			}
-
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
-				respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
-				fila := respuesta.(Ast.Abstracto).GetFila()
-				columna := respuesta.(Ast.Abstracto).GetColumna()
-				msg := "Semantic error, return statement outside a function." +
+				valor := actual.(Ast.Abstracto)
+				fila := valor.GetFila()
+				columna := valor.GetColumna()
+				msg := "Semantic error," + Ast.ValorTipoDato[respuesta.(Ast.TipoRetornado).Tipo] +
+					" statement not allowed in main method." +
 					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO

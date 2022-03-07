@@ -145,7 +145,7 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 			scope.UpdateScopeGlobal()
 			return Ast.TipoRetornado{
 				Valor: nError,
-				Tipo:  Ast.ERROR_SEMANTICO,
+				Tipo:  Ast.ERROR,
 			}
 		}
 	}
@@ -162,17 +162,31 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 		caso := m.Cases.GetValue(m.Cases.Len() - 1).(Case)
 		resultado_retornado = caso.Run(scope).(Ast.TipoRetornado)
 	}
-	if resultado_retornado.Tipo == Ast.BREAK ||
-		resultado_retornado.Tipo == Ast.BREAK_EXPRESION ||
-		resultado_retornado.Tipo == Ast.RETURN ||
-		resultado_retornado.Tipo == Ast.RETURN_EXPRESION ||
-		resultado_retornado.Tipo == Ast.CONTINUE &&
-			m.Tipo != Ast.MATCH_EXPRESION {
+	if Ast.EsTransferencia(resultado_retornado.Tipo) &&
+		m.Tipo != Ast.MATCH_EXPRESION {
 		return resultado_retornado
 	}
 
-	if resultado_retornado.Tipo == Ast.ERROR || m.Tipo == Ast.MATCH_EXPRESION {
+	if resultado_retornado.Tipo == Ast.ERROR {
 		return resultado_retornado
+	}
+
+	if Ast.EsPrimitivo(resultado_retornado.Tipo) && m.Tipo == Ast.MATCH_EXPRESION {
+		return resultado_retornado
+	}
+
+	if m.Tipo == Ast.MATCH_EXPRESION && resultado_retornado.Tipo == Ast.EJECUTADO {
+		//Error, el match no esta retornando nada
+		msg := "Semantic error, Match statement is not returning any value." +
+			" -- Line:" + strconv.Itoa(m.Fila) + " Column: " + strconv.Itoa(m.Columna)
+		nError := errores.NewError(m.Fila, m.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Valor: nError,
+			Tipo:  Ast.ERROR,
+		}
 	}
 
 	return Ast.TipoRetornado{
@@ -199,7 +213,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 	for i = 0; i < c.Instrucciones.Len(); i++ {
 		//Verificar el tipo de entrada
 		instruccion = c.Instrucciones.GetValue(i).(Ast.Abstracto)
-		tipo_abstracto, tipoParticular := instruccion.(Ast.Abstracto).GetTipo()
+		tipo_abstracto, _ := instruccion.(Ast.Abstracto).GetTipo()
 
 		if tipo_abstracto == Ast.EXPRESION && c.Tipo == Ast.CASE_EXPRESION {
 			//Si es un if expresión, tiene que retornar algo
@@ -224,30 +238,14 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 			ultimaExpresion = expresion.GetValue(&newScope)
 		} else if tipo_abstracto == Ast.INSTRUCCION {
 
-			if tipoParticular == Ast.BREAK ||
-				tipoParticular == Ast.BREAK_EXPRESION ||
-				tipoParticular == Ast.RETURN ||
-				tipoParticular == Ast.RETURN_EXPRESION ||
-				tipoParticular == Ast.CONTINUE &&
-					c.Tipo != Ast.CASE_EXPRESION {
-				return Ast.TipoRetornado{
-					Tipo:  tipoParticular,
-					Valor: c.Instrucciones.GetValue(i).(Ast.Instruccion),
-				}
-			}
-
 			instruccion := c.Instrucciones.GetValue(i).(Ast.Instruccion)
 			resultado := instruccion.Run(&newScope)
 
 			//Error si viene un break o un return dentro de un case expresion
-			if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.CONTINUE &&
-					c.Tipo == Ast.CASE_EXPRESION {
+			if Ast.EsTransferencia(resultado.(Ast.TipoRetornado).Tipo) &&
+				c.Tipo == Ast.CASE_EXPRESION {
 				temp := resultado.(Ast.TipoRetornado).Valor.(Ast.Abstracto)
-				msg := "Semantic error, transfer statements are not allowed within a case statement." +
+				msg := "Semantic error, transfer statements are not allowed within a case expression statement." +
 					" -- Line:" + strconv.Itoa(temp.GetFila()) + " Column: " + strconv.Itoa(temp.GetColumna())
 				nError := errores.NewError(temp.GetFila(), temp.GetColumna(), msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
@@ -260,24 +258,19 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 				}
 			}
 
-			//Verificar si el resultado es un bool o un string
-			/*
-				if resultado.(Ast.TipoRetornado).Tipo == Ast.STRING {
-					//Agregar a la consola
-					newScope.Consola += resultado.(Ast.TipoRetornado).Valor.(string) + "\n"
-				}
-			*/
-			/*
-				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO {
-					//Agregar a errores
-					continue
-				}
-			*/
-			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR_SEMANTICO_NO {
-				error := resultado.(Ast.TipoRetornado).Valor.(errores.CustomSyntaxError)
-				newScope.Errores.Add(error)
-				newScope.Consola += error.Msg + "\n"
+			if Ast.EsTransferencia(resultado.(Ast.TipoRetornado).Tipo) {
+				//Retornar la transferencia
+				newScope.UpdateScopeGlobal()
+				return resultado
 			}
+
+			//Ir a la siguiente instrucción
+			/*
+				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
+					resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
+					//fmt.Println("Siguiente instrucción")
+				}
+			*/
 
 		} else if tipo_abstracto == Ast.EXPRESION {
 			msg := "Semantic error, an instruction was expected." +
@@ -292,13 +285,12 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 				Tipo:  Ast.ERROR,
 			}
 		}
-		i++
 	}
 
 	//Termino el for, retornar la ultima expresion
 	//Verificar si hay algun retorno o retornar un error
 	if ultimaExpresion.Tipo == Ast.NULL && expresion {
-		msg := "Semantic error, the if clause is not returning any value." +
+		msg := "Semantic error, the match clause is not returning any value." +
 			" -- Line:" + strconv.Itoa(c.Fila) + " Column: " + strconv.Itoa(c.Columna)
 		nError := errores.NewError(c.Fila, c.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO

@@ -57,22 +57,9 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-	let mut variable1:i64 = 
-	match 68 {
-		1|2|3|4|5 =>{
-			30
-		},
-		34|50 =>{
-			40
-		},
-		_ =>{
-			50
-		},
-	};
-	`
+		let mut n = 7;
 
-	input = `
-	println!("hola mundo");
+		println!("{}",n);
 	`
 
 	//Obteniendo el input

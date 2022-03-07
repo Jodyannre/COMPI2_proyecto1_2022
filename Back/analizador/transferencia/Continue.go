@@ -23,8 +23,11 @@ func NewContinue(fila, columna int) Continue {
 
 func (c Continue) Run(scope *Ast.Scope) interface{} {
 	return Ast.TipoRetornado{
-		Valor: true,
-		Tipo:  Ast.CONTINUE,
+		Valor: Ast.TipoRetornado{
+			Tipo:  Ast.CONTINUE,
+			Valor: c,
+		},
+		Tipo: Ast.CONTINUE,
 	}
 }
 
