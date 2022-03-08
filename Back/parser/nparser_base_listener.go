@@ -51,6 +51,12 @@ func (s *BaseNparserListener) EnterDeclaracion(ctx *DeclaracionContext) {}
 // ExitDeclaracion is called when production declaracion is exited.
 func (s *BaseNparserListener) ExitDeclaracion(ctx *DeclaracionContext) {}
 
+// EnterDeclaracion_funcion is called when production declaracion_funcion is entered.
+func (s *BaseNparserListener) EnterDeclaracion_funcion(ctx *Declaracion_funcionContext) {}
+
+// ExitDeclaracion_funcion is called when production declaracion_funcion is exited.
+func (s *BaseNparserListener) ExitDeclaracion_funcion(ctx *Declaracion_funcionContext) {}
+
 // EnterAsignacion is called when production asignacion is entered.
 func (s *BaseNparserListener) EnterAsignacion(ctx *AsignacionContext) {}
 
@@ -212,3 +218,15 @@ func (s *BaseNparserListener) EnterControl_while(ctx *Control_whileContext) {}
 
 // ExitControl_while is called when production control_while is exited.
 func (s *BaseNparserListener) ExitControl_while(ctx *Control_whileContext) {}
+
+// EnterParametros_funcion is called when production parametros_funcion is entered.
+func (s *BaseNparserListener) EnterParametros_funcion(ctx *Parametros_funcionContext) {}
+
+// ExitParametros_funcion is called when production parametros_funcion is exited.
+func (s *BaseNparserListener) ExitParametros_funcion(ctx *Parametros_funcionContext) {}
+
+// EnterParametro is called when production parametro is entered.
+func (s *BaseNparserListener) EnterParametro(ctx *ParametroContext) {}
+
+// ExitParametro is called when production parametro is exited.
+func (s *BaseNparserListener) ExitParametro(ctx *ParametroContext) {}

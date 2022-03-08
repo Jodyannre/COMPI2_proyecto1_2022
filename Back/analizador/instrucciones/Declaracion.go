@@ -63,6 +63,11 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 	var preValor interface{}
 	if tipoIn == Ast.IF_EXPRESION || tipoIn == Ast.MATCH_EXPRESION || tipoIn == Ast.LOOP_EXPRESION {
 		preValor = d.Valor.(Ast.Instruccion).Run(scope)
+	} else if tipoIn == Ast.FUNCION {
+		preValor = Ast.TipoRetornado{
+			Valor: d.Valor.(Ast.Instruccion),
+			Tipo:  Ast.FUNCION,
+		}
 	} else {
 		preValor = d.Valor.(Ast.Expresion).GetValue(scope)
 	}

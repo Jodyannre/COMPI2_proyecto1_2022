@@ -10,7 +10,7 @@ type Scope struct {
 	Nombre               string
 	prev                 *Scope
 	tablaSimbolos        map[string]interface{}
-	tablaFunciones       map[string]interface{}
+	tablaModulos         map[string]interface{}
 	tablaSimbolosReporte *arraylist.List
 	Errores              *arraylist.List
 	Consola              string
@@ -22,7 +22,7 @@ func NewScope(name string, prev *Scope) Scope {
 	nuevo := Scope{Nombre: name, prev: prev}
 	nuevo.Errores = arraylist.New()
 	nuevo.tablaSimbolos = make(map[string]interface{})
-	nuevo.tablaFunciones = make(map[string]interface{})
+	//nuevo.tablaModulos = make(map[string]interface{})
 	nuevo.tablaSimbolosReporte = arraylist.New()
 	nuevo.Global = false
 	return nuevo

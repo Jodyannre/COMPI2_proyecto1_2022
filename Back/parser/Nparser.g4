@@ -14,6 +14,7 @@ options{
     import "Back/analizador/exp_ins"
     import "Back/analizador/transferencia"
     import "Back/analizador/bucles"
+    import "Back/analizador/Ast/simbolos"
 }
 
 /* 
@@ -52,6 +53,7 @@ instrucciones returns [*arraylist.List list]
 instruccion returns[interface{} ex] 
 			:expresion 		    	{$ex = $expresion.ex}	
             |declaracion PUNTOCOMA  {$ex = $declaracion.ex}	
+            |declaracion_funcion    {$ex = $declaracion_funcion.ex}
             |asignacion PUNTOCOMA   {$ex = $asignacion.ex}
             |control_if             {$ex = $control_if.ex}	 
             |control_match          {$ex = $control_match.ex}   
@@ -137,10 +139,53 @@ declaracion returns[Ast.Instruccion ex]
             columna := $LET.pos
             $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
             true,false,Ast.VOID,$control_expresion.ex,fila,columna)               
-        }
+        }  
     //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
+
 ;
 
+
+declaracion_funcion returns [Ast.Instruccion ex]
+    : PUB FN ID PAR_IZQ PAR_DER bloque
+        {
+            parametros := arraylist.New()
+            fila := $FN.line
+            columna := $FN.pos
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            parametros,Ast.VOID,true,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
+            funcion,fila,columna)            
+        }
+    | FN ID PAR_IZQ PAR_DER bloque
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            parametros := arraylist.New()
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            parametros,Ast.VOID,false,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
+            funcion,fila,columna)
+        }
+
+    | PUB FN ID PAR_IZQ parametros_funcion PAR_DER bloque
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            $parametros_funcion.list,Ast.VOID,true,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
+            funcion,fila,columna)            
+        }
+    | FN ID PAR_IZQ parametros_funcion PAR_DER bloque
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            $parametros_funcion.list,Ast.VOID,false,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
+            funcion,fila,columna)
+        }
+;
 
 asignacion returns[Ast.Instruccion ex]
     : ID IGUAL expresion
@@ -663,3 +708,35 @@ control_while returns[Ast.Instruccion ex]
             $ex = bucles.NewWhile(Ast.WHILE,$expresion.ex,$bloque.list,fila,columna)
         }
 ;
+
+
+parametros_funcion returns [*arraylist.List list]
+@init{$list = arraylist.New()}
+    : lista_elementos = parametros_funcion COMA parametro
+        {
+            $lista_elementos.list.Add($parametro.ex)
+            $list = $lista_elementos.list
+        }
+    | parametro 
+        {
+            $list.Add($parametro.ex)
+        }
+;
+
+parametro returns [Ast.Expresion ex]
+    : MUT ID DOSPUNTOS tipo_dato
+        {
+            fila := $MUT.line
+            columna := $MUT.pos
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,true,fila,columna)
+
+        }
+    | ID DOSPUNTOS tipo_dato
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,false,fila,columna)
+            
+        }
+;
+

@@ -23,6 +23,9 @@ type NparserListener interface {
 	// EnterDeclaracion is called when entering the declaracion production.
 	EnterDeclaracion(c *DeclaracionContext)
 
+	// EnterDeclaracion_funcion is called when entering the declaracion_funcion production.
+	EnterDeclaracion_funcion(c *Declaracion_funcionContext)
+
 	// EnterAsignacion is called when entering the asignacion production.
 	EnterAsignacion(c *AsignacionContext)
 
@@ -104,6 +107,12 @@ type NparserListener interface {
 	// EnterControl_while is called when entering the control_while production.
 	EnterControl_while(c *Control_whileContext)
 
+	// EnterParametros_funcion is called when entering the parametros_funcion production.
+	EnterParametros_funcion(c *Parametros_funcionContext)
+
+	// EnterParametro is called when entering the parametro production.
+	EnterParametro(c *ParametroContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -118,6 +127,9 @@ type NparserListener interface {
 
 	// ExitDeclaracion is called when exiting the declaracion production.
 	ExitDeclaracion(c *DeclaracionContext)
+
+	// ExitDeclaracion_funcion is called when exiting the declaracion_funcion production.
+	ExitDeclaracion_funcion(c *Declaracion_funcionContext)
 
 	// ExitAsignacion is called when exiting the asignacion production.
 	ExitAsignacion(c *AsignacionContext)
@@ -199,4 +211,10 @@ type NparserListener interface {
 
 	// ExitControl_while is called when exiting the control_while production.
 	ExitControl_while(c *Control_whileContext)
+
+	// ExitParametros_funcion is called when exiting the parametros_funcion production.
+	ExitParametros_funcion(c *Parametros_funcionContext)
+
+	// ExitParametro is called when exiting the parametro production.
+	ExitParametro(c *ParametroContext)
 }
