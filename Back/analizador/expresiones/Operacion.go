@@ -301,12 +301,27 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 	case "/":
 		result_dominante = mul_div_dominante[tipo_izq.Tipo][tipo_der.Tipo]
 		if result_dominante == Ast.I64 {
+			if tipo_der.Valor.(int) == 0 {
+				//Error, no se puede dividir dentro de 0
+				msg := "Semantic error, can't be divided by zero." +
+					" -- Line: " + strconv.Itoa(op.Fila) +
+					" Column: " + strconv.Itoa(op.Columna)
+				nError := errores.NewError(op.Fila, op.Columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				entorno.Errores.Add(nError)
+				entorno.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
 			return Ast.TipoRetornado{
 				Tipo:  result_dominante,
 				Valor: tipo_izq.Valor.(int) / tipo_der.Valor.(int),
 			}
 
 		} else if result_dominante == Ast.F64 {
+
 			if tipo_izq.Tipo == Ast.I64 {
 				tipo_izq = Ast.TipoRetornado{
 					Valor: float64(tipo_izq.Valor.(int)),
@@ -317,6 +332,21 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				tipo_der = Ast.TipoRetornado{
 					Valor: float64(tipo_der.Valor.(int)),
 					Tipo:  Ast.F64,
+				}
+			}
+
+			if tipo_der.Valor.(float64) == 0 {
+				//Error, no se puede dividir dentro de 0
+				msg := "Semantic error, can't be divided by zero." +
+					" -- Line: " + strconv.Itoa(op.Fila) +
+					" Column: " + strconv.Itoa(op.Columna)
+				nError := errores.NewError(op.Fila, op.Columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				entorno.Errores.Add(nError)
+				entorno.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
 				}
 			}
 			return Ast.TipoRetornado{
@@ -332,7 +362,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				}
 			*/
 			msg := "Semantic error, can't divide " + Ast.ValorTipoDato[tipo_izq.Tipo] +
-				" type with " + Ast.ValorTipoDato[tipo_der.Tipo] +
+				" type by " + Ast.ValorTipoDato[tipo_der.Tipo] +
 				" type. -- Line: " + strconv.Itoa(op.Fila) +
 				" Column: " + strconv.Itoa(op.Columna)
 			nError := errores.NewError(op.Fila, op.Columna, msg)
@@ -379,7 +409,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				}
 			*/
 			msg := "Semantic error, can't divide " + Ast.ValorTipoDato[tipo_izq.Tipo] +
-				" type with " + Ast.ValorTipoDato[tipo_der.Tipo] +
+				" type by " + Ast.ValorTipoDato[tipo_der.Tipo] +
 				" type. -- Line: " + strconv.Itoa(op.Fila) +
 				" Column: " + strconv.Itoa(op.Columna)
 			nError := errores.NewError(op.Fila, op.Columna, msg)

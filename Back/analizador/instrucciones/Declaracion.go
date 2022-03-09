@@ -65,7 +65,7 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 		preValor = d.Valor.(Ast.Instruccion).Run(scope)
 	} else if tipoIn == Ast.FUNCION {
 		preValor = Ast.TipoRetornado{
-			Valor: d.Valor.(Ast.Instruccion),
+			Valor: d.Valor,
 			Tipo:  Ast.FUNCION,
 		}
 	} else {
@@ -89,8 +89,16 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			Tipo:          d.Tipo,
 			Mutable:       d.Mutable,
 			Publico:       d.Publico,
+			Entorno:       scope,
 		}
+		//Si es función, módulo o struct, agregarlos a las listas globales
 		scope.Add(nSimbolo)
+		if valor.Tipo == Ast.FUNCION ||
+			valor.Tipo == Ast.MODULO ||
+			valor.Tipo == Ast.STRUCT {
+			scope.Addfms(nSimbolo)
+		}
+
 	} else if d.Tipo == Ast.INDEFINIDO && !existe {
 		//Es una declaración sin valor asignado
 		nSimbolo := Ast.Simbolo{

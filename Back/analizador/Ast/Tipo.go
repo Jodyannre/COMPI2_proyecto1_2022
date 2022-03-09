@@ -2,7 +2,7 @@ package Ast
 
 type TipoDato int
 
-var ValorTipoDato = [61]string{
+var ValorTipoDato = [65]string{
 	"I64",
 	"F64",
 	"STRING_OWNED",
@@ -12,6 +12,7 @@ var ValorTipoDato = [61]string{
 	"CHAR",
 	"ARRAY",
 	"VECTOR",
+	"STRUCT",
 	"IDENTIFICADOR",
 	"LOOP_EXPRESION",
 	"IF_EXPRESION",
@@ -22,7 +23,6 @@ var ValorTipoDato = [61]string{
 	"ACCESO_MODULO",
 	"LLAMADA",
 	"USIZE",
-	"STRUCT",
 	"MODULO",
 	"FUNCION",
 	"RETURN",
@@ -64,6 +64,9 @@ var ValorTipoDato = [61]string{
 	"PRINT_PRIMITIVOS",
 	"PRINT_ARRAY",
 	"ERROR_SEMANTICO_NO",
+	"LLAMADA_FUNCION",
+	"PARAMETRO",
+	"CAST",
 }
 
 type Key struct {
@@ -135,6 +138,9 @@ const (
 	ERROR_SEMANTICO_NO
 	LLAMADA_FUNCION
 	PARAMETRO
+	CAST
+	SIMBOLO
+	VALOR
 )
 
 type TipoRetornado struct {

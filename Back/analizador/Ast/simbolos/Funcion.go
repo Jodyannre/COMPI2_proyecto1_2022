@@ -128,6 +128,20 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 
+	//Verificar que la funcion no sea de return y no este retornando nada
+	if f.Retorno != Ast.VOID {
+		//Error la funcion debe retornar algo
+		valor := actual.(Ast.Abstracto)
+		fila := valor.GetFila()
+		columna := valor.GetColumna()
+		msg := "Semantic error, expected " + Ast.ValorTipoDato[f.Retorno] + " , found ()." +
+			" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+	}
+
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
 		Valor: true,

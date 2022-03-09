@@ -8,13 +8,15 @@ type Valor struct {
 	Fila       int
 	Columna    int
 	Referencia bool
+	Mutable    bool
 }
 
-func NewValor(tipo Ast.TipoDato, valor Ast.Expresion, referencia bool, fila, columna int) Valor {
+func NewValor(valor Ast.Expresion, tipo Ast.TipoDato, referencia bool, mutable bool, fila, columna int) Valor {
 	nV := Valor{
 		Tipo:       tipo,
 		Valor:      valor,
 		Referencia: referencia,
+		Mutable:    mutable,
 		Fila:       fila,
 		Columna:    columna,
 	}

@@ -230,3 +230,23 @@ func (s *BaseNparserListener) EnterParametro(ctx *ParametroContext) {}
 
 // ExitParametro is called when production parametro is exited.
 func (s *BaseNparserListener) ExitParametro(ctx *ParametroContext) {}
+
+// EnterLlamada_funcion is called when production llamada_funcion is entered.
+func (s *BaseNparserListener) EnterLlamada_funcion(ctx *Llamada_funcionContext) {}
+
+// ExitLlamada_funcion is called when production llamada_funcion is exited.
+func (s *BaseNparserListener) ExitLlamada_funcion(ctx *Llamada_funcionContext) {}
+
+// EnterParametros_llamada is called when production parametros_llamada is entered.
+func (s *BaseNparserListener) EnterParametros_llamada(ctx *Parametros_llamadaContext) {}
+
+// ExitParametros_llamada is called when production parametros_llamada is exited.
+func (s *BaseNparserListener) ExitParametros_llamada(ctx *Parametros_llamadaContext) {}
+
+// EnterParametro_llamada_referencia is called when production parametro_llamada_referencia is entered.
+func (s *BaseNparserListener) EnterParametro_llamada_referencia(ctx *Parametro_llamada_referenciaContext) {
+}
+
+// ExitParametro_llamada_referencia is called when production parametro_llamada_referencia is exited.
+func (s *BaseNparserListener) ExitParametro_llamada_referencia(ctx *Parametro_llamada_referenciaContext) {
+}

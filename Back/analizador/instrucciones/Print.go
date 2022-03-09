@@ -274,6 +274,18 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 
 	} else {
 		//Error, no se puede imprimir eso
+		if valor.Tipo == Ast.NULL {
+			msg := "Semantic error, can't print a NULL value" +
+				" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
+			nError := errores.NewError(p.Fila, p.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
 		msg := "Semantic error, can't format " + Ast.ValorTipoDato[valor.Tipo] +
 			" type with " + subString + "." +
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)

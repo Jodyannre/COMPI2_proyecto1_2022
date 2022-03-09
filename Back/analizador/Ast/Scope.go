@@ -11,6 +11,8 @@ type Scope struct {
 	prev                 *Scope
 	tablaSimbolos        map[string]interface{}
 	tablaModulos         map[string]interface{}
+	tablaFunciones       map[string]interface{}
+	tablaStructs         map[string]interface{}
 	tablaSimbolosReporte *arraylist.List
 	Errores              *arraylist.List
 	Consola              string
@@ -22,7 +24,9 @@ func NewScope(name string, prev *Scope) Scope {
 	nuevo := Scope{Nombre: name, prev: prev}
 	nuevo.Errores = arraylist.New()
 	nuevo.tablaSimbolos = make(map[string]interface{})
-	//nuevo.tablaModulos = make(map[string]interface{})
+	nuevo.tablaModulos = make(map[string]interface{})
+	nuevo.tablaFunciones = make(map[string]interface{})
+	nuevo.tablaStructs = make(map[string]interface{})
 	nuevo.tablaSimbolosReporte = arraylist.New()
 	nuevo.Global = false
 	return nuevo
@@ -53,6 +57,98 @@ func (scope *Scope) Exist(ident string) bool {
 		}
 	}
 	return false
+}
+
+func (scope *Scope) Exist_fms(ident string) Simbolo {
+	//Primero conseguir el scope global
+	var scope_global *Scope
+	var retorno TipoRetornado
+	id := strings.ToUpper(ident)
+	if scope.prev != nil {
+		for scope_global = scope; scope_global.prev != nil; scope_global = scope_global.prev {
+			//Buscando el scope global
+		}
+	} else {
+		scope_global = scope
+	}
+
+	//Verificar que la fms exista
+	retorno = buscarMap(id, MODULO, scope)
+	if retorno.Tipo != NULL {
+		return retorno.Valor.(Simbolo)
+	}
+	retorno = buscarMap(id, STRUCT, scope)
+	if retorno.Tipo != NULL {
+		return retorno.Valor.(Simbolo)
+	}
+	retorno = buscarMap(id, FUNCION, scope)
+	if retorno.Tipo != NULL {
+		return retorno.Valor.(Simbolo)
+	}
+	return NewSimbolo("", nil, -1, -1, NULL, false, false)
+}
+
+func buscarMap(id string, tipo TipoDato, scope *Scope) TipoRetornado {
+	var encontrado = false
+	var simbolo Simbolo
+	switch tipo {
+	case FUNCION:
+		for key, value := range scope.tablaFunciones {
+			if key == id {
+				encontrado = true
+				simbolo = value.(Simbolo)
+				break
+			}
+		}
+	case MODULO:
+		for key, value := range scope.tablaModulos {
+			if key == id {
+				encontrado = true
+				simbolo = value.(Simbolo)
+				break
+			}
+		}
+	case STRUCT:
+		for key, value := range scope.tablaStructs {
+			if key == id {
+				encontrado = true
+				simbolo = value.(Simbolo)
+				break
+			}
+		}
+	}
+	if encontrado {
+		return TipoRetornado{
+			Tipo:  SIMBOLO,
+			Valor: simbolo,
+		}
+	}
+	return TipoRetornado{
+		Valor: true,
+		Tipo:  NULL,
+	}
+}
+
+/*fms = funcion modulo struct*/
+func (scope *Scope) Addfms(simbolo Simbolo) {
+	var scope_global *Scope = scope
+	id := strings.ToUpper(simbolo.Identificador)
+	//Recuperar el scope global
+	if scope.prev != nil {
+		for scope_global = scope; scope_global.prev != nil; scope_global = scope_global.prev {
+			//Buscando el scope global
+		}
+	} else {
+		scope_global = scope
+	}
+	switch simbolo.Tipo {
+	case FUNCION:
+		scope_global.tablaFunciones[id] = simbolo
+	case MODULO:
+		scope_global.tablaModulos[id] = simbolo
+	case STRUCT:
+		scope_global.tablaStructs[id] = simbolo
+	}
 }
 
 /*
@@ -126,6 +222,8 @@ func (scope *Scope) GetSimbolo(ident string) Simbolo {
 }
 
 func (s *Scope) UpdateScopeGlobal() {
+	//Primero actualizar todas los valores por referencia
+
 	//Obtener el scope global
 	var scope_global *Scope
 	if s.prev != nil {

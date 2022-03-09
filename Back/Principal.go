@@ -57,8 +57,9 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-		fn multiplicar (mut num1:i64,mut num2:i64){
-			println!("{}{}",num1,num2);
+		fn miFuncion() -> i64 {
+			println!("si funciona");
+			return 5;
 		}
 	`
 

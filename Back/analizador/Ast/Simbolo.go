@@ -8,6 +8,8 @@ type Simbolo struct {
 	Tipo          TipoDato
 	Mutable       bool
 	Publico       bool
+	Entorno       *Scope
+	Referencia    bool
 }
 
 type SimboloReporte struct {
@@ -29,6 +31,8 @@ func NewSimbolo(identificador string, valor interface{}, fila int, columna int,
 		Tipo:          tipo,
 		Mutable:       mutable,
 		Publico:       publico,
+		Referencia:    false,
+		Entorno:       nil,
 	}
 	return simbolo
 }

@@ -146,9 +146,21 @@ declaracion returns[Ast.Instruccion ex]
 
 
 declaracion_funcion returns [Ast.Instruccion ex]
-    : PUB FN ID PAR_IZQ PAR_DER bloque
+
+    : PUB FN ID PAR_IZQ PAR_DER FN_TIPO_RETORNO tipo_dato bloque 
         {
-            parametros := arraylist.New()
+            parametros := arraylist.New() 
+            fila := $FN.line
+            columna := $FN.pos
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            parametros,$tipo_dato.ex,true,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
+            funcion,fila,columna)            
+        }
+    
+    | PUB FN ID PAR_IZQ PAR_DER bloque
+        {
+            parametros := arraylist.New() 
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
@@ -156,6 +168,18 @@ declaracion_funcion returns [Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
             funcion,fila,columna)            
         }
+
+    | FN ID PAR_IZQ PAR_DER FN_TIPO_RETORNO tipo_dato bloque
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            parametros := arraylist.New()
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            parametros,$tipo_dato.ex,false,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
+            funcion,fila,columna)
+        }
+
     | FN ID PAR_IZQ PAR_DER bloque
         {
             fila := $FN.line
@@ -167,6 +191,16 @@ declaracion_funcion returns [Ast.Instruccion ex]
             funcion,fila,columna)
         }
 
+    | PUB FN ID PAR_IZQ parametros_funcion PAR_DER FN_TIPO_RETORNO tipo_dato bloque
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            $parametros_funcion.list,$tipo_dato.ex,true,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
+            funcion,fila,columna)            
+        }
+
     | PUB FN ID PAR_IZQ parametros_funcion PAR_DER bloque
         {
             fila := $FN.line
@@ -176,6 +210,17 @@ declaracion_funcion returns [Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
             funcion,fila,columna)            
         }
+
+    | FN ID PAR_IZQ parametros_funcion PAR_DER FN_TIPO_RETORNO tipo_dato bloque
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
+            $parametros_funcion.list,$tipo_dato.ex,false,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
+            funcion,fila,columna)
+        }
+
     | FN ID PAR_IZQ parametros_funcion PAR_DER bloque
         {
             fila := $FN.line
@@ -185,6 +230,7 @@ declaracion_funcion returns [Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
             funcion,fila,columna)
         }
+    
 ;
 
 asignacion returns[Ast.Instruccion ex]
@@ -262,6 +308,17 @@ expresion returns[Ast.Expresion ex]
     |   PAR_IZQ expresion PAR_DER
         {
             $ex = $expresion.ex
+        }
+    |   PAR_IZQ expresion AS tipo_dato PAR_DER
+        {
+            //Cast
+            fila := $PAR_IZQ.line
+            columna := $PAR_IZQ.pos            
+            $ex = expresiones.NewCast($expresion.ex, Ast.CAST, $tipo_dato.ex,fila,columna)
+        } 
+    |   llamada_funcion 
+        {
+            $ex = $llamada_funcion.ex   
         }
     |   ID		
         {
@@ -739,4 +796,60 @@ parametro returns [Ast.Expresion ex]
             
         }
 ;
+
+llamada_funcion returns [Ast.Expresion ex]
+    :   ID PAR_IZQ parametros_llamada PAR_DER
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
+            $ex = expresiones.NewLlamadaFuncion(id,$parametros_llamada.list,Ast.LLAMADA_FUNCION,fila,columna)
+        }
+    |   ID PAR_IZQ PAR_DER
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            params := arraylist.New()
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)        
+            $ex = expresiones.NewLlamadaFuncion(id,params,Ast.LLAMADA_FUNCION,fila,columna)   
+        }
+;
+
+parametros_llamada returns [*arraylist.List list]
+@init{$list = arraylist.New()}
+:   lista_elementos = parametros_llamada COMA parametro_llamada_referencia
+        {
+            $lista_elementos.list.Add($parametro_llamada_referencia.ex)
+            $list = $lista_elementos.list
+        }
+|   parametro_llamada_referencia
+        {
+            $list.Add($parametro_llamada_referencia.ex)
+        }
+;
+
+parametro_llamada_referencia returns [Ast.Expresion ex]
+    :   e = expresion
+    {
+        temp := localctx.(*Parametro_llamada_referenciaContext).GetE()
+        fila := temp.(Ast.Abstracto).GetFila()
+        columna := temp.(Ast.Abstracto).GetColumna()
+        $ex = simbolos.NewValor($e.ex, Ast.VALOR , false, false, fila, columna)
+    }
+    |   AMPERSAND MUT ID
+    {
+        fila := $AMPERSAND.line
+        columna := $AMPERSAND.pos
+        id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
+        $ex = simbolos.NewValor(id, Ast.VALOR , true, true, fila, columna)
+    }
+    |   AMPERSAND ID
+    {
+        fila := $AMPERSAND.line
+        columna := $AMPERSAND.pos
+        id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
+        $ex = simbolos.NewValor(id, Ast.VALOR , true, false, fila, columna)        
+    }
+;
+
 

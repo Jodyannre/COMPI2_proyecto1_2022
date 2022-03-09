@@ -113,6 +113,15 @@ type NparserListener interface {
 	// EnterParametro is called when entering the parametro production.
 	EnterParametro(c *ParametroContext)
 
+	// EnterLlamada_funcion is called when entering the llamada_funcion production.
+	EnterLlamada_funcion(c *Llamada_funcionContext)
+
+	// EnterParametros_llamada is called when entering the parametros_llamada production.
+	EnterParametros_llamada(c *Parametros_llamadaContext)
+
+	// EnterParametro_llamada_referencia is called when entering the parametro_llamada_referencia production.
+	EnterParametro_llamada_referencia(c *Parametro_llamada_referenciaContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -217,4 +226,13 @@ type NparserListener interface {
 
 	// ExitParametro is called when exiting the parametro production.
 	ExitParametro(c *ParametroContext)
+
+	// ExitLlamada_funcion is called when exiting the llamada_funcion production.
+	ExitLlamada_funcion(c *Llamada_funcionContext)
+
+	// ExitParametros_llamada is called when exiting the parametros_llamada production.
+	ExitParametros_llamada(c *Parametros_llamadaContext)
+
+	// ExitParametro_llamada_referencia is called when exiting the parametro_llamada_referencia production.
+	ExitParametro_llamada_referencia(c *Parametro_llamada_referenciaContext)
 }
