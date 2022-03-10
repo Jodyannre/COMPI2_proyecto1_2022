@@ -57,10 +57,13 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-		fn miFuncion() -> i64 {
-			println!("si funciona");
-			return 5;
-		}
+		let cadena1 = -5.abs();
+		fn prueba (x: i64){
+			x = x + 3;
+			println!("{}",x);
+		
+		//Mi huevo
+		prueba(cadena1
 	`
 
 	//Obteniendo el input

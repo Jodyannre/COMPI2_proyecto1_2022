@@ -15,6 +15,7 @@ options{
     import "Back/analizador/transferencia"
     import "Back/analizador/bucles"
     import "Back/analizador/Ast/simbolos"
+    import "Back/analizador/fn_primitivas"
 }
 
 /* 
@@ -51,7 +52,8 @@ instrucciones returns [*arraylist.List list]
 ;
 
 instruccion returns[interface{} ex] 
-			:expresion 		    	{$ex = $expresion.ex}	
+			:llamada_funcion PUNTOCOMA {$ex = $llamada_funcion.ex}
+            |expresion 		    	{$ex = $expresion.ex}	
             |declaracion PUNTOCOMA  {$ex = $declaracion.ex}	
             |declaracion_funcion    {$ex = $declaracion_funcion.ex}
             |asignacion PUNTOCOMA   {$ex = $asignacion.ex}
@@ -268,6 +270,24 @@ expresion returns[Ast.Expresion ex]
             columna := $op.pos
             $ex = expresiones.NewOperation($op_izq.ex,$op.text,nil,true,fila,columna)
         }
+    |   e=expresion PUNTO TO_STRING PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos - 1
+            $ex = fn_primitivas.NewToString(Ast.LLAMADA_FUNCION,$e.ex,fila,columna)
+        }
+    |   e=expresion PUNTO SQRT PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos - 1
+            $ex = fn_primitivas.NewSqrt(Ast.LLAMADA_FUNCION,$e.ex,fila,columna)
+        }
+    |   e=expresion PUNTO ABS PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos - 1
+            $ex = fn_primitivas.NewAbs(Ast.LLAMADA_FUNCION,$e.ex,fila,columna)
+        }
     |   op_izq=expresion op=(MULTIPLICACION|DIVISION|MODULO) op_der=expresion
         {
             fila := $op.line
@@ -320,33 +340,34 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $llamada_funcion.ex   
         }
+
     |   ID		
         {
             id := $ID.text
-            fila := $DECIMAL.line
-            columna := $DECIMAL.pos
+            fila := $ID.line
+            columna := $ID.pos
             $ex = expresiones.NewIdentificador (id,Ast.IDENTIFICADOR,fila,columna)
         }
     |   TRUE        
         {
             valor := true
-            fila := $DECIMAL.line
-            columna := $DECIMAL.pos
+            fila := $TRUE.line
+            columna := $TRUE.pos
             $ex = expresiones.NewPrimitivo(valor, Ast.BOOLEAN,fila,columna)
         }         
     |   FALSE
         {
             valor := false
-            fila := $DECIMAL.line
-            columna := $DECIMAL.pos
+            fila := $FALSE.line
+            columna := $FALSE.pos
             $ex = expresiones.NewPrimitivo(valor, Ast.BOOLEAN,fila,columna)
         }     
     |   CARACTER
         {
             valor := $CARACTER.text
             valor = valor[1:len(valor)-1]
-            fila := $DECIMAL.line
-            columna := $DECIMAL.pos
+            fila := $CARACTER.line
+            columna := $CARACTER.pos
             $ex = expresiones.NewPrimitivo(valor, Ast.CHAR,fila,columna)
         }   
     |   DECIMAL
@@ -803,7 +824,7 @@ llamada_funcion returns [Ast.Expresion ex]
             fila := $ID.line
             columna := $ID.pos
             id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
-            $ex = expresiones.NewLlamadaFuncion(id,$parametros_llamada.list,Ast.LLAMADA_FUNCION,fila,columna)
+            $ex = simbolos.NewLlamadaFuncion(id,$parametros_llamada.list,Ast.LLAMADA_FUNCION,fila,columna)
         }
     |   ID PAR_IZQ PAR_DER
         {
@@ -811,7 +832,7 @@ llamada_funcion returns [Ast.Expresion ex]
             columna := $ID.pos
             params := arraylist.New()
             id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)        
-            $ex = expresiones.NewLlamadaFuncion(id,params,Ast.LLAMADA_FUNCION,fila,columna)   
+            $ex = simbolos.NewLlamadaFuncion(id,params,Ast.LLAMADA_FUNCION,fila,columna)   
         }
 ;
 
@@ -831,7 +852,7 @@ parametros_llamada returns [*arraylist.List list]
 parametro_llamada_referencia returns [Ast.Expresion ex]
     :   e = expresion
     {
-        temp := localctx.(*Parametro_llamada_referenciaContext).GetE()
+        temp := localctx.(*Parametro_llamada_referenciaContext).GetE().GetEx()
         fila := temp.(Ast.Abstracto).GetFila()
         columna := temp.(Ast.Abstracto).GetColumna()
         $ex = simbolos.NewValor($e.ex, Ast.VALOR , false, false, fila, columna)
@@ -851,5 +872,4 @@ parametro_llamada_referencia returns [Ast.Expresion ex]
         $ex = simbolos.NewValor(id, Ast.VALOR , true, false, fila, columna)        
     }
 ;
-
 

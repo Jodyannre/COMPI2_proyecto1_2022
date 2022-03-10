@@ -3,6 +3,7 @@ package simbolos
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"Back/analizador/expresiones"
 	"Back/analizador/instrucciones"
 	"strconv"
 
@@ -72,7 +73,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 			if respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
 				respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK_EXPRESION ||
 				respuesta.(Ast.TipoRetornado).Tipo == Ast.CONTINUE {
-				//Error de break, break_expresion
+				//Error de break, break_expresion y continue
 				valor := actual.(Ast.Abstracto)
 				fila := valor.GetFila()
 				columna := valor.GetColumna()
@@ -97,7 +98,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				scope.Consola += msg + "\n"
 			}
 			if f.Retorno != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN {
-				//Error de break, break_expresion
+				//Error, la función espera retornar algo y no esta retornando nada
 				valor := actual.(Ast.Abstracto)
 				fila := valor.GetFila()
 				columna := valor.GetColumna()
@@ -112,7 +113,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 			if f.Retorno != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
 				//Verificar que los tipos sean correctos
 				if f.Retorno != respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado).Tipo {
-					//Error de break, break_expresion
+					//Error, retorna un tipo diferente
 					valor := actual.(Ast.Abstracto)
 					fila := valor.GetFila()
 					columna := valor.GetColumna()
@@ -123,7 +124,8 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 				}
-				return respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado).Valor
+				//Ejecutar el return y retornar el valor que trae
+				return respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado)
 			}
 		}
 	}
@@ -195,6 +197,15 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 		parametroIN = parametrosIN.GetValue(iterador)
 		resultadoParametroIN = parametroIN.(Ast.Expresion).GetValue(scope)
 		resultadoParametro = parametro.(Ast.Expresion).GetValue(scope)
+
+		//Verificar errores en los resultados
+		if resultadoParametroIN.Tipo == Ast.ERROR {
+			return resultadoParametroIN
+		}
+		if resultadoParametro.Tipo == Ast.ERROR {
+			return resultadoParametro
+		}
+
 		if resultadoParametroIN.Tipo != resultadoParametro.Tipo {
 			//Error no son iguales los tipos
 			fila := parametroIN.(Ast.Abstracto).GetFila()
@@ -212,6 +223,111 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 				Valor: nError,
 			}
 		}
+
+		//Verificar la mutabilidad en los valores que se mandan por valor
+		_, tipoParticular := parametroIN.(Valor).Valor.(Ast.Abstracto).GetTipo()
+		if tipoParticular == Ast.IDENTIFICADOR {
+
+			//Verificar la mutabilidad en los valores que se mandan por referencia
+
+			//Conseguir el símbolo del identificador
+			simbolo := scope.GetSimbolo(parametroIN.(Valor).Valor.(expresiones.Identificador).Valor)
+			//Primero verificar que el símbolo sea un struct, un vector o un array
+			if simbolo.Tipo == Ast.STRUCT ||
+				simbolo.Tipo == Ast.ARRAY ||
+				simbolo.Tipo == Ast.VECTOR {
+				if parametro.(Parametro).Mutable != parametroIN.(Valor).Mutable {
+					fila := parametroIN.(Ast.Abstracto).GetFila()
+					columna := parametroIN.(Ast.Abstracto).GetColumna()
+					var mut1, mut2 string
+					if parametro.(Parametro).Mutable {
+						mut1 = "Mutable"
+					} else {
+						mut1 = "Not-Mutable"
+					}
+					if parametroIN.(Valor).Mutable {
+						mut2 = "Mutable"
+					} else {
+						mut2 = "Not-Mutable"
+					}
+					msg := "Semantic error, " + mut1 + " value expected, " +
+						mut2 + " value found." +
+						" -- Line: " + strconv.Itoa(fila) +
+						" Column: " + strconv.Itoa(columna)
+					nError := errores.NewError(fila, columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+				if simbolo.Mutable != parametroIN.(Valor).Mutable {
+					fila := parametroIN.(Ast.Abstracto).GetFila()
+					columna := parametroIN.(Ast.Abstracto).GetColumna()
+					var mut1, mut2 string
+					if simbolo.Mutable {
+						mut1 = "Mutable"
+					} else {
+						mut1 = "Not-Mutable"
+					}
+					if parametroIN.(Valor).Mutable {
+						mut2 = "Mutable"
+					} else {
+						mut2 = "Not-Mutable"
+					}
+					msg := "Semantic error, " + mut2 + " value expected, " +
+						mut1 + " value found." +
+						" -- Line: " + strconv.Itoa(fila) +
+						" Column: " + strconv.Itoa(columna)
+					nError := errores.NewError(fila, columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+
+			}
+			if simbolo.Tipo == Ast.MODULO {
+				fila := parametroIN.(Ast.Abstracto).GetFila()
+				columna := parametroIN.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, a module can't be a parameter." +
+					" -- Line: " + strconv.Itoa(fila) +
+					" Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				scope.Errores.Add(nError)
+				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
+
+			//Es cualquier otra variable
+			if parametroIN.(Valor).Mutable {
+				// Error, las variables no pueden ser mut
+				fila := parametroIN.(Ast.Abstracto).GetFila()
+				columna := parametroIN.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, " + Ast.ValorTipoDato[simbolo.Tipo] + " variable can´t be mut." +
+					" -- Line: " + strconv.Itoa(fila) +
+					" Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				scope.Errores.Add(nError)
+				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
+
+		}
+
 	}
 	return Ast.TipoRetornado{
 		Tipo:  Ast.BOOLEAN,

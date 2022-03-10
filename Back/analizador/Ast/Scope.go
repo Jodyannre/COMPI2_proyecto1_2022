@@ -62,6 +62,7 @@ func (scope *Scope) Exist(ident string) bool {
 func (scope *Scope) Exist_fms(ident string) Simbolo {
 	//Primero conseguir el scope global
 	var scope_global *Scope
+	var scope_encontrado *Scope
 	var retorno TipoRetornado
 	id := strings.ToUpper(ident)
 	if scope.prev != nil {
@@ -72,20 +73,48 @@ func (scope *Scope) Exist_fms(ident string) Simbolo {
 		scope_global = scope
 	}
 
-	//Verificar que la fms exista
-	retorno = buscarMap(id, MODULO, scope)
+	//Verificar que la fms exista y si puede ser accedida
+	retorno = buscarMap(id, MODULO, scope_global)
 	if retorno.Tipo != NULL {
+		scope_encontrado = retorno.Valor.(Simbolo).Entorno
+		if scope_global != scope_encontrado {
+			//Los scopes no son iguales, verificar que la función sea pública
+			if scope_encontrado != scope {
+				if !retorno.Valor.(Simbolo).Publico {
+					return NewSimbolo("", nil, -1, -1, ERROR_ACCESO_PRIVADO, false, false)
+				}
+			}
+
+		}
 		return retorno.Valor.(Simbolo)
 	}
-	retorno = buscarMap(id, STRUCT, scope)
+	retorno = buscarMap(id, STRUCT, scope_global)
 	if retorno.Tipo != NULL {
+		scope_encontrado = retorno.Valor.(Simbolo).Entorno
+		if scope_global != scope_encontrado {
+			//Los scopes no son iguales, verificar que el struct sea público
+			if scope_encontrado != scope {
+				if !retorno.Valor.(Simbolo).Publico {
+					return NewSimbolo("", nil, -1, -1, ERROR_ACCESO_PRIVADO, false, false)
+				}
+			}
+		}
 		return retorno.Valor.(Simbolo)
 	}
-	retorno = buscarMap(id, FUNCION, scope)
+	retorno = buscarMap(id, FUNCION, scope_global)
 	if retorno.Tipo != NULL {
+		scope_encontrado = retorno.Valor.(Simbolo).Entorno
+		if scope_global != scope_encontrado {
+			//Los scopes no son iguales, verificar que el módulo sea pública
+			if scope_encontrado != scope {
+				if !retorno.Valor.(Simbolo).Publico {
+					return NewSimbolo("", nil, -1, -1, ERROR_ACCESO_PRIVADO, false, false)
+				}
+			}
+		}
 		return retorno.Valor.(Simbolo)
 	}
-	return NewSimbolo("", nil, -1, -1, NULL, false, false)
+	return NewSimbolo("", nil, -1, -1, ERROR_NO_EXISTE, false, false)
 }
 
 func buscarMap(id string, tipo TipoDato, scope *Scope) TipoRetornado {

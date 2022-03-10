@@ -58,6 +58,24 @@ func (i PrintF) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 func (p Print) Run(scope *Ast.Scope) interface{} {
 	resultado_expresion := p.Expresiones.GetValue(scope)
 	valor := ""
+	//Verificar que no sea un identificador
+	_, tipoParticular := p.Expresiones.(Ast.Abstracto).GetTipo()
+
+	if tipoParticular == Ast.IDENTIFICADOR {
+		//Error, con este tipo de print solo se puedfen imprimir literales
+		msg := "Semantic error, a literal was expected, " + Ast.ValorTipoDato[resultado_expresion.Tipo] +
+			" type was found." +
+			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
+		nError := errores.NewError(p.Fila, p.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
 	//Si resultado es error, que lo retorne
 	if resultado_expresion.Tipo == Ast.ERROR {
 		return resultado_expresion
@@ -258,7 +276,7 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 		case Ast.I64:
 			salida += strconv.Itoa(valor.Valor.(int))
 		case Ast.F64:
-			salida += fmt.Sprintf("%f", valor.Valor.(float64))
+			salida += strconv.FormatFloat(valor.Valor.(float64), 'f', -1, 64)
 		case Ast.STRING:
 			salida += valor.Valor.(string)
 		case Ast.STR:
@@ -285,6 +303,10 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 				Tipo:  Ast.ERROR,
 				Valor: nError,
 			}
+		}
+		//Verificar que no es un error
+		if valor.Tipo == Ast.ERROR {
+			return valor
 		}
 		msg := "Semantic error, can't format " + Ast.ValorTipoDato[valor.Tipo] +
 			" type with " + subString + "." +

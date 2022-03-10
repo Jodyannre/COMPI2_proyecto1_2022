@@ -24,7 +24,11 @@ func NewVisitor() *Visitador {
 func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 	fmt.Println("Ingreso>>>>>>>>>>>>>>>")
 	instrucciones := ctx.GetLista()
-	//fmt.Println(instrucciones)
+	//Verificar que no existan errores sintácticos o semánticos
+	if v.Errores.Len() > 0 {
+		return
+	}
+
 	//Desde aquí ya tengo todo el resultado del parser, listo para ejecutar
 
 	/*
@@ -68,9 +72,9 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 			continue
 		}
 		//Error, no puede haber expresiones sueltas
-		if tipoGeneral == Ast.EXPRESION {
-			fila := respuesta.(Ast.Abstracto).GetFila()
-			columna := respuesta.(Ast.Abstracto).GetColumna()
+		if tipoGeneral == Ast.EXPRESION && tipo != Ast.LLAMADA_FUNCION {
+			fila := actual.(Ast.Abstracto).GetFila()
+			columna := actual.(Ast.Abstracto).GetColumna()
 			msg := "Semantic error, an instruction was expected." +
 				" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
@@ -78,8 +82,9 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 			EntornoGlobal.Errores.Add(nError)
 			EntornoGlobal.Consola += msg + "\n"
 			continue
-		}
-		if tipo.(Ast.TipoDato) != Ast.DECLARACION {
+		} else if tipo == Ast.LLAMADA_FUNCION {
+			respuesta = actual.(Ast.Expresion).GetValue(&EntornoGlobal)
+		} else if tipo.(Ast.TipoDato) != Ast.DECLARACION {
 			//Declarar variables globales
 			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
 			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {

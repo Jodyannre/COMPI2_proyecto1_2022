@@ -2,6 +2,8 @@ package expresiones
 
 import (
 	"Back/analizador/Ast"
+	"Back/analizador/errores"
+	"strconv"
 )
 
 type Identificador struct {
@@ -24,7 +26,18 @@ func (p Identificador) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		return simbolo.Valor.(Ast.TipoRetornado)
 	} else {
 		//No existe el identificador, retornar error semantico
-		return Ast.TipoRetornado{Valor: nil, Tipo: Ast.NULL}
+		msg := "Semantic error, \"" + p.Valor + "\" variable doesn't not exist." +
+			" -- Line: " + strconv.Itoa(p.Fila) +
+			" Column: " + strconv.Itoa(p.Columna)
+		nError := errores.NewError(p.Fila, p.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+		//return Ast.TipoRetornado{Valor: nil, Tipo: Ast.NULL}
 	}
 }
 

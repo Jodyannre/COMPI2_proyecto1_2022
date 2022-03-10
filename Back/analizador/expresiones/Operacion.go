@@ -79,6 +79,20 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 		tipo_izq = op.operando_izq.GetValue(entorno)
 		tipo_der = op.operando_der.GetValue(entorno)
 	}
+	//Verificar primero si no hay error
+	if op.unario {
+		if tipo_izq.Tipo == Ast.ERROR {
+			return tipo_izq
+		}
+	} else {
+		if tipo_izq.Tipo == Ast.ERROR {
+			return tipo_izq
+		}
+		if tipo_der.Tipo == Ast.ERROR {
+			return tipo_der
+		}
+	}
+
 	if tipo_izq.Tipo > 5 || tipo_der.Tipo > 5 {
 		//Error, no se pueden operar porque no es ningún valor operable
 		msg := "Semantic error, can't operate " + Ast.ValorTipoDato[tipo_izq.Tipo] +
