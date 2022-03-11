@@ -142,17 +142,6 @@ func (c Cast) convertir(nuevoTipo Ast.TipoDato, valor Ast.TipoRetornado, scope *
 	return nuevoValor
 }
 
-func (c Cast) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
-	return Ast.INSTRUCCION, c.Tipo
-}
-
-func (c Cast) GetFila() int {
-	return c.Fila
-}
-func (c Cast) GetColumna() int {
-	return c.Columna
-}
-
 // El primero es el valor inicial y el segundo es el tipo objetivo
 var conversion = [7][10]Ast.TipoDato{
 	{Ast.I64, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.CHAR, Ast.NULL, Ast.NULL, Ast.NULL},
@@ -186,4 +175,15 @@ func CanConvert(tipo Ast.TipoDato, tipoObjetivo Ast.TipoDato) bool {
 		return false
 	}
 	return true
+}
+
+func (c Cast) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
+	return Ast.EXPRESION, c.Tipo
+}
+
+func (c Cast) GetFila() int {
+	return c.Fila
+}
+func (c Cast) GetColumna() int {
+	return c.Columna
 }

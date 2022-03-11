@@ -250,3 +250,15 @@ func (s *BaseNparserListener) EnterParametro_llamada_referencia(ctx *Parametro_l
 // ExitParametro_llamada_referencia is called when production parametro_llamada_referencia is exited.
 func (s *BaseNparserListener) ExitParametro_llamada_referencia(ctx *Parametro_llamada_referenciaContext) {
 }
+
+// EnterElementos_vector is called when production elementos_vector is entered.
+func (s *BaseNparserListener) EnterElementos_vector(ctx *Elementos_vectorContext) {}
+
+// ExitElementos_vector is called when production elementos_vector is exited.
+func (s *BaseNparserListener) ExitElementos_vector(ctx *Elementos_vectorContext) {}
+
+// EnterMetodos_iniciar_vector is called when production metodos_iniciar_vector is entered.
+func (s *BaseNparserListener) EnterMetodos_iniciar_vector(ctx *Metodos_iniciar_vectorContext) {}
+
+// ExitMetodos_iniciar_vector is called when production metodos_iniciar_vector is exited.
+func (s *BaseNparserListener) ExitMetodos_iniciar_vector(ctx *Metodos_iniciar_vectorContext) {}

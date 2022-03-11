@@ -57,13 +57,9 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-		let cadena1 = -5.abs();
-		fn prueba (x: i64){
-			x = x + 3;
-			println!("{}",x);
-		
-		//Mi huevo
-		prueba(cadena1
+	let vector = vec![true,false,true,true];
+	println!("{}",vector);
+
 	`
 
 	//Obteniendo el input

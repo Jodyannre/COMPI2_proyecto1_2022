@@ -151,6 +151,8 @@ const (
 	ERROR_ACCESO_PRIVADO
 	MUTABLE
 	NOT_MUTABLE
+	OCUPADO
+	LIBRE
 )
 
 type TipoRetornado struct {

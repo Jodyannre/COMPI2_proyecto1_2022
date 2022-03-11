@@ -122,6 +122,12 @@ type NparserListener interface {
 	// EnterParametro_llamada_referencia is called when entering the parametro_llamada_referencia production.
 	EnterParametro_llamada_referencia(c *Parametro_llamada_referenciaContext)
 
+	// EnterElementos_vector is called when entering the elementos_vector production.
+	EnterElementos_vector(c *Elementos_vectorContext)
+
+	// EnterMetodos_iniciar_vector is called when entering the metodos_iniciar_vector production.
+	EnterMetodos_iniciar_vector(c *Metodos_iniciar_vectorContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -235,4 +241,10 @@ type NparserListener interface {
 
 	// ExitParametro_llamada_referencia is called when exiting the parametro_llamada_referencia production.
 	ExitParametro_llamada_referencia(c *Parametro_llamada_referenciaContext)
+
+	// ExitElementos_vector is called when exiting the elementos_vector production.
+	ExitElementos_vector(c *Elementos_vectorContext)
+
+	// ExitMetodos_iniciar_vector is called when exiting the metodos_iniciar_vector production.
+	ExitMetodos_iniciar_vector(c *Metodos_iniciar_vectorContext)
 }

@@ -3,6 +3,7 @@ package instrucciones
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"Back/analizador/expresiones"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -223,6 +224,19 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 		salida = valor.Valor.(string)
 	case Ast.VECTOR:
 		//De momento no tengo idea, pendiente
+		//Recorrer todos sus elementos e irlos convirtiendo en string
+		lista := valor.Valor.(expresiones.Vector).Valor
+		var elemento Ast.TipoRetornado
+		salida += "[ "
+		for i := 0; i < lista.Len(); i++ {
+			if i != 0 {
+				salida += ", "
+			}
+			elemento = lista.GetValue(i).(Ast.TipoRetornado)
+			resultado := To_String(elemento)
+			salida += resultado.(Ast.TipoRetornado).Valor.(string)
+		}
+		salida += " ]"
 	case Ast.ARRAY:
 		//De momento no tengo idea, pendiente
 	default:
@@ -240,7 +254,7 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 
 func TypeString(tipo Ast.TipoDato, cadena string) Ast.TipoDato {
 	var tipoPrint Ast.TipoDato
-	if tipo > 7 {
+	if tipo > 8 {
 		return Ast.ERROR
 	}
 	if cadena == "{}" {
@@ -287,6 +301,8 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 			salida += valor.Valor.(string)
 		case Ast.BOOLEAN:
 			salida += strconv.FormatBool(valor.Valor.(bool))
+		case Ast.VECTOR:
+			salida = To_String(valor).(Ast.TipoRetornado).Valor.(string)
 		default:
 		}
 

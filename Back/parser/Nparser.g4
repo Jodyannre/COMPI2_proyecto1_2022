@@ -142,6 +142,32 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
             true,false,Ast.VOID,$control_expresion.ex,fila,columna)               
         }  
+    | LET ID IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,false,false,Ast.VOID,$expresion.ex,fila,columna)
+        }
+    | LET MUT ID IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,Ast.VOID,$expresion.ex,fila,columna)
+        }
+
+    | LET ID DOSPUNTOS VEC MENOR tipo_dato MAYOR IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,false,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
+        }
+    | LET MUT ID DOSPUNTOS VEC MENOR tipo_dato MAYOR IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
+        }
+
     //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
 
 ;
@@ -339,6 +365,10 @@ expresion returns[Ast.Expresion ex]
     |   llamada_funcion 
         {
             $ex = $llamada_funcion.ex   
+        }
+    |   metodos_iniciar_vector
+        {
+            $ex = $metodos_iniciar_vector.ex
         }
 
     |   ID		
@@ -873,3 +903,61 @@ parametro_llamada_referencia returns [Ast.Expresion ex]
     }
 ;
 
+
+elementos_vector returns[*arraylist.List list]
+@init{$list = arraylist.New()}
+:   lista_elementos = elementos_vector COMA expresion
+        {
+            $lista_elementos.list.Add($expresion.ex)
+            $list = $lista_elementos.list
+        }
+|   expresion
+        {
+            $list.Add($expresion.ex)
+        }
+;
+
+
+metodos_iniciar_vector returns[Ast.Expresion ex]
+    : VEC DOBLE_DOSPUNTOS NEW PAR_IZQ PAR_DER
+        {
+            fila := $VEC.line
+            columna := $VEC.pos 
+            vacio := true
+            listaTemp := arraylist.New()
+            usize := expresiones.NewPrimitivo(0, Ast.USIZE,fila,columna)
+            $ex = expresiones.NewVector(Ast.VECTOR,listaTemp,Ast.INDEFINIDO,
+            usize,false,false,vacio,fila,columna)           
+        }
+    | VEC_M NOT CORCHETE_IZQ e=elementos_vector CORCHETE_DER
+        {
+            fila := $VEC_M.line
+            columna := $VEC_M.pos 
+            vacio := true
+            listaTemp := localctx.(*Metodos_iniciar_vectorContext).GetE().GetList()
+            if listaTemp.Len() > 0{vacio = false} 
+            $ex = expresiones.NewVector(Ast.VECTOR,$elementos_vector.list,Ast.INDEFINIDO,
+            Ast.TipoRetornado{Tipo:Ast.LIBRE,Valor:true},false,false,vacio,fila,columna)            
+        }
+    | VEC DOBLE_DOSPUNTOS WITH_CAPACITY PAR_IZQ expresion PAR_DER
+        {
+            fila := $VEC.line
+            columna := $VEC.pos 
+            vacio := true
+            listaTemp := arraylist.New()
+            $ex = expresiones.NewVector(Ast.VECTOR,listaTemp,Ast.INDEFINIDO,
+            $expresion.ex,false,false,vacio,fila,columna)                   
+        }
+;
+
+metodos_vector returns[Ast.Instruccion ex]
+:   expresion PUNTO PUSH PAR_IZQ expresion PAR_DER
+|   expresion PUNTO INSERT PAR_IZQ expresion COMA expresion PAR_DER
+;
+
+metodos_vector_expresion returns[Ast.Expresion ex]
+:   expresion PUNTO REMOVE PAR_IZQ expresion PAR_DER
+|   expresion PUNTO CONTAINS PAR_IZQ AMPERSAND expresion PAR_DER
+|   expresion PUNTO LEN PAR_IZQ expresion PAR_DER
+|   expresion PUNTO CAPACITY PAR_IZQ PAR_DER
+;

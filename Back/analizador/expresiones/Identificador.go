@@ -13,10 +13,6 @@ type Identificador struct {
 	Columna int
 }
 
-func (p Identificador) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
-	return Ast.EXPRESION, Ast.IDENTIFICADOR
-}
-
 func (p Identificador) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	//Buscar el símbolo en la tabla de símbolos y retornar el valor
 	//Verificar que el id no exista
@@ -45,6 +41,9 @@ func NewIdentificador(val string, tipo Ast.TipoDato, fila, columna int) Identifi
 	return Identificador{Tipo: tipo, Valor: val, Fila: fila, Columna: columna}
 }
 
+func (p Identificador) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
+	return Ast.EXPRESION, Ast.IDENTIFICADOR
+}
 func (op Identificador) GetFila() int {
 	return op.Fila
 }

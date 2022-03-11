@@ -3,6 +3,7 @@ package instrucciones
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"Back/analizador/expresiones"
 	"fmt"
 	"strconv"
 )
@@ -60,6 +61,9 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 
 	//Primero verificar que no es un if expresion
 	_, tipoIn := d.Valor.(Ast.Abstracto).GetTipo()
+
+	//Verificar que sea un primitivo i64 y la declaración sea usize
+
 	var preValor interface{}
 	if tipoIn == Ast.IF_EXPRESION || tipoIn == Ast.MATCH_EXPRESION || tipoIn == Ast.LOOP_EXPRESION {
 		preValor = d.Valor.(Ast.Instruccion).Run(scope)
@@ -72,6 +76,28 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 		preValor = d.Valor.(Ast.Expresion).GetValue(scope)
 	}
 	valor := preValor.(Ast.TipoRetornado)
+	//Cambiar valor de i64 a usize si la declaración es usize
+	if d.Tipo == Ast.USIZE && tipoIn == Ast.I64 {
+		valor.Tipo = Ast.USIZE
+	}
+
+	//Revisar si se declara un vec o array y la expresion es diferente
+	if d.Tipo == Ast.VECTOR && valor.Tipo != Ast.VECTOR {
+		if valor.Tipo == Ast.ERROR {
+			return valor
+		}
+		//Error, no se puede inicializar un vector con un valor
+		msg := "Semantic error, can't initialize a Vector with " + Ast.ValorTipoDato[valor.Tipo] + " type" +
+			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+		nError := errores.NewError(d.Fila, d.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
 
 	//Revisar si el retorno es un error
 	if valor.Tipo == Ast.ERROR {
@@ -91,6 +117,15 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			Publico:       d.Publico,
 			Entorno:       scope,
 		}
+		//Si es vector o array verificar si es referencia o no
+		if valor.Tipo == Ast.VECTOR {
+			nSimbolo.Referencia = valor.Valor.(expresiones.Vector).Referencia
+			nValor := valor.Valor.(expresiones.Vector)
+			if nValor.TipoVector == Ast.INDEFINIDO {
+				nValor.TipoVector = d.Tipo
+			}
+			nSimbolo.Valor = Ast.TipoRetornado{Tipo: Ast.VECTOR, Valor: nValor}
+		}
 		//Si es función, módulo o struct, agregarlos a las listas globales
 		scope.Add(nSimbolo)
 		if valor.Tipo == Ast.FUNCION ||
@@ -109,6 +144,14 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 			Tipo:          valor.Tipo,
 			Mutable:       d.Mutable,
 			Publico:       d.Publico,
+		}
+		if valor.Tipo == Ast.VECTOR {
+			nSimbolo.Referencia = valor.Valor.(expresiones.Vector).Referencia
+			nValor := valor.Valor.(expresiones.Vector)
+			if nValor.TipoVector == Ast.INDEFINIDO {
+				nValor.TipoVector = d.Tipo
+			}
+			nSimbolo.Valor = Ast.TipoRetornado{Tipo: Ast.VECTOR, Valor: nValor}
 		}
 		scope.Add(nSimbolo)
 	} else if d.Tipo != Ast.INDEFINIDO && !existe && valor.Tipo == Ast.NULL {
