@@ -20,6 +20,7 @@ type Vector struct {
 	Tamaño     interface{}
 	Referencia bool
 	Size       int
+	Capacity   int
 }
 
 func NewVector(tipo Ast.TipoDato, valor *arraylist.List, tipoVector Ast.TipoDato, tamaño interface{}, mutable bool, factorial bool, vacio bool, fila, columna int) Vector {
@@ -36,34 +37,40 @@ func NewVector(tipo Ast.TipoDato, valor *arraylist.List, tipoVector Ast.TipoDato
 		Tamaño:     tamaño,
 		Referencia: false,
 		Size:       0,
+		Capacity:   0,
 	}
 	return nV
 }
 
 func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	//Crear los valores del vector
-	if v.Vacio {
+	if v.Vacio && !v.Factorial {
 		//Es un vector vacio, pero tiene que tener el tipo, entonces solo crear la lista y retornarlo
 		v.Valor = arraylist.New()
 		tamaño := v.Tamaño.(Ast.Expresion).GetValue(scope)
 		_, tipoParticular := v.Tamaño.(Ast.Abstracto).GetTipo()
-
+		//Iniciado con With Capacity
 		if (tipoParticular == Ast.USIZE || tamaño.Tipo == Ast.USIZE) ||
 			(tipoParticular == Ast.I64 && tipoParticular != Ast.IDENTIFICADOR) {
 			//Verificar que sea uzise
-			nElemento := Ast.TipoRetornado{
-				Tipo:  Ast.LIBRE,
-				Valor: true,
-			}
-			tamaño := v.Tamaño.(Ast.Expresion).GetValue(scope).Valor.(int)
-			for i := 0; i < tamaño; i++ {
-				elemento := nElemento
-				v.Valor.Add(elemento)
-				if v.Vacio {
-					v.Vacio = false
+			/*
+				nElemento := Ast.TipoRetornado{
+					Tipo:  Ast.LIBRE,
+					Valor: true,
 				}
-			}
-			v.Size = tamaño
+			*/
+			tamaño := v.Tamaño.(Ast.Expresion).GetValue(scope).Valor.(int)
+			/*
+				for i := 0; i < tamaño; i++ {
+					elemento := nElemento
+					v.Valor.Add(elemento)
+					if v.Vacio && elemento.Tipo != Ast.LIBRE {
+						v.Vacio = false
+					}
+				}
+			*/
+			v.Size = 0
+			v.Capacity = tamaño
 
 		} else if tipoParticular != Ast.LIBRE {
 			if tamaño.Tipo == Ast.ERROR {
@@ -98,7 +105,20 @@ func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		tipoAnterior := Ast.TipoRetornado{Tipo: Ast.LIBRE, Valor: true}
 		for i := 0; i < listaTemp.Len(); i++ {
 			elemento := listaTemp.GetValue(i)
+			//Calcular el valor del elemento
+			valorElemento = elemento.(Ast.Expresion).GetValue(scope)
+			//Si hay error solo lo retorno
+			if valorElemento.Tipo == Ast.ERROR {
+				return valorElemento
+			}
+			//Calcular los tipos del elemento
 			tipoGeneral, tipoParticular := elemento.(Ast.Abstracto).GetTipo()
+			if tipoParticular != Ast.IDENTIFICADOR {
+				tipoAnterior.Tipo = tipoParticular
+			} else {
+				tipoAnterior.Tipo = valorElemento.Tipo
+				tipoParticular = valorElemento.Tipo
+			}
 			if tipoAnterior.Tipo != Ast.LIBRE {
 				if tipoAnterior.Tipo != tipoParticular {
 					//Los tipos son diferentes, error
@@ -117,8 +137,6 @@ func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 						Valor: nError,
 					}
 				}
-			} else {
-				tipoAnterior.Tipo = tipoParticular
 			}
 			if tipoGeneral != Ast.EXPRESION {
 				//Error, no se puede guardar algo que no sea una expresión en el vector
@@ -136,11 +154,7 @@ func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					Valor: nError,
 				}
 			}
-			valorElemento = elemento.(Ast.Expresion).GetValue(scope)
-			//Si hay error solo lo retorno
-			if valorElemento.Tipo == Ast.ERROR {
-				return valorElemento
-			}
+
 			//Todo bien, entonces agregarlo al vector, cambiar el estado de vacio y aumentar el tamaño
 			v.Valor.Add(valorElemento)
 			v.Size++
@@ -149,11 +163,16 @@ func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				v.Vacio = false
 			}
 		}
+		//Actualizar capacity
+		v.Capacity = v.Size
 
 	} else {
+		//Se crea como factorial
 		//Crear la cantidad de elementos que se solicita
 		//conseguir la cantidad de veces que se va a repetir el valor
-		veces := v.Valor.GetValue(1).(Ast.Expresion).GetValue(scope)
+		elementoVeces := v.Valor.GetValue(1)
+		_, tipoParticular := elementoVeces.(Ast.Abstracto).GetTipo()
+		veces := elementoVeces.(Ast.Expresion).GetValue(scope)
 		elemento := v.Valor.GetValue(0).(Ast.Expresion).GetValue(scope)
 
 		if veces.Tipo == Ast.ERROR {
@@ -162,7 +181,7 @@ func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		if elemento.Tipo == Ast.ERROR {
 			return elemento
 		}
-		if veces.Tipo != Ast.USIZE {
+		if veces.Tipo != Ast.USIZE && tipoParticular != Ast.I64 {
 			//Error, se esperaba un USIZE
 			fila := v.Valor.GetValue(1).(Ast.Abstracto).GetFila()
 			columna := v.Valor.GetValue(1).(Ast.Abstracto).GetColumna()
@@ -184,7 +203,12 @@ func (v Vector) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			nElemento := elemento
 			v.Valor.Add(nElemento)
 			v.Size++
+			if v.Vacio {
+				v.Vacio = false
+				v.TipoVector = elemento.Tipo
+			}
 		}
+		v.Capacity = v.CalcularCapacity(v.Size, v.Capacity)
 	}
 
 	return Ast.TipoRetornado{
@@ -210,4 +234,21 @@ func (v Vector) GetTipoVector() Ast.TipoDato {
 
 func (v Vector) GetSize() int {
 	return v.Size
+}
+
+func (v Vector) CalcularCapacity(size int, capacity int) int {
+	if size == 1 && capacity == 0 {
+		return 4
+	}
+	if size == 0 && capacity == 0 {
+		return 0
+	}
+	if capacity <= size {
+		if capacity == 0 {
+			return v.CalcularCapacity(size, capacity+4)
+		}
+		return v.CalcularCapacity(size, capacity*2)
+	} else {
+		return capacity
+	}
 }

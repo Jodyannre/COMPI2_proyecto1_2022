@@ -76,7 +76,8 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 		preValor = d.Valor.(Ast.Expresion).GetValue(scope)
 	}
 	valor := preValor.(Ast.TipoRetornado)
-	//Cambiar valor de i64 a usize si la declaración es usize
+
+	//Cambiar valor de i64 a usize si la declaración es usize y el valor que viene es un i64
 	if d.Tipo == Ast.USIZE && tipoIn == Ast.I64 {
 		valor.Tipo = Ast.USIZE
 	}
@@ -119,10 +120,41 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 		}
 		//Si es vector o array verificar si es referencia o no
 		if valor.Tipo == Ast.VECTOR {
+			//Verificar que el tipo del vector a agregar es correcto con el vector esperado
 			nSimbolo.Referencia = valor.Valor.(expresiones.Vector).Referencia
 			nValor := valor.Valor.(expresiones.Vector)
+			vectorCorrecto := TipoVectorCorrecto(d.TipoRetorno, nValor.TipoVector)
+			if vectorCorrecto.Tipo == Ast.ERROR {
+				if vectorCorrecto.Valor == 1 {
+					//No tiene ningún tipo
+					msg := "Semantic error, can't initialize a Vector with " + Ast.ValorTipoDato[nValor.TipoVector] + " type" +
+						" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+					nError := errores.NewError(d.Fila, d.Columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+				if vectorCorrecto.Valor == 2 {
+					//Tipos diferentes de declaración y creación
+					msg := "Semantic error, can't initialize a Vector<" + Ast.ValorTipoDato[d.TipoRetorno] + "> with Vector<" + Ast.ValorTipoDato[nValor.TipoVector] + "> type" +
+						" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+					nError := errores.NewError(d.Fila, d.Columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+			}
+
 			if nValor.TipoVector == Ast.INDEFINIDO {
-				nValor.TipoVector = d.Tipo
+				nValor.TipoVector = d.TipoRetorno
 			}
 			nSimbolo.Valor = Ast.TipoRetornado{Tipo: Ast.VECTOR, Valor: nValor}
 		}
@@ -148,6 +180,37 @@ func (d Declaracion) Run(scope *Ast.Scope) interface{} {
 		if valor.Tipo == Ast.VECTOR {
 			nSimbolo.Referencia = valor.Valor.(expresiones.Vector).Referencia
 			nValor := valor.Valor.(expresiones.Vector)
+
+			vectorCorrecto := TipoVectorCorrecto(d.TipoRetorno, nValor.TipoVector)
+			if vectorCorrecto.Tipo == Ast.ERROR {
+				if vectorCorrecto.Valor == 1 {
+					//No tiene ningún tipo
+					msg := "Semantic error, can't initialize a Vector with " + Ast.ValorTipoDato[nValor.TipoVector] + " type" +
+						" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+					nError := errores.NewError(d.Fila, d.Columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+				if vectorCorrecto.Valor == 2 {
+					//Tipos diferentes de declaración y creación
+					msg := "Semantic error, can't initialize a Vector<" + Ast.ValorTipoDato[d.TipoRetorno] + "> with Vector<" + Ast.ValorTipoDato[nValor.TipoVector] + "> type" +
+						" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+					nError := errores.NewError(d.Fila, d.Columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+			}
+
 			if nValor.TipoVector == Ast.INDEFINIDO {
 				nValor.TipoVector = d.Tipo
 			}
@@ -206,4 +269,44 @@ func (op Declaracion) GetFila() int {
 }
 func (op Declaracion) GetColumna() int {
 	return op.Columna
+}
+
+func TipoVectorCorrecto(tipoDeclaracion Ast.TipoDato, tipoRetornado Ast.TipoDato) Ast.TipoRetornado {
+	if tipoDeclaracion == Ast.VOID && tipoRetornado != Ast.INDEFINIDO {
+		//Retornar correcto
+		return Ast.TipoRetornado{
+			Tipo:  Ast.BOOLEAN,
+			Valor: true,
+		}
+	}
+	if tipoDeclaracion == Ast.VOID && tipoRetornado == Ast.INDEFINIDO {
+		//Error, el vector no tiene ningún tipo
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: 1, // No tiene ningún tipo
+		}
+	}
+	if tipoDeclaracion != Ast.VOID && tipoRetornado == Ast.INDEFINIDO {
+		return Ast.TipoRetornado{
+			Tipo:  Ast.BOOLEAN,
+			Valor: true,
+		}
+	}
+	if tipoDeclaracion != Ast.VOID && tipoRetornado != Ast.INDEFINIDO {
+		if tipoDeclaracion != tipoRetornado {
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: 2, // Los tipos son diferentes
+			}
+		} else {
+			return Ast.TipoRetornado{
+				Tipo:  Ast.BOOLEAN,
+				Valor: true,
+			}
+		}
+	}
+	return Ast.TipoRetornado{
+		Tipo:  Ast.BOOLEAN,
+		Valor: true,
+	}
 }

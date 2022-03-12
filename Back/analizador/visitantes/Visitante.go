@@ -72,7 +72,7 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 			continue
 		}
 		//Error, no puede haber expresiones sueltas
-		if tipoGeneral == Ast.EXPRESION && tipo != Ast.LLAMADA_FUNCION {
+		if tipoGeneral == Ast.EXPRESION && !EsFuncion(tipo) {
 			fila := actual.(Ast.Abstracto).GetFila()
 			columna := actual.(Ast.Abstracto).GetColumna()
 			msg := "Semantic error, an instruction was expected." +
@@ -82,7 +82,8 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 			EntornoGlobal.Errores.Add(nError)
 			EntornoGlobal.Consola += msg + "\n"
 			continue
-		} else if tipo == Ast.LLAMADA_FUNCION {
+		} else if EsFuncion(tipo) {
+			//LLamandas a funciones y métodos de vectores o arrays o nativos
 			respuesta = actual.(Ast.Expresion).GetValue(&EntornoGlobal)
 		} else if tipo.(Ast.TipoDato) != Ast.DECLARACION {
 			//Declarar variables globales
@@ -121,4 +122,19 @@ func (v *Visitador) GetConsola() string {
 
 func (v *Visitador) UpdateConsola(entrada string) {
 	v.Consola += entrada + "\n"
+}
+
+func EsFuncion(tipo interface{}) bool {
+	validador := false
+
+	switch tipo {
+	case Ast.FUNCION, Ast.VEC_NEW,
+		Ast.VEC_LEN, Ast.VEC_CONTAINS,
+		Ast.VEC_CAPACITY, Ast.VEC_REMOVE:
+		validador = true
+	default:
+		validador = false
+	}
+
+	return validador
 }

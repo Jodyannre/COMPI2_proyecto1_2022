@@ -262,3 +262,15 @@ func (s *BaseNparserListener) EnterMetodos_iniciar_vector(ctx *Metodos_iniciar_v
 
 // ExitMetodos_iniciar_vector is called when production metodos_iniciar_vector is exited.
 func (s *BaseNparserListener) ExitMetodos_iniciar_vector(ctx *Metodos_iniciar_vectorContext) {}
+
+// EnterMetodos_vector is called when production metodos_vector is entered.
+func (s *BaseNparserListener) EnterMetodos_vector(ctx *Metodos_vectorContext) {}
+
+// ExitMetodos_vector is called when production metodos_vector is exited.
+func (s *BaseNparserListener) ExitMetodos_vector(ctx *Metodos_vectorContext) {}
+
+// EnterPotencia is called when production potencia is entered.
+func (s *BaseNparserListener) EnterPotencia(ctx *PotenciaContext) {}
+
+// ExitPotencia is called when production potencia is exited.
+func (s *BaseNparserListener) ExitPotencia(ctx *PotenciaContext) {}

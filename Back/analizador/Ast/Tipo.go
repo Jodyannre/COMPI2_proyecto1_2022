@@ -2,13 +2,14 @@ package Ast
 
 type TipoDato int
 
-var ValorTipoDato = [70]string{
+var ValorTipoDato = [100]string{
 	"I64",
 	"F64",
 	"STRING_OWNED",
 	"STRING",
 	"STR",
 	"BOOLEAN",
+	"USIZE",
 	"CHAR",
 	"ARRAY",
 	"VECTOR",
@@ -22,7 +23,6 @@ var ValorTipoDato = [70]string{
 	"ACCESO_VECTOR",
 	"ACCESO_MODULO",
 	"LLAMADA",
-	"USIZE",
 	"MODULO",
 	"FUNCION",
 	"RETURN",
@@ -73,6 +73,17 @@ var ValorTipoDato = [70]string{
 	"ERROR_ACCESO_PRIVADO",
 	"MUTABLE",
 	"NOT_MUTABLE",
+	"OCUPADO",
+	"LIBRE",
+	"VEC_NEW",
+	"VEC_PUSH",
+	"VEC_LEN",
+	"VEC_CONTAINS",
+	"VEC_CAPACITY",
+	"VEC_INSERT",
+	"VEC_REMOVE",
+	"VEC_ACCESO",
+	"POW",
 }
 
 type Key struct {
@@ -87,6 +98,7 @@ const (
 	STRING
 	STR
 	BOOLEAN
+	USIZE
 	CHAR
 	ARRAY
 	VECTOR
@@ -100,7 +112,6 @@ const (
 	ACCESO_VECTOR
 	ACCESO_MODULO
 	LLAMADA
-	USIZE
 	MODULO
 	FUNCION
 	RETURN
@@ -153,6 +164,15 @@ const (
 	NOT_MUTABLE
 	OCUPADO
 	LIBRE
+	VEC_NEW
+	VEC_PUSH
+	VEC_LEN
+	VEC_CONTAINS
+	VEC_CAPACITY
+	VEC_INSERT
+	VEC_REMOVE
+	VEC_ACCESO
+	POW
 )
 
 type TipoRetornado struct {

@@ -16,6 +16,7 @@ options{
     import "Back/analizador/bucles"
     import "Back/analizador/Ast/simbolos"
     import "Back/analizador/fn_primitivas"
+    import "Back/analizador/fn_vectores"
 }
 
 /* 
@@ -52,20 +53,22 @@ instrucciones returns [*arraylist.List list]
 ;
 
 instruccion returns[interface{} ex] 
-			:llamada_funcion PUNTOCOMA {$ex = $llamada_funcion.ex}
-            |expresion 		    	{$ex = $expresion.ex}	
-            |declaracion PUNTOCOMA  {$ex = $declaracion.ex}	
-            |declaracion_funcion    {$ex = $declaracion_funcion.ex}
-            |asignacion PUNTOCOMA   {$ex = $asignacion.ex}
-            |control_if             {$ex = $control_if.ex}	 
-            |control_match          {$ex = $control_match.ex}   
-            |control_loop           {$ex = $control_loop.ex}
-            |control_while          {$ex = $control_while.ex}
-            |ibreak PUNTOCOMA       {$ex = $ibreak.ex}             
-            |icontinue PUNTOCOMA    {$ex = $icontinue.ex} 
-            |ireturn PUNTOCOMA      {$ex = $ireturn.ex} 
-            |printNormal PUNTOCOMA  {$ex = $printNormal.ex} 
-            |printFormato PUNTOCOMA {$ex = $printFormato.ex} 
+			:llamada_funcion PUNTOCOMA  {$ex = $llamada_funcion.ex}
+            |expresion PUNTOCOMA   	    {$ex = $expresion.ex}	
+            |expresion                  {$ex = $expresion.ex}
+            |declaracion PUNTOCOMA      {$ex = $declaracion.ex}	
+            |declaracion_funcion        {$ex = $declaracion_funcion.ex}
+            |asignacion PUNTOCOMA       {$ex = $asignacion.ex}
+            |control_if                 {$ex = $control_if.ex}	 
+            |control_match              {$ex = $control_match.ex}   
+            |control_loop               {$ex = $control_loop.ex}
+            |control_while              {$ex = $control_while.ex}
+            |ibreak PUNTOCOMA           {$ex = $ibreak.ex}             
+            |icontinue PUNTOCOMA        {$ex = $icontinue.ex} 
+            |ireturn PUNTOCOMA          {$ex = $ireturn.ex} 
+            |printNormal PUNTOCOMA      {$ex = $printNormal.ex} 
+            |printFormato PUNTOCOMA     {$ex = $printFormato.ex} 
+            |metodos_vector PUNTOCOMA   {$ex = $metodos_vector.ex} 
 
 ;
 
@@ -370,7 +373,43 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $metodos_iniciar_vector.ex
         }
+    |   potencia
+        {
+            $ex = $potencia.ex   
+        }
+        //Acceso a vector
+    |   id=expresion CORCHETE_IZQ index=expresion CORCHETE_DER  
+        {
+            fila := $CORCHETE_IZQ.line
+            columna := $CORCHETE_IZQ.pos-1 
+            $ex = fn_vectores.NewAccesoVec($id.ex,$index.ex,Ast.VEC_ACCESO,fila,columna)
+        }
+        //Metodo len de vector
+    |   id=expresion PUNTO LEN PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewLenVec($id.ex,Ast.VEC_PUSH,fila,columna)
+        }   
+    | id=expresion PUNTO CAPACITY PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewCapacityVec($id.ex,Ast.VEC_CAPACITY,fila,columna)
+        }
+    | id=expresion PUNTO CONTAINS PAR_IZQ AMPERSAND exp=expresion PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewContainsVec($id.ex,$exp.ex,Ast.VEC_CONTAINS,fila,columna)            
+        }
+    | id=expresion PUNTO REMOVE PAR_IZQ index=expresion PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewRemoveVec($id.ex,$index.ex,Ast.VEC_REMOVE,fila,columna)
 
+        }
     |   ID		
         {
             id := $ID.text
@@ -926,7 +965,7 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
             vacio := true
             listaTemp := arraylist.New()
             usize := expresiones.NewPrimitivo(0, Ast.USIZE,fila,columna)
-            $ex = expresiones.NewVector(Ast.VECTOR,listaTemp,Ast.INDEFINIDO,
+            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,listaTemp,Ast.INDEFINIDO,
             usize,false,false,vacio,fila,columna)           
         }
     | VEC_M NOT CORCHETE_IZQ e=elementos_vector CORCHETE_DER
@@ -936,8 +975,19 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
             vacio := true
             listaTemp := localctx.(*Metodos_iniciar_vectorContext).GetE().GetList()
             if listaTemp.Len() > 0{vacio = false} 
-            $ex = expresiones.NewVector(Ast.VECTOR,$elementos_vector.list,Ast.INDEFINIDO,
+            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,$elementos_vector.list,Ast.INDEFINIDO,
             Ast.TipoRetornado{Tipo:Ast.LIBRE,Valor:true},false,false,vacio,fila,columna)            
+        }
+    | VEC_M NOT CORCHETE_IZQ ex1=expresion PUNTOCOMA ex2=expresion CORCHETE_DER
+        {
+            fila := $VEC_M.line
+            columna := $VEC_M.pos 
+            vacio := true
+            listaTemp := arraylist.New()
+            listaTemp.Add($ex1.ex)
+            listaTemp.Add($ex2.ex)
+            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,listaTemp,Ast.INDEFINIDO,
+            Ast.TipoRetornado{Tipo:Ast.LIBRE,Valor:true},false,true,vacio,fila,columna)            
         }
     | VEC DOBLE_DOSPUNTOS WITH_CAPACITY PAR_IZQ expresion PAR_DER
         {
@@ -945,19 +995,38 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
             columna := $VEC.pos 
             vacio := true
             listaTemp := arraylist.New()
-            $ex = expresiones.NewVector(Ast.VECTOR,listaTemp,Ast.INDEFINIDO,
+            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,listaTemp,Ast.INDEFINIDO,
             $expresion.ex,false,false,vacio,fila,columna)                   
         }
 ;
 
 metodos_vector returns[Ast.Instruccion ex]
-:   expresion PUNTO PUSH PAR_IZQ expresion PAR_DER
-|   expresion PUNTO INSERT PAR_IZQ expresion COMA expresion PAR_DER
+    : id=expresion PUNTO PUSH PAR_IZQ exp=expresion PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewPush($id.ex,$exp.ex,Ast.VEC_PUSH,fila,columna)
+        }
+    | id=expresion PUNTO INSERT PAR_IZQ pos=expresion COMA exp=expresion PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewInsertVec($id.ex,$exp.ex,$pos.ex,Ast.VEC_INSERT,fila,columna)            
+        }
 ;
 
-metodos_vector_expresion returns[Ast.Expresion ex]
-:   expresion PUNTO REMOVE PAR_IZQ expresion PAR_DER
-|   expresion PUNTO CONTAINS PAR_IZQ AMPERSAND expresion PAR_DER
-|   expresion PUNTO LEN PAR_IZQ expresion PAR_DER
-|   expresion PUNTO CAPACITY PAR_IZQ PAR_DER
+potencia returns[Ast.Expresion ex]
+    : I64 DOBLE_DOSPUNTOS POW PAR_IZQ val=expresion COMA pot=expresion PAR_DER 
+    {
+        fila := $DOBLE_DOSPUNTOS.line
+        columna := $DOBLE_DOSPUNTOS.pos-1        
+        $ex = expresiones.NewPow(Ast.POW,Ast.I64,$val.ex,$pot.ex,fila,columna)
+    }
+| F64 DOBLE_DOSPUNTOS POWF PAR_IZQ val=expresion COMA pot=expresion PAR_DER 
+    {
+        fila := $DOBLE_DOSPUNTOS.line
+        columna := $DOBLE_DOSPUNTOS.pos-1        
+        $ex = expresiones.NewPow(Ast.POW,Ast.F64,$val.ex,$pot.ex,fila,columna)
+    }
 ;
+

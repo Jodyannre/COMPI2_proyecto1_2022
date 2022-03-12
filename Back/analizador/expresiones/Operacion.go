@@ -8,31 +8,34 @@ import (
 	"strconv"
 )
 
-var suma_dominante = [6][6]Ast.TipoDato{
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING_OWNED},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+var suma_dominante = [7][7]Ast.TipoDato{
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING_OWNED, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 }
 
-var resta_dominante = [6][6]Ast.TipoDato{
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+var resta_dominante = [7][7]Ast.TipoDato{
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 }
 
-var mul_div_dominante = [6][6]Ast.TipoDato{
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+var mul_div_dominante = [7][7]Ast.TipoDato{
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 }
 
 type Operacion struct {
@@ -93,7 +96,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 
-	if tipo_izq.Tipo > 5 || tipo_der.Tipo > 5 {
+	if tipo_izq.Tipo > 7 || tipo_der.Tipo > 7 {
 		//Error, no se pueden operar porque no es ningún valor operable
 		msg := "Semantic error, can't operate " + Ast.ValorTipoDato[tipo_izq.Tipo] +
 			" type with " + Ast.ValorTipoDato[tipo_der.Tipo] +
@@ -113,7 +116,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 	case "+":
 		result_dominante = suma_dominante[tipo_izq.Tipo][tipo_der.Tipo]
 
-		if result_dominante == Ast.I64 {
+		if result_dominante == Ast.I64 || result_dominante == Ast.USIZE {
 			return Ast.TipoRetornado{
 				Tipo:  result_dominante,
 				Valor: tipo_izq.Valor.(int) + tipo_der.Valor.(int),
@@ -152,7 +155,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				}
 			*/
 			msg := "Semantic error, can't add " + Ast.ValorTipoDato[tipo_izq.Tipo] +
-				" type with " + Ast.ValorTipoDato[tipo_der.Tipo] +
+				" type to " + Ast.ValorTipoDato[tipo_der.Tipo] +
 				" type. -- Line: " + strconv.Itoa(op.Fila) +
 				" Column: " + strconv.Itoa(op.Columna)
 			nError := errores.NewError(op.Fila, op.Columna, msg)
@@ -201,6 +204,19 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 					Valor: !tipo_izq.Valor.(bool),
 				}
 
+			} else if tipo_izq.Tipo == Ast.USIZE && op.operador == "-" {
+				//Error, no se puede aplicar el menos a un usize
+				msg := "Semantic error, can't apply unary operator `-` to type `usize`." +
+					" -- Line: " + strconv.Itoa(op.Fila) +
+					" Column: " + strconv.Itoa(op.Columna)
+				nError := errores.NewError(op.Fila, op.Columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				entorno.Errores.Add(nError)
+				entorno.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
 			} else {
 				//Tipo no operable
 				msg := "Semantic error, can't operate (!) with a " + Ast.ValorTipoDato[tipo_izq.Tipo] +
@@ -225,6 +241,27 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				Tipo:  result_dominante,
 				Valor: tipo_izq.Valor.(int) - tipo_der.Valor.(int),
 			}
+		} else if result_dominante == Ast.USIZE {
+			preValor := tipo_izq.Valor.(int) - tipo_der.Valor.(int)
+			if preValor < 0 {
+				//Error, el usize no puede ser negativo
+				msg := "Semantic error, attempt to subtract with overflow." +
+					" -- Line: " + strconv.Itoa(op.Fila) +
+					" Column: " + strconv.Itoa(op.Columna)
+				nError := errores.NewError(op.Fila, op.Columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				entorno.Errores.Add(nError)
+				entorno.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
+			return Ast.TipoRetornado{
+				Tipo:  result_dominante,
+				Valor: tipo_izq.Valor.(int) - tipo_der.Valor.(int),
+			}
+
 		} else if result_dominante == Ast.F64 {
 
 			if tipo_izq.Tipo == Ast.I64 {
@@ -252,7 +289,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				}
 			*/
 			msg := "Semantic error, can't subtract " + Ast.ValorTipoDato[tipo_izq.Tipo] +
-				" type with " + Ast.ValorTipoDato[tipo_der.Tipo] +
+				" type to " + Ast.ValorTipoDato[tipo_der.Tipo] +
 				" type. -- Line: " + strconv.Itoa(op.Fila) +
 				" Column: " + strconv.Itoa(op.Columna)
 			nError := errores.NewError(op.Fila, op.Columna, msg)
@@ -267,12 +304,11 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 
 	case "*":
 		result_dominante = mul_div_dominante[tipo_izq.Tipo][tipo_der.Tipo]
-		if result_dominante == Ast.I64 {
+		if result_dominante == Ast.I64 || result_dominante == Ast.USIZE {
 			return Ast.TipoRetornado{
 				Tipo:  result_dominante,
 				Valor: tipo_izq.Valor.(int) * tipo_der.Valor.(int),
 			}
-
 		} else if result_dominante == Ast.F64 {
 			if tipo_izq.Tipo == Ast.I64 {
 				tipo_izq = Ast.TipoRetornado{
@@ -299,7 +335,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				}
 			*/
 			msg := "Semantic error, can't multiply " + Ast.ValorTipoDato[tipo_izq.Tipo] +
-				" type with " + Ast.ValorTipoDato[tipo_der.Tipo] +
+				" type to " + Ast.ValorTipoDato[tipo_der.Tipo] +
 				" type. -- Line: " + strconv.Itoa(op.Fila) +
 				" Column: " + strconv.Itoa(op.Columna)
 			nError := errores.NewError(op.Fila, op.Columna, msg)
@@ -332,6 +368,26 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 			return Ast.TipoRetornado{
 				Tipo:  result_dominante,
 				Valor: tipo_izq.Valor.(int) / tipo_der.Valor.(int),
+			}
+
+		} else if result_dominante == Ast.USIZE {
+			if tipo_der.Valor.(int) == 0 {
+				//Error, no se puede dividir dentro de 0
+				msg := "Semantic error, can't be divided by zero." +
+					" -- Line: " + strconv.Itoa(op.Fila) +
+					" Column: " + strconv.Itoa(op.Columna)
+				nError := errores.NewError(op.Fila, op.Columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				entorno.Errores.Add(nError)
+				entorno.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
+			return Ast.TipoRetornado{
+				Tipo:  result_dominante,
+				Valor: int(math.Trunc(float64(tipo_izq.Valor.(int)) / float64(tipo_der.Valor.(int)))),
 			}
 
 		} else if result_dominante == Ast.F64 {
@@ -391,7 +447,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 		}
 	case "%":
 		result_dominante = mul_div_dominante[tipo_izq.Tipo][tipo_der.Tipo]
-		if result_dominante == Ast.I64 {
+		if result_dominante == Ast.I64 || result_dominante == Ast.USIZE {
 			return Ast.TipoRetornado{
 				Tipo:  result_dominante,
 				Valor: tipo_izq.Valor.(int) % tipo_der.Valor.(int),

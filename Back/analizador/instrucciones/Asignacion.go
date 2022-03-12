@@ -3,6 +3,7 @@ package instrucciones
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"Back/analizador/expresiones"
 	"strconv"
 )
 
@@ -59,10 +60,49 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 				Valor: nError,
 			}
 		}
-
+		//Primero verificar
 		//Existe, ahora verificar los tipos
 		if simbolo_id.Valor.(Ast.TipoRetornado).Tipo == valor.Tipo {
 			//Los tipos son correctos, actualizar el símbolo
+
+			//Revisar si es vector y si es del tipo de vector correcto
+			if valor.Tipo == Ast.VECTOR {
+				vectorEntrante := valor.Valor.(expresiones.Vector)
+				vectorGuardado := simbolo_id.Valor.(Ast.TipoRetornado).Valor.(expresiones.Vector)
+				if vectorEntrante.TipoVector != vectorGuardado.TipoVector {
+					//Hay varias opciones y una es que la lista que entra es indefinida
+					//Y la otra es que si traiga un tipo diferente
+					if vectorEntrante.TipoVector != Ast.INDEFINIDO {
+						//Generar el Error, de lo contrario todo bien
+						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.TipoVector] + ">" +
+							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.TipoVector] + ">" +
+							" type. -- Line: " + strconv.Itoa(a.Fila) +
+							" Column: " + strconv.Itoa(a.Columna)
+						nError := errores.NewError(a.Fila, a.Columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						scope.Errores.Add(nError)
+						scope.Consola += msg + "\n"
+						return Ast.TipoRetornado{
+							Tipo:  Ast.ERROR,
+							Valor: nError,
+						}
+					} else {
+						//Copiar los valores del vector guardado al nuevo vector entrante
+						CopiarVector(&vectorGuardado, &vectorEntrante, simbolo_id)
+						valor = Ast.TipoRetornado{
+							Tipo:  Ast.VECTOR,
+							Valor: vectorEntrante,
+						}
+					}
+				} else {
+					CopiarVector(&vectorGuardado, &vectorEntrante, simbolo_id)
+					valor = Ast.TipoRetornado{
+						Tipo:  Ast.VECTOR,
+						Valor: vectorEntrante,
+					}
+				}
+			}
+
 			simbolo_id.Valor = valor
 			scope.UpdateSimbolo(a.Id, simbolo_id)
 		} else {
@@ -109,4 +149,14 @@ func (op Asignacion) GetFila() int {
 }
 func (op Asignacion) GetColumna() int {
 	return op.Columna
+}
+
+func CopiarVector(vectorGuardado *expresiones.Vector, vectorEntrante *expresiones.Vector, simbolo Ast.Simbolo) {
+	vectorEntrante.Columna = simbolo.Columna
+	vectorEntrante.Fila = simbolo.Fila
+	vectorEntrante.Referencia = simbolo.Referencia
+	vectorEntrante.Mutable = simbolo.Mutable
+	vectorEntrante.Tipo = vectorGuardado.Tipo
+	vectorEntrante.TipoVector = vectorGuardado.TipoVector
+	vectorEntrante.Factorial = vectorGuardado.Factorial
 }

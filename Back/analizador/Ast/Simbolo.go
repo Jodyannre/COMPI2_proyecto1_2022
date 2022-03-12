@@ -1,15 +1,16 @@
 package Ast
 
 type Simbolo struct {
-	Identificador string
-	Valor         interface{}
-	Fila          int
-	Columna       int
-	Tipo          TipoDato
-	Mutable       bool
-	Publico       bool
-	Entorno       *Scope
-	Referencia    bool
+	Identificador      string
+	Valor              interface{}
+	Fila               int
+	Columna            int
+	Tipo               TipoDato
+	Mutable            bool
+	Publico            bool
+	Entorno            *Scope
+	Referencia         bool
+	Referencia_puntero *Simbolo
 }
 
 type SimboloReporte struct {
@@ -24,15 +25,16 @@ type SimboloReporte struct {
 func NewSimbolo(identificador string, valor interface{}, fila int, columna int,
 	tipo TipoDato, mutable bool, publico bool) Simbolo {
 	simbolo := Simbolo{
-		Identificador: identificador,
-		Valor:         valor,
-		Fila:          fila,
-		Columna:       columna,
-		Tipo:          tipo,
-		Mutable:       mutable,
-		Publico:       publico,
-		Referencia:    false,
-		Entorno:       nil,
+		Identificador:      identificador,
+		Valor:              valor,
+		Fila:               fila,
+		Columna:            columna,
+		Tipo:               tipo,
+		Mutable:            mutable,
+		Publico:            publico,
+		Referencia:         false,
+		Referencia_puntero: nil,
+		Entorno:            nil,
 	}
 	return simbolo
 }

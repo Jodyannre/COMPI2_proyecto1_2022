@@ -128,6 +128,12 @@ type NparserListener interface {
 	// EnterMetodos_iniciar_vector is called when entering the metodos_iniciar_vector production.
 	EnterMetodos_iniciar_vector(c *Metodos_iniciar_vectorContext)
 
+	// EnterMetodos_vector is called when entering the metodos_vector production.
+	EnterMetodos_vector(c *Metodos_vectorContext)
+
+	// EnterPotencia is called when entering the potencia production.
+	EnterPotencia(c *PotenciaContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -247,4 +253,10 @@ type NparserListener interface {
 
 	// ExitMetodos_iniciar_vector is called when exiting the metodos_iniciar_vector production.
 	ExitMetodos_iniciar_vector(c *Metodos_iniciar_vectorContext)
+
+	// ExitMetodos_vector is called when exiting the metodos_vector production.
+	ExitMetodos_vector(c *Metodos_vectorContext)
+
+	// ExitPotencia is called when exiting the potencia production.
+	ExitPotencia(c *PotenciaContext)
 }

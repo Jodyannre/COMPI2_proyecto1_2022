@@ -210,7 +210,7 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 		Valor: "",
 	}
 	switch valor.Tipo {
-	case Ast.I64:
+	case Ast.I64, Ast.USIZE:
 		salida = strconv.Itoa(valor.Valor.(int))
 	case Ast.F64:
 		salida = fmt.Sprintf("%f", valor.Valor.(float64))
@@ -226,23 +226,42 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 		//De momento no tengo idea, pendiente
 		//Recorrer todos sus elementos e irlos convirtiendo en string
 		lista := valor.Valor.(expresiones.Vector).Valor
+		var tipoAnterior Ast.TipoDato
 		var elemento Ast.TipoRetornado
 		salida += "[ "
 		for i := 0; i < lista.Len(); i++ {
-			if i != 0 {
+			if i != 0 && tipoAnterior != Ast.LIBRE {
 				salida += ", "
 			}
 			elemento = lista.GetValue(i).(Ast.TipoRetornado)
 			resultado := To_String(elemento)
-			salida += resultado.(Ast.TipoRetornado).Valor.(string)
+			tipoAnterior = elemento.Tipo
+			if elemento.Tipo == Ast.STRING ||
+				elemento.Tipo == Ast.STR ||
+				elemento.Tipo == Ast.STRING_OWNED {
+				salida += "\"" + resultado.(Ast.TipoRetornado).Valor.(string) + "\""
+			} else if elemento.Tipo == Ast.CHAR {
+				salida += "'" + resultado.(Ast.TipoRetornado).Valor.(string) + "'"
+			} else {
+				salida += resultado.(Ast.TipoRetornado).Valor.(string)
+			}
+
 		}
+		if salida[len(salida)-1] == ',' {
+			//Si hay coma al final, eliminarla
+			salida = salida[:len(salida)-1]
+		}
+
 		salida += " ]"
 	case Ast.ARRAY:
 		//De momento no tengo idea, pendiente
+	case Ast.LIBRE:
+		//Espacios libres en un vector
+		salida += ""
 	default:
 		preSalida = Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
-			Valor: "Da igual",
+			Valor: "",
 		}
 	}
 	if preSalida.Tipo != Ast.ERROR {
@@ -254,7 +273,7 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 
 func TypeString(tipo Ast.TipoDato, cadena string) Ast.TipoDato {
 	var tipoPrint Ast.TipoDato
-	if tipo > 8 {
+	if tipo > 10 {
 		return Ast.ERROR
 	}
 	if cadena == "{}" {
@@ -266,9 +285,9 @@ func TypeString(tipo Ast.TipoDato, cadena string) Ast.TipoDato {
 	return tipoPrint
 }
 
-var validacion_String = [2][10]Ast.TipoDato{
-	{Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.ERROR, Ast.ERROR, Ast.ERROR},
-	{Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.ERROR},
+var validacion_String = [2][11]Ast.TipoDato{
+	{Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.ERROR, Ast.ERROR, Ast.ERROR},
+	{Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING, Ast.STRING},
 	//I64-F64-String_owned-string-str-boolean-char-vector-array-struct
 }
 

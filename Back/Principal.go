@@ -57,9 +57,10 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-	let vector = vec![true,false,true,true];
-	println!("{}",vector);
-
+	let mut v = vec![2,4,6,8,10];
+	let num:i64 = 3;
+	let elemento = num[2];
+	println!("El elemento en la posición 2 es : {}",v[3.2]);
 	`
 
 	//Obteniendo el input
