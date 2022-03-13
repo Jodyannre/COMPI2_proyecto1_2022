@@ -134,6 +134,12 @@ type NparserListener interface {
 	// EnterPotencia is called when entering the potencia production.
 	EnterPotencia(c *PotenciaContext)
 
+	// EnterArray is called when entering the array production.
+	EnterArray(c *ArrayContext)
+
+	// EnterDimension_array is called when entering the dimension_array production.
+	EnterDimension_array(c *Dimension_arrayContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -259,4 +265,10 @@ type NparserListener interface {
 
 	// ExitPotencia is called when exiting the potencia production.
 	ExitPotencia(c *PotenciaContext)
+
+	// ExitArray is called when exiting the array production.
+	ExitArray(c *ArrayContext)
+
+	// ExitDimension_array is called when exiting the dimension_array production.
+	ExitDimension_array(c *Dimension_arrayContext)
 }

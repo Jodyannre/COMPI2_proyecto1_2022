@@ -274,3 +274,15 @@ func (s *BaseNparserListener) EnterPotencia(ctx *PotenciaContext) {}
 
 // ExitPotencia is called when production potencia is exited.
 func (s *BaseNparserListener) ExitPotencia(ctx *PotenciaContext) {}
+
+// EnterArray is called when production array is entered.
+func (s *BaseNparserListener) EnterArray(ctx *ArrayContext) {}
+
+// ExitArray is called when production array is exited.
+func (s *BaseNparserListener) ExitArray(ctx *ArrayContext) {}
+
+// EnterDimension_array is called when production dimension_array is entered.
+func (s *BaseNparserListener) EnterDimension_array(ctx *Dimension_arrayContext) {}
+
+// ExitDimension_array is called when production dimension_array is exited.
+func (s *BaseNparserListener) ExitDimension_array(ctx *Dimension_arrayContext) {}

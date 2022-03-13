@@ -166,6 +166,27 @@ func (p InsertVec) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 
+	if valor.Tipo == Ast.VECTOR {
+		tipoVector := GetTipoVector(valor.Valor.(expresiones.Vector))
+		//Me estoy arriesgando a que uno de los 2 este vacio y truene todo //////////////////////////////////
+		if tipoVector != vector.TipoDelVector ||
+			!GetNivelesVector(vector.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector), valor.Valor.(expresiones.Vector)) {
+			//Error, no se puede guardar ese tipo de vector en este vector
+			msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[tipoVector] + "> value" +
+				" in a VECTOR<" + Ast.ValorTipoDato[vector.TipoDelVector] + ">." +
+				" -- Line: " + strconv.Itoa(p.Fila) +
+				" Column: " + strconv.Itoa(p.Columna)
+			nError := errores.NewError(p.Fila, p.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+	}
+
 	//Paso todas las pruebas, entonces guardar el elemento
 	//Crear la nueva lista que contendrá los valores
 	nLista := arraylist.New()

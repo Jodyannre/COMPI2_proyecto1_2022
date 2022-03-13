@@ -17,6 +17,7 @@ options{
     import "Back/analizador/Ast/simbolos"
     import "Back/analizador/fn_primitivas"
     import "Back/analizador/fn_vectores"
+    import "Back/analizador/fn_array"
 }
 
 /* 
@@ -170,6 +171,18 @@ declaracion returns[Ast.Instruccion ex]
             columna := $LET.pos 
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
         }
+        /* 
+    | LET MUT ID CORCHETE_IZQ tipo_dato PUNTOCOMA expresion CORCHETE_DER IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracionArray($ID.text,Ast.ARRAY,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
+        }
+    */
+    | LET ID CORCHETE_IZQ dimension=expresion CORCHETE_DER IGUAL expresion
+
+
+   
 
     //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
 
@@ -265,18 +278,19 @@ declaracion_funcion returns [Ast.Instruccion ex]
 ;
 
 asignacion returns[Ast.Instruccion ex]
-    : ID IGUAL expresion
+    : id=expresion IGUAL elemento=expresion
     {
-        fila := $ID.line
-        columna := $ID.pos
-        $ex = instrucciones.NewAsignacion($ID.text,$expresion.ex,fila,columna)
+        fila := $IGUAL.line
+        columna := $IGUAL.pos-1
+        $ex = instrucciones.NewAsignacion($id.ex,$elemento.ex,fila,columna)        
     }
-    | ID IGUAL control_expresion
+    | id=expresion IGUAL control_expresion
     {
-        fila := $ID.line
-        columna := $ID.pos
-        $ex = instrucciones.NewAsignacion($ID.text,$control_expresion.ex,fila,columna)
+        fila := $IGUAL.line
+        columna := $IGUAL.pos
+        $ex = instrucciones.NewAsignacion($id.ex,$control_expresion.ex,fila,columna)
     }
+
 ;
 
 
@@ -377,6 +391,11 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $potencia.ex   
         }
+    |   array
+        {
+            $ex = $array.ex
+        }
+
         //Acceso a vector
     |   id=expresion CORCHETE_IZQ index=expresion CORCHETE_DER  
         {
@@ -409,6 +428,10 @@ expresion returns[Ast.Expresion ex]
             columna := $PUNTO.pos
             $ex = fn_vectores.NewRemoveVec($id.ex,$index.ex,Ast.VEC_REMOVE,fila,columna)
 
+        }
+    |   dimension_array
+        {
+            $ex = $dimension_array.ex   
         }
     |   ID		
         {
@@ -480,8 +503,6 @@ tipo_dato returns[Ast.TipoDato ex]
     |   STRING  {$ex = Ast.STRING}
     |   USIZE   {$ex = Ast.USIZE}
 ;
-
-
 
 
 
@@ -962,41 +983,29 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
         {
             fila := $VEC.line
             columna := $VEC.pos 
-            vacio := true
-            listaTemp := arraylist.New()
-            usize := expresiones.NewPrimitivo(0, Ast.USIZE,fila,columna)
-            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,listaTemp,Ast.INDEFINIDO,
-            usize,false,false,vacio,fila,columna)           
+            $ex = fn_vectores.NewVecNew(fila,columna)           
         }
     | VEC_M NOT CORCHETE_IZQ e=elementos_vector CORCHETE_DER
         {
             fila := $VEC_M.line
             columna := $VEC_M.pos 
-            vacio := true
-            listaTemp := localctx.(*Metodos_iniciar_vectorContext).GetE().GetList()
-            if listaTemp.Len() > 0{vacio = false} 
-            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,$elementos_vector.list,Ast.INDEFINIDO,
-            Ast.TipoRetornado{Tipo:Ast.LIBRE,Valor:true},false,false,vacio,fila,columna)            
+            //listaTemp := localctx.(*Metodos_iniciar_vectorContext).GetE().GetList()
+            $ex = fn_vectores.NewVecElementos($elementos_vector.list,fila,columna)            
         }
     | VEC_M NOT CORCHETE_IZQ ex1=expresion PUNTOCOMA ex2=expresion CORCHETE_DER
         {
             fila := $VEC_M.line
             columna := $VEC_M.pos 
-            vacio := true
             listaTemp := arraylist.New()
             listaTemp.Add($ex1.ex)
             listaTemp.Add($ex2.ex)
-            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,listaTemp,Ast.INDEFINIDO,
-            Ast.TipoRetornado{Tipo:Ast.LIBRE,Valor:true},false,true,vacio,fila,columna)            
+            $ex = fn_vectores.NewVecFactorial(listaTemp,fila,columna)            
         }
-    | VEC DOBLE_DOSPUNTOS WITH_CAPACITY PAR_IZQ expresion PAR_DER
+    | VEC DOBLE_DOSPUNTOS WITH_CAPACITY PAR_IZQ capacity=expresion PAR_DER
         {
             fila := $VEC.line
             columna := $VEC.pos 
-            vacio := true
-            listaTemp := arraylist.New()
-            $ex = fn_vectores.NewVecNew(Ast.VEC_NEW,listaTemp,Ast.INDEFINIDO,
-            $expresion.ex,false,false,vacio,fila,columna)                   
+            $ex = fn_vectores.NewVecWithCapacity($capacity.ex,fila,columna)                   
         }
 ;
 
@@ -1030,3 +1039,39 @@ potencia returns[Ast.Expresion ex]
     }
 ;
 
+
+array returns[Ast.Expresion ex]
+    : CORCHETE_IZQ elementos=elementos_vector CORCHETE_DER
+        {
+            fila := $CORCHETE_IZQ.line
+            columna := $CORCHETE_IZQ.pos 
+            $ex = fn_array.NewArrayElementos($elementos_vector.list,fila,columna)                
+        }
+    | CORCHETE_IZQ elemento=expresion PUNTOCOMA serie=expresion CORCHETE_DER
+        {
+            fila := $CORCHETE_IZQ.line
+            columna := $CORCHETE_IZQ.pos
+            listaTemp := arraylist.New()
+            listaTemp.Add($elemento.ex)
+            listaTemp.Add($serie.ex)
+            $ex = fn_array.NewArrayFactorial(listaTemp,fila,columna)
+        }
+;
+
+dimension_array returns[Ast.Expresion ex]
+    : CORCHETE_IZQ lista_elementos = dimension_array PUNTOCOMA expresion CORCHETE_DER
+        {
+            dimension := localctx.(*Dimension_arrayContext).GetLista_elementos().GetEx()
+            dimension.(expresiones.DimensionArray).Elementos.Add($expresion.ex)
+            $ex = dimension
+        }
+    | CORCHETE_IZQ tipo_dato PUNTOCOMA expresion CORCHETE_DER
+        {
+            fila := $CORCHETE_IZQ.line
+            columna := $CORCHETE_IZQ.pos
+            listaD := arraylist.New()
+            listaD.Add($expresion.ex)
+            $ex = expresiones.NewDimensionArray(listaD, $tipo_dato.ex,fila,columna)
+        }
+
+;

@@ -57,10 +57,13 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-	let mut v = vec![2,4,6,8,10];
-	let num:i64 = 3;
-	let elemento = num[2];
-	println!("El elemento en la posición 2 es : {}",v[3.2]);
+	[
+	[ [ 1, 3, 5, 7], [ 5;4 ] ],
+	[ [ 2, 4, 6, 8], [ 10;4 ] ],
+	[ [ 2; 4 ], [ 0; 4 ] ]
+	];
+
+	println!("{:?}",[1,5,6,7,8]);
 	`
 
 	//Obteniendo el input

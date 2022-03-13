@@ -91,7 +91,7 @@ func (p Push) Run(scope *Ast.Scope) interface{} {
 	//Verificar que el vector sea mutable
 	if !simbolo.Mutable {
 		msg := "Semantic error, can't store " + Ast.ValorTipoDato[valor.Tipo] + " value" +
-			" in a not mutable Vec<" + Ast.ValorTipoDato[vector.TipoVector] + ">." +
+			" in a not mutable VECTOR<>." +
 			" -- Line: " + strconv.Itoa(p.Fila) +
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
@@ -117,6 +117,27 @@ func (p Push) Run(scope *Ast.Scope) interface{} {
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
+		}
+	}
+
+	//Verificar si es vector el que se va a agregar y el tipo del vector
+	if valor.Tipo == Ast.VECTOR {
+		tipoVector := GetTipoVector(valor.Valor.(expresiones.Vector))
+		if tipoVector != vector.TipoDelVector ||
+			!GetNivelesVector(vector.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector), valor.Valor.(expresiones.Vector)) {
+			//Error, no se puede guardar ese tipo de vector en este vector
+			msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[tipoVector] + "> value" +
+				" in a VECTOR< VECTOR<" + Ast.ValorTipoDato[vector.TipoDelVector] + "> >." +
+				" -- Line: " + strconv.Itoa(p.Fila) +
+				" Column: " + strconv.Itoa(p.Columna)
+			nError := errores.NewError(p.Fila, p.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
 		}
 	}
 

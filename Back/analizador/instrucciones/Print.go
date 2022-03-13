@@ -251,13 +251,38 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 			//Si hay coma al final, eliminarla
 			salida = salida[:len(salida)-1]
 		}
-
 		salida += " ]"
-	case Ast.ARRAY:
-		//De momento no tengo idea, pendiente
 	case Ast.LIBRE:
 		//Espacios libres en un vector
 		salida += ""
+	case Ast.ARRAY:
+		//Recorrer todos sus elementos e irlos convirtiendo en string
+		lista := valor.Valor.(expresiones.Array).Elementos
+		var tipoAnterior Ast.TipoDato
+		var elemento Ast.TipoRetornado
+		salida += "[ "
+		for i := 0; i < lista.Len(); i++ {
+			if i != 0 && tipoAnterior != Ast.LIBRE {
+				salida += ", "
+			}
+			elemento = lista.GetValue(i).(Ast.TipoRetornado)
+			resultado := To_String(elemento)
+			tipoAnterior = elemento.Tipo
+			if elemento.Tipo == Ast.STRING ||
+				elemento.Tipo == Ast.STR ||
+				elemento.Tipo == Ast.STRING_OWNED {
+				salida += "\"" + resultado.(Ast.TipoRetornado).Valor.(string) + "\""
+			} else if elemento.Tipo == Ast.CHAR {
+				salida += "'" + resultado.(Ast.TipoRetornado).Valor.(string) + "'"
+			} else {
+				salida += resultado.(Ast.TipoRetornado).Valor.(string)
+			}
+		}
+		if salida[len(salida)-1] == ',' {
+			//Si hay coma al final, eliminarla
+			salida = salida[:len(salida)-1]
+		}
+		salida += " ]"
 	default:
 		preSalida = Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
@@ -320,7 +345,7 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 			salida += valor.Valor.(string)
 		case Ast.BOOLEAN:
 			salida += strconv.FormatBool(valor.Valor.(bool))
-		case Ast.VECTOR:
+		case Ast.VECTOR, Ast.ARRAY:
 			salida = To_String(valor).(Ast.TipoRetornado).Valor.(string)
 		default:
 		}

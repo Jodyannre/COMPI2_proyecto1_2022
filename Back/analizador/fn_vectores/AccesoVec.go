@@ -68,8 +68,8 @@ func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	//Conseguir el simbolo y el vector
 	simbolo = scope.GetSimbolo(id)
 	//Verificar que sea un vector
-	if simbolo.Tipo != Ast.VECTOR {
-		msg := "Semantic error, expected Vector, found " + Ast.ValorTipoDato[simbolo.Tipo] + "." +
+	if simbolo.Tipo != Ast.VECTOR && simbolo.Tipo != Ast.ARRAY {
+		msg := "Semantic error, expected (VECTOR|ARRAY), found " + Ast.ValorTipoDato[simbolo.Tipo] + "." +
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
@@ -81,22 +81,6 @@ func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 	vector = simbolo.Valor.(Ast.TipoRetornado).Valor.(expresiones.Vector)
-
-	//Verificar que el vector sea mutable
-	if !simbolo.Mutable {
-		msg := "Semantic error, can't remove an elment from an inmutable Vector<" +
-			Ast.ValorTipoDato[vector.TipoVector] + ">." +
-			" -- Line: " + strconv.Itoa(p.Fila) +
-			" Column: " + strconv.Itoa(p.Columna)
-		nError := errores.NewError(p.Fila, p.Columna, msg)
-		nError.Tipo = Ast.ERROR_SEMANTICO
-		scope.Errores.Add(nError)
-		scope.Consola += msg + "\n"
-		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
-			Valor: nError,
-		}
-	}
 
 	//Get la posición de donde se va a extraer el elemento
 	posicion = p.Posicion.(Ast.Expresion).GetValue(scope)
@@ -123,7 +107,7 @@ func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 	//Verificar que la posición exista en el vector
-	if posicion.Valor.(int) > vector.Size {
+	if posicion.Valor.(int) >= vector.Size {
 		//Error, fuera de rango
 		fila := p.Posicion.(Ast.Abstracto).GetFila()
 		columna := p.Posicion.(Ast.Abstracto).GetColumna()
