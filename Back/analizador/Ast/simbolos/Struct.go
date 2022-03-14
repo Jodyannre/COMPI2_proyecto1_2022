@@ -7,46 +7,7 @@ import (
 	"github.com/colegno/arraylist"
 )
 
-type Struct struct {
-	Nombre    string
-	Atributos map[string]interface{}
-	Fila      int
-	Columna   int
-}
-
-type Atributo struct {
-	Nombre string
-	Tipo   Ast.TipoDato
-	Valor  interface{}
-}
-
-func NewStructTemplate(nombre string, atributos *arraylist.List, fila, columna int) Struct {
-	att := make(map[string]interface{})
-	var att_val Atributo
-	//Agregar los atributos al struct template
-	for i := 0; i < atributos.Len(); i++ {
-		att_val = atributos.GetValue(i).(Atributo)
-		att[att_val.Nombre] = att_val
-	}
-
-	nuevo := Struct{
-		Nombre:    nombre,
-		Atributos: att,
-		Fila:      fila,
-		Columna:   columna,
-	}
-	return nuevo
-}
-
-func NewAtributoTemplate(nombre string, tipo Ast.TipoDato) Atributo {
-	nuevo := Atributo{
-		Nombre: nombre,
-		Tipo:   tipo,
-	}
-	return nuevo
-}
-
-func NewStruct(plantilla Struct, atributos *arraylist.List, scope *Ast.Scope) interface{} {
+func NewStruct(plantilla StructTemplate, atributos *arraylist.List, scope *Ast.Scope) interface{} {
 	nuevo := plantilla
 	var att Atributo
 	if len(nuevo.Atributos) != atributos.Len() {

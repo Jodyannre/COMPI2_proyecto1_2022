@@ -7,7 +7,7 @@ var ValorTipoDato = [100]string{
 	"F64",
 	"STRING_OWNED",
 	"STRING",
-	"STR",
+	"&STR",
 	"BOOLEAN",
 	"USIZE",
 	"CHAR",
@@ -184,6 +184,7 @@ const (
 	ARRAY_FAC
 	DIMENSION_ARRAY
 	DECLARACION_ARRAY
+	ACCESO_ARRAY
 )
 
 type TipoRetornado struct {

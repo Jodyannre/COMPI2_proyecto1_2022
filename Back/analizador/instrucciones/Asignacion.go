@@ -4,8 +4,11 @@ import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
 	"Back/analizador/expresiones"
+	"Back/analizador/fn_array"
 	"Back/analizador/fn_vectores"
 	"strconv"
+
+	"github.com/colegno/arraylist"
 )
 
 type Asignacion struct {
@@ -36,7 +39,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 	_, tipoParticular := a.Id.(Ast.Abstracto).GetTipo()
 	//Verificar que sea un identificador
 	if tipoParticular != Ast.IDENTIFICADOR && tipoParticular != Ast.VEC_ACCESO &&
-		tipoParticular != Ast.ARRAY_ACCESO {
+		tipoParticular != Ast.ACCESO_ARRAY {
 		//Error, se espera un identificador. un acceso a vector o un acceso a un array
 		msg := "Semantic error, expected IDENTIFICADOR, found " + Ast.ValorTipoDato[tipoParticular] +
 			". -- Line: " + strconv.Itoa(a.Id.(Ast.Abstracto).GetFila()) +
@@ -60,8 +63,22 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 		if valor.Tipo == Ast.ERROR {
 			return valor
 		}
-		id := a.Id.(fn_vectores.AccesoVec).Identificador.(expresiones.Identificador).Valor
-		resultado = a.AsignarAccesoVector(id, scope)
+		id = a.Id.(fn_vectores.AccesoVec).Identificador.(expresiones.Identificador).Valor
+		simbolo := scope.GetSimbolo(id)
+		if simbolo.Tipo == Ast.ARRAY {
+			acceso_vector := a.Id.(fn_vectores.AccesoVec)
+			nLista := arraylist.New()
+			nLista.Add(acceso_vector.Posicion)
+			acceso_lista := fn_array.NewAccesoArray(acceso_vector.Identificador, nLista, acceso_vector.Fila, acceso_vector.Columna)
+			a.Id = acceso_lista
+			resultado = a.AsignarAccesoArray(id, scope)
+		} else {
+			resultado = a.AsignarAccesoVector(id, scope)
+		}
+
+	} else {
+		id := a.Id.(fn_array.AccesoArray).Identificador.(expresiones.Identificador).Valor
+		resultado = a.AsignarAccesoArray(id, scope)
 	}
 
 	return resultado
@@ -75,8 +92,26 @@ func (op Asignacion) GetColumna() int {
 }
 
 func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoRetornado {
+
+	var posicion interface{}
+	var resultadoAsignacion Ast.TipoRetornado
+	var valorPosicion Ast.TipoRetornado
+	posiciones := arraylist.New()
+
 	//Verificar que el id  exista
 	existe := scope.Exist(id)
+	if !existe {
+		msg := "Semantic error, the element \"" + id + "\" doesn't exist in any scope." +
+			" -- Line:" + strconv.Itoa(a.Fila) + " Column: " + strconv.Itoa(a.Columna)
+		nError := errores.NewError(a.Fila, a.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
 	//Obtener el valor del id
 	simbolo_id := scope.GetSimbolo(id)
 	//Obtener el vector
@@ -110,7 +145,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 		}
 		//Primero verificar
 		//Existe, ahora verificar los tipos
-		if array.TipoArray == valor.Tipo {
+		if array.TipoDelArray == valor.Tipo {
 			//Los tipos son correctos, actualizar el símbolo
 
 			//Revisar si es vector y si es del tipo de vector correcto
@@ -150,46 +185,30 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 					}
 				}
 			}
-
-			//Revisar si es array y si es un array del mismo tipo
-			if valor.Tipo == Ast.ARRAY {
-				arrayEntrante := valor.Valor.(expresiones.Array)
-				arrayGuardado := simbolo_id.Valor.(Ast.TipoRetornado).Valor.(expresiones.Array)
-				if arrayEntrante.TipoArray != arrayGuardado.TipoArray {
-					//Hay varias opciones y una es que la lista que entra es indefinida
-					//Y la otra es que si traiga un tipo diferente
-					if arrayEntrante.TipoArray != Ast.INDEFINIDO {
-						//Generar el Error, de lo contrario todo bien
-						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[arrayEntrante.TipoArray] + ">" +
-							" to Vector<" + Ast.ValorTipoDato[arrayGuardado.TipoArray] + ">" +
-							" type. -- Line: " + strconv.Itoa(a.Fila) +
-							" Column: " + strconv.Itoa(a.Columna)
-						nError := errores.NewError(a.Fila, a.Columna, msg)
-						nError.Tipo = Ast.ERROR_SEMANTICO
-						scope.Errores.Add(nError)
-						scope.Consola += msg + "\n"
-						return Ast.TipoRetornado{
-							Tipo:  Ast.ERROR,
-							Valor: nError,
-						}
-					} else {
-						//Copiar los valores del vector guardado al nuevo vector entrante
-						CopiarArray(&arrayGuardado, &arrayEntrante, simbolo_id)
-						valor = Ast.TipoRetornado{
-							Tipo:  Ast.VECTOR,
-							Valor: arrayEntrante,
-						}
-					}
-				} else {
-					CopiarArray(&arrayGuardado, &arrayEntrante, simbolo_id)
-					valor = Ast.TipoRetornado{
-						Tipo:  Ast.VECTOR,
-						Valor: arrayEntrante,
-					}
+			prePos := a.Id.(fn_array.AccesoArray).Posiciones
+			//Get las posiciones
+			for i := 0; i < prePos.Len(); i++ {
+				posicion = prePos.GetValue(i)
+				valorPosicion = posicion.(Ast.Expresion).GetValue(scope)
+				_, tipoParticular := posicion.(Ast.Abstracto).GetTipo()
+				if valorPosicion.Tipo == Ast.ERROR {
+					return posicion.(Ast.TipoRetornado)
 				}
+				//Verificar que el número en el acceso sea usize
+				resultado := expresiones.EsUsize(valorPosicion, tipoParticular, posicion, scope)
+				if resultado.Tipo == Ast.ERROR {
+					return resultado
+				}
+				posiciones.Add(valorPosicion.Valor)
 			}
 
-			simbolo_id.Valor = valor
+			//Buscar la posición
+			resultadoAsignacion = fn_array.UpdateElemento(array, prePos, posiciones, scope, valor)
+			if resultadoAsignacion.Tipo == Ast.ERROR {
+				return resultadoAsignacion
+			}
+
+			simbolo_id.Valor = Ast.TipoRetornado{Tipo: Ast.ARRAY, Valor: array}
 			scope.UpdateSimbolo(id, simbolo_id)
 		} else {
 			//Revisar si el retorno es un error
@@ -199,7 +218,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 			//Error de tipos, generar un error semántico
 			//fmt.Println("Erro de tipos")
 			msg := "Semantic error, can't assign " + Ast.ValorTipoDato[int(valor.Tipo)] +
-				" type to " + Ast.ValorTipoDato[int(simbolo_id.Valor.(Ast.TipoRetornado).Tipo)] +
+				" type to ARRAY[" + Ast.ValorTipoDato[array.TipoDelArray] + "]" +
 				" type. -- Line: " + strconv.Itoa(a.Fila) +
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)

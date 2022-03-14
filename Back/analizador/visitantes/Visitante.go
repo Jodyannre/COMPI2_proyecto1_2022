@@ -128,10 +128,10 @@ func EsFuncion(tipo interface{}) bool {
 	validador := false
 
 	switch tipo {
-	case Ast.FUNCION, Ast.VEC_NEW,
+	case Ast.FUNCION, Ast.VEC_NEW, Ast.VEC_ACCESO,
 		Ast.VEC_LEN, Ast.VEC_CONTAINS,
 		Ast.VEC_CAPACITY, Ast.VEC_REMOVE, Ast.ARRAY_FAC, Ast.ARRAY_ELEMENTOS, Ast.ARRAY,
-		Ast.VEC_ELEMENTOS, Ast.VEC_FAC, Ast.VEC_WITH_CAPACITY, Ast.DIMENSION_ARRAY:
+		Ast.VEC_ELEMENTOS, Ast.VEC_FAC, Ast.VEC_WITH_CAPACITY, Ast.DIMENSION_ARRAY, Ast.LLAMADA_FUNCION:
 		validador = true
 	default:
 		validador = false

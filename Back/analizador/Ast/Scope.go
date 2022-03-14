@@ -229,6 +229,7 @@ func (scope *Scope) UpdateSimbolo(ident string, valorNuevo Simbolo) {
 		for key, _ := range scope_actual.tablaSimbolos {
 			if key == id {
 				scope_actual.tablaSimbolos[key] = valorNuevo
+				return
 			}
 		}
 	}
@@ -248,6 +249,39 @@ func (scope *Scope) GetSimbolo(ident string) Simbolo {
 	}
 	var simboloNull Simbolo
 	return simboloNull
+}
+
+func (scope *Scope) GetSimboloReferencia(ident string) Simbolo {
+	id := strings.ToUpper(ident)
+
+	for scope_actual := scope; scope_actual != nil; scope_actual = scope_actual.prev {
+		for key, simboloRetorno := range scope_actual.tablaSimbolos {
+			if key == id && scope_actual != scope {
+				nsimbolo := simboloRetorno.(Simbolo)
+				return nsimbolo
+			}
+		}
+	}
+	var simboloNull Simbolo
+	return simboloNull
+}
+
+func (scope *Scope) UpdateReferencias() TipoRetornado {
+	var valor TipoRetornado
+	var scopeReferencia *Scope
+	var simboloReferencia Simbolo
+	for _, simboloGuardado := range scope.tablaSimbolos {
+		if simboloGuardado.(Simbolo).Referencia {
+			valor = simboloGuardado.(Simbolo).Valor.(TipoRetornado)
+			simboloReferencia = *simboloGuardado.(Simbolo).Referencia_puntero
+			scopeReferencia = simboloReferencia.Entorno
+			simboloReferencia.Valor = valor
+			//Get el símbolo
+			scopeReferencia.UpdateSimbolo(simboloReferencia.Identificador, simboloReferencia)
+			break
+		}
+	}
+	return TipoRetornado{Valor: true, Tipo: EJECUTADO}
 }
 
 func (s *Scope) UpdateScopeGlobal() {

@@ -38,6 +38,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	//Verificar que la función existe
 	simbolo = newScope.Exist_fms(l.Identificador.(expresiones.Identificador).Valor)
+
 	if simbolo.Tipo != Ast.FUNCION ||
 		simbolo.Tipo == Ast.ERROR_ACCESO_PRIVADO ||
 		simbolo.Tipo == Ast.ERROR_NO_EXISTE {

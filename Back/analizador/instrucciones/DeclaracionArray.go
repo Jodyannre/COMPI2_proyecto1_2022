@@ -4,6 +4,7 @@ import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
 	"Back/analizador/expresiones"
+	"Back/analizador/fn_array"
 	"strconv"
 
 	"github.com/colegno/arraylist"
@@ -13,7 +14,7 @@ type DeclaracionArray struct {
 	Id        string
 	Tipo      Ast.TipoDato
 	TipoArray Ast.TipoDato
-	Dimension expresiones.DimensionArray
+	Dimension interface{}
 	Mutable   bool
 	Publico   bool
 	Valor     interface{}
@@ -21,13 +22,11 @@ type DeclaracionArray struct {
 	Columna   int
 }
 
-func NewDeclaracionArray(id string, dimension expresiones.DimensionArray,
-	mutable, publico bool, tipoArray Ast.TipoDato,
-	valor interface{}, fila int, columna int) DeclaracionArray {
+func NewDeclaracionArray(id string, dimension interface{},
+	mutable, publico bool, valor interface{}, fila int, columna int) DeclaracionArray {
 	nd := DeclaracionArray{
 		Id:        id,
 		Tipo:      Ast.DECLARACION_ARRAY,
-		TipoArray: tipoArray,
 		Publico:   publico,
 		Mutable:   mutable,
 		Valor:     valor,
@@ -48,7 +47,7 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	existe := scope.Exist_actual(d.Id)
 	_, tipoIn := d.Valor.(Ast.Abstracto).GetTipo()
 	valor := d.Valor.(Ast.Expresion).GetValue(scope)
-	dimension := d.Dimension.GetValue(scope)
+	dimension := d.Dimension.(Ast.Expresion).GetValue(scope)
 
 	if existe {
 		msg := "Semantic error, the element \"" + d.Id + "\" already exist in this scope." +
@@ -66,11 +65,15 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	if valor.Tipo == Ast.ERROR {
 		return valor
 	}
+	//Verificar error en dimension
 	if dimension.Tipo == Ast.ERROR {
 		return dimension
 	}
+	//Recuperar el tipo del array que se espera desde dimension
+	d.TipoArray = d.Dimension.(expresiones.DimensionArray).TipoArray
+
 	//Primero que vengan arrays
-	if tipoIn != Ast.ARRAY {
+	if !EsArray(tipoIn) {
 		//Error, no se estan asignado arrays al array
 		msg := "Semantic error, can't initialize an ARRAY with " + Ast.ValorTipoDato[tipoIn] + " type" +
 			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
@@ -85,8 +88,80 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	}
 
 	//Verificar que las dimensiones concuerda con la lista de arrays
-	validacionDimensiones = dimensionesCorrectas(dimension.Valor.(arraylist.List), valor, scope)
-	return Ast.TipoRetornado{Valor: validacionDimensiones}
+	validacionDimensiones = fn_array.ConcordanciaDimensiones(valor.Valor)
+	//Lo devuelve al reves
+
+	if validacionDimensiones.Tipo == Ast.ERROR {
+		return validacionDimensiones
+	}
+
+	//Voltear las posiciones, porque el método las devuelve al revés
+	copiaLista := validacionDimensiones.Valor.(*arraylist.List)
+	nuevaLista := arraylist.New()
+	for i := copiaLista.Len() - 1; i >= 0; i-- {
+		nuevaLista.Add(copiaLista.GetValue(i))
+	}
+	validacionDimensiones.Valor = nuevaLista
+
+	//Comparar las lista de dimensiones
+	//Get primitivos del array de dimension
+	arrayDimension := arraylist.New()
+	for i := 0; i < dimension.Valor.(*arraylist.List).Len(); i++ {
+		arrayDimension.Add(dimension.Valor.(*arraylist.List).GetValue(i).(Ast.TipoRetornado).Valor)
+	}
+
+	if !fn_array.CompararListas(validacionDimensiones.Valor.(*arraylist.List), arrayDimension) {
+		msg := "Semantic error, ARRAY dimension does not match" +
+			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+		nError := errores.NewError(d.Fila, d.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
+	//Validar el tipo del array
+	if d.TipoArray != valor.Valor.(expresiones.Array).TipoDelArray {
+		fila := valor.Valor.(expresiones.Array).GetFila()
+		columna := valor.Valor.(expresiones.Array).GetColumna()
+		var tipoDelArray Ast.TipoDato
+		if valor.Valor.(expresiones.Array).TipoDelArray == Ast.INDEFINIDO {
+			tipoDelArray = valor.Valor.(expresiones.Array).TipoArray
+		} else {
+			tipoDelArray = valor.Valor.(expresiones.Array).TipoDelArray
+		}
+		msg := "Semantic error, can't initialize ARRAY[" + Ast.ValorTipoDato[tipoDelArray] +
+			"] with a ARRAY[" + Ast.ValorTipoDato[d.TipoArray] + "]" +
+			". -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
+	//Crear el símbolo
+	nSimbolo := Ast.Simbolo{
+		Identificador: d.Id,
+		Valor:         valor,
+		Fila:          d.Fila,
+		Columna:       d.Columna,
+		Tipo:          valor.Tipo,
+		Mutable:       d.Mutable,
+		Publico:       d.Publico,
+	}
+	scope.Add(nSimbolo)
+	return Ast.TipoRetornado{
+		Tipo:  Ast.EJECUTADO,
+		Valor: true,
+	}
 }
 
 func (op DeclaracionArray) GetFila() int {
@@ -96,7 +171,7 @@ func (op DeclaracionArray) GetColumna() int {
 	return op.Columna
 }
 
-func dimensionesCorrectas(dimensiones arraylist.List, array interface{}, scope *Ast.Scope) Ast.TipoRetornado {
+func DimensionesCorrectas(dimensiones arraylist.List, array interface{}, scope *Ast.Scope) Ast.TipoRetornado {
 	dimension := dimensiones.GetValue(0).(Ast.TipoRetornado)
 	arreglo := array.(expresiones.Array)
 	//Validar dimensiones
@@ -118,7 +193,13 @@ func dimensionesCorrectas(dimensiones arraylist.List, array interface{}, scope *
 
 	for i := 0; i < arreglo.Size; i++ {
 		dimensiones.RemoveAtIndex(0)
-		validacion := dimensionesCorrectas(dimensiones, arreglo.Elementos.GetValue(i), scope)
+		if dimensiones.Len() == 0 {
+			return Ast.TipoRetornado{
+				Valor: true,
+				Tipo:  Ast.BOOLEAN,
+			}
+		}
+		validacion := DimensionesCorrectas(dimensiones, arreglo.Elementos.GetValue(i).(Ast.TipoRetornado).Valor, scope)
 		if validacion.Tipo == Ast.ERROR {
 			return validacion
 		}
@@ -128,4 +209,13 @@ func dimensionesCorrectas(dimensiones arraylist.List, array interface{}, scope *
 		Tipo:  Ast.BOOLEAN,
 	}
 
+}
+
+func EsArray(tipo Ast.TipoDato) bool {
+	switch tipo {
+	case Ast.ARRAY, Ast.ARRAY_ELEMENTOS, Ast.ARRAY_FAC:
+		return true
+	default:
+		return false
+	}
 }

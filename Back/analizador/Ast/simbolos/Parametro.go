@@ -9,9 +9,11 @@ type Parametro struct {
 	Columna         int
 	Mutable         bool
 	TipoDeclaracion Ast.TipoDato
+	TipoArray       Ast.TipoDato
 }
 
-func NewParametro(id string, tipo Ast.TipoDato, tipoD Ast.TipoDato, mutable bool, fila, columna int) Parametro {
+func NewParametro(id string, tipo Ast.TipoDato, tipoD Ast.TipoDato, mutable bool,
+	tipoArray Ast.TipoDato, fila, columna int) Parametro {
 	nP := Parametro{
 		Identificador:   id,
 		Tipo:            tipo,

@@ -28,7 +28,7 @@ func NewAccesoVec(id interface{}, posicion interface{}, tipo Ast.TipoDato, fila,
 
 func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	var simbolo Ast.Simbolo
-	var vector expresiones.Vector
+	var vector interface{}
 	var posicion Ast.TipoRetornado
 	var resultado Ast.TipoRetornado
 	var id string
@@ -80,7 +80,11 @@ func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			Valor: nError,
 		}
 	}
-	vector = simbolo.Valor.(Ast.TipoRetornado).Valor.(expresiones.Vector)
+	if simbolo.Tipo == Ast.VECTOR {
+		vector = simbolo.Valor.(Ast.TipoRetornado).Valor.(expresiones.Vector)
+	} else {
+		vector = simbolo.Valor.(Ast.TipoRetornado).Valor.(expresiones.Array)
+	}
 
 	//Get la posición de donde se va a extraer el elemento
 	posicion = p.Posicion.(Ast.Expresion).GetValue(scope)
@@ -107,26 +111,68 @@ func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 	//Verificar que la posición exista en el vector
-	if posicion.Valor.(int) >= vector.Size {
-		//Error, fuera de rango
-		fila := p.Posicion.(Ast.Abstracto).GetFila()
-		columna := p.Posicion.(Ast.Abstracto).GetColumna()
-		msg := "Semantic error, index (" + strconv.Itoa(posicion.Valor.(int)) + ") out of bounds." +
-			". -- Line: " + strconv.Itoa(fila) +
-			" Column: " + strconv.Itoa(columna)
-		nError := errores.NewError(fila, columna, msg)
-		nError.Tipo = Ast.ERROR_SEMANTICO
-		scope.Errores.Add(nError)
-		scope.Consola += msg + "\n"
-		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
-			Valor: nError,
+	if simbolo.Tipo == Ast.VECTOR {
+		if posicion.Valor.(int) >= vector.(expresiones.Vector).Size {
+			//Error, fuera de rango
+			fila := p.Posicion.(Ast.Abstracto).GetFila()
+			columna := p.Posicion.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, index (" + strconv.Itoa(posicion.Valor.(int)) + ") out of bounds." +
+				". -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
 		}
+
+		//Acceder al elemento
+		resultado = vector.(expresiones.Vector).Valor.GetValue(posicion.Valor.(int)).(Ast.TipoRetornado)
 	}
 
-	//Acceder al elemento
-	resultado = vector.Valor.GetValue(posicion.Valor.(int)).(Ast.TipoRetornado)
+	if simbolo.Tipo == Ast.ARRAY {
+		if posicion.Valor.(int) >= vector.(expresiones.Array).Size {
+			//Error, fuera de rango
+			fila := p.Posicion.(Ast.Abstracto).GetFila()
+			columna := p.Posicion.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, index (" + strconv.Itoa(posicion.Valor.(int)) + ") out of bounds." +
+				". -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+		//Validar que el array no sea de más dimensiones
+		/*
+			if vector.(expresiones.Array).TipoArray == Ast.ARRAY {
+				//Es de más dimensiones
+				fila := p.Posicion.(Ast.Abstracto).GetFila()
+				columna := p.Posicion.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, you are trying to access a position in one dimension and this ARRAY has multiple dimensions." +
+					". -- Line: " + strconv.Itoa(fila) +
+					" Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				scope.Errores.Add(nError)
+				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
 
+			}
+		*/
+		//Acceder al elemento
+		resultado = vector.(expresiones.Array).Elementos.GetValue(posicion.Valor.(int)).(Ast.TipoRetornado)
+	}
 	return resultado
 }
 

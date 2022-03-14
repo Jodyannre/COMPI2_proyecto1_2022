@@ -32,7 +32,7 @@ func NewDimensionArray(elementos *arraylist.List, TipoArray Ast.TipoDato, fila, 
 func (d DimensionArray) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	//Reordenar la lista y verificar que son usize
-	listaDimensiones := *arraylist.New()
+	listaDimensiones := arraylist.New()
 	var validarUsize Ast.TipoRetornado
 	var elemento interface{}
 	var valor Ast.TipoRetornado
@@ -41,7 +41,7 @@ func (d DimensionArray) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		valor = elemento.(Ast.Expresion).GetValue(scope)
 		_, tipoParticular := elemento.(Ast.Abstracto).GetTipo()
 		//Validar que sea usize
-		validarUsize = esUsize(valor, tipoParticular, elemento, scope)
+		validarUsize = EsUsize(valor, tipoParticular, elemento, scope)
 		if validarUsize.Tipo == Ast.ERROR {
 			return validarUsize
 		}
@@ -66,7 +66,7 @@ func (a DimensionArray) GetColumna() int {
 	return a.Columna
 }
 
-func esUsize(valor Ast.TipoRetornado, tipoParticular Ast.TipoDato, elemento interface{}, scope *Ast.Scope) Ast.TipoRetornado {
+func EsUsize(valor Ast.TipoRetornado, tipoParticular Ast.TipoDato, elemento interface{}, scope *Ast.Scope) Ast.TipoRetornado {
 	if (valor.Tipo != Ast.USIZE && valor.Tipo != Ast.I64) ||
 		tipoParticular == Ast.IDENTIFICADOR && valor.Tipo == Ast.I64 {
 		//Error, se espera un usize

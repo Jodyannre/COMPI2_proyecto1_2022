@@ -68,6 +68,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 			//Hay error, pero ya esta agregado
 			continue
 		}
+		scope.UpdateReferencias()
 
 		if Ast.EsTransferencia(respuesta.(Ast.TipoRetornado).Tipo) {
 			if respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
@@ -291,8 +292,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 					}
 				}
 
-			}
-			if simbolo.Tipo == Ast.MODULO {
+			} else if simbolo.Tipo == Ast.MODULO {
 				fila := parametroIN.(Ast.Abstracto).GetFila()
 				columna := parametroIN.(Ast.Abstracto).GetColumna()
 				msg := "Semantic error, a module can't be a parameter." +
@@ -306,7 +306,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 					Tipo:  Ast.ERROR,
 					Valor: nError,
 				}
-			}
+			} else
 
 			//Es cualquier otra variable
 			if parametroIN.(Valor).Mutable {
@@ -353,6 +353,16 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 		if resultadoDeclaracion.(Ast.TipoRetornado).Tipo == Ast.ERROR {
 			return resultadoDeclaracion.(Ast.TipoRetornado)
 		}
+		//De forma sucia asignar la referencia si el valor es por referencia
+		if parametroIN.(Valor).Referencia {
+			simbolo := scope.GetSimbolo(resultadoParametro.Valor.(string))
+			referencia := parametroIN.(Valor).Valor.(expresiones.Identificador).Valor
+			simboloRef := scope.GetSimboloReferencia(referencia)
+			simbolo.Referencia = true
+			simbolo.Referencia_puntero = &simboloRef
+			scope.UpdateSimbolo(resultadoParametro.Valor.(string), simbolo)
+		}
+
 	}
 	return Ast.TipoRetornado{
 		Tipo:  Ast.BOOLEAN,

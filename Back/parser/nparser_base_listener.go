@@ -63,6 +63,14 @@ func (s *BaseNparserListener) EnterAsignacion(ctx *AsignacionContext) {}
 // ExitAsignacion is called when production asignacion is exited.
 func (s *BaseNparserListener) ExitAsignacion(ctx *AsignacionContext) {}
 
+// EnterAccesos_vector_array_asignacion is called when production accesos_vector_array_asignacion is entered.
+func (s *BaseNparserListener) EnterAccesos_vector_array_asignacion(ctx *Accesos_vector_array_asignacionContext) {
+}
+
+// ExitAccesos_vector_array_asignacion is called when production accesos_vector_array_asignacion is exited.
+func (s *BaseNparserListener) ExitAccesos_vector_array_asignacion(ctx *Accesos_vector_array_asignacionContext) {
+}
+
 // EnterExpresion is called when production expresion is entered.
 func (s *BaseNparserListener) EnterExpresion(ctx *ExpresionContext) {}
 
@@ -286,3 +294,9 @@ func (s *BaseNparserListener) EnterDimension_array(ctx *Dimension_arrayContext) 
 
 // ExitDimension_array is called when production dimension_array is exited.
 func (s *BaseNparserListener) ExitDimension_array(ctx *Dimension_arrayContext) {}
+
+// EnterDimension_acceso_array is called when production dimension_acceso_array is entered.
+func (s *BaseNparserListener) EnterDimension_acceso_array(ctx *Dimension_acceso_arrayContext) {}
+
+// ExitDimension_acceso_array is called when production dimension_acceso_array is exited.
+func (s *BaseNparserListener) ExitDimension_acceso_array(ctx *Dimension_acceso_arrayContext) {}

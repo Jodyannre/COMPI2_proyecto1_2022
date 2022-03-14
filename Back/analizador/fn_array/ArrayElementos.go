@@ -158,6 +158,9 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	newArray := expresiones.NewArray(elementos, tipoVector, size, v.Fila, v.Columna)
 	newArray.TipoDelArray = tipoDelArrayAnterior.Tipo
 	newArray.TipoDelVector = tipoDelVectorAnterior.Tipo
+	if newArray.TipoDelArray == Ast.INDEFINIDO {
+		newArray.TipoDelArray = newArray.TipoArray
+	}
 
 	concordancia := ConcordanciaDimensiones(newArray)
 	if concordancia.Tipo == Ast.ERROR {
@@ -236,7 +239,7 @@ func EsFuncion(tipo interface{}) bool {
 	case Ast.FUNCION, Ast.VEC_NEW,
 		Ast.VEC_LEN, Ast.VEC_CONTAINS,
 		Ast.VEC_CAPACITY, Ast.VEC_REMOVE, Ast.VEC_FAC,
-		Ast.VEC_WITH_CAPACITY, Ast.VEC_ELEMENTOS, Ast.ARRAY_ELEMENTOS, Ast.ARRAY_FAC:
+		Ast.VEC_WITH_CAPACITY, Ast.VEC_ELEMENTOS, Ast.ARRAY_ELEMENTOS, Ast.ARRAY_FAC, Ast.LLAMADA_FUNCION:
 		validador = true
 	default:
 		validador = false

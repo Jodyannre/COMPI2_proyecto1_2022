@@ -55,11 +55,11 @@ instrucciones returns [*arraylist.List list]
 
 instruccion returns[interface{} ex] 
 			:llamada_funcion PUNTOCOMA  {$ex = $llamada_funcion.ex}
+            |asignacion PUNTOCOMA       {$ex = $asignacion.ex}
             |expresion PUNTOCOMA   	    {$ex = $expresion.ex}	
             |expresion                  {$ex = $expresion.ex}
             |declaracion PUNTOCOMA      {$ex = $declaracion.ex}	
-            |declaracion_funcion        {$ex = $declaracion_funcion.ex}
-            |asignacion PUNTOCOMA       {$ex = $asignacion.ex}
+            |declaracion_funcion        {$ex = $declaracion_funcion.ex}      
             |control_if                 {$ex = $control_if.ex}	 
             |control_match              {$ex = $control_match.ex}   
             |control_loop               {$ex = $control_loop.ex}
@@ -179,9 +179,18 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracionArray($ID.text,Ast.ARRAY,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
         }
     */
-    | LET ID CORCHETE_IZQ dimension=expresion CORCHETE_DER IGUAL expresion
-
-
+    | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,false,false,$expresion.ex,fila,columna)            
+        }
+    | LET MUT ID DOSPUNTOS dimension=dimension_array IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,true,false,$expresion.ex,fila,columna)            
+        }
    
 
     //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
@@ -278,19 +287,45 @@ declaracion_funcion returns [Ast.Instruccion ex]
 ;
 
 asignacion returns[Ast.Instruccion ex]
-    : id=expresion IGUAL elemento=expresion
+    : id=accesos_vector_array_asignacion IGUAL elemento=expresion
     {
         fila := $IGUAL.line
         columna := $IGUAL.pos-1
         $ex = instrucciones.NewAsignacion($id.ex,$elemento.ex,fila,columna)        
     }
-    | id=expresion IGUAL control_expresion
+    | id=accesos_vector_array_asignacion IGUAL control_expresion
     {
         fila := $IGUAL.line
         columna := $IGUAL.pos
         $ex = instrucciones.NewAsignacion($id.ex,$control_expresion.ex,fila,columna)
     }
+;
 
+accesos_vector_array_asignacion returns [Ast.Expresion ex]
+    :   ID lista=dimension_acceso_array
+        {
+            id := $ID.text
+            fila := $ID.line
+            columna := $ID.pos-1
+            idE := expresiones.NewIdentificador(id,Ast.IDENTIFICADOR,fila,columna)      
+            $ex = fn_array.NewAccesoArray(idE,$lista.list,fila,columna)           
+        }
+        //Acceso a vector
+    |   ID CORCHETE_IZQ index=expresion CORCHETE_DER
+        {
+            id := $ID.text
+            fila := $ID.line
+            columna := $ID.pos-1
+            idE := expresiones.NewIdentificador (id,Ast.IDENTIFICADOR,fila,columna)     
+            $ex = fn_vectores.NewAccesoVec(idE,$index.ex,Ast.VEC_ACCESO,fila,columna)
+        }
+    |   ID
+        {
+            id := $ID.text
+            fila := $ID.line
+            columna := $ID.pos
+            $ex = expresiones.NewIdentificador (id,Ast.IDENTIFICADOR,fila,columna)            
+        }
 ;
 
 
@@ -395,7 +430,14 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $array.ex
         }
-
+        //Acceso a array
+    |   id=expresion lista=dimension_acceso_array
+        {
+            elemento := localctx.(*ExpresionContext).GetId().GetEx()
+            fila := elemento.(Ast.Abstracto).GetFila()
+            columna := elemento.(Ast.Abstracto).GetColumna() -1 
+            $ex = fn_array.NewAccesoArray($id.ex,$lista.list,fila,columna)           
+        }
         //Acceso a vector
     |   id=expresion CORCHETE_IZQ index=expresion CORCHETE_DER  
         {
@@ -428,10 +470,6 @@ expresion returns[Ast.Expresion ex]
             columna := $PUNTO.pos
             $ex = fn_vectores.NewRemoveVec($id.ex,$index.ex,Ast.VEC_REMOVE,fila,columna)
 
-        }
-    |   dimension_array
-        {
-            $ex = $dimension_array.ex   
         }
     |   ID		
         {
@@ -896,16 +934,28 @@ parametro returns [Ast.Expresion ex]
         {
             fila := $MUT.line
             columna := $MUT.pos
-            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,true,fila,columna)
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,true,Ast.NULL,fila,columna)
 
         }
     | ID DOSPUNTOS tipo_dato
         {
             fila := $ID.line
             columna := $ID.pos
-            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,false,fila,columna)
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,false,Ast.NULL,fila,columna)
             
         }
+    | ID DOSPUNTOS AMPERSAND MUT CORCHETE_IZQ tipo_dato CORCHETE_DER
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,Ast.ARRAY,true,$tipo_dato.ex,fila,columna)
+    }
+    | ID DOSPUNTOS AMPERSAND MUT VEC MENOR tipo_dato MAYOR
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,Ast.VECTOR,true,$tipo_dato.ex,fila,columna)
+    }
 ;
 
 llamada_funcion returns [Ast.Expresion ex]
@@ -1074,4 +1124,18 @@ dimension_array returns[Ast.Expresion ex]
             $ex = expresiones.NewDimensionArray(listaD, $tipo_dato.ex,fila,columna)
         }
 
+;
+
+dimension_acceso_array returns[*arraylist.List list]
+@init{$list = arraylist.New()}
+    :   lista_elementos = dimension_acceso_array CORCHETE_IZQ expresion CORCHETE_DER
+             {
+                $lista_elementos.list.Add($expresion.ex)
+                $list = $lista_elementos.list
+            }
+    |   CORCHETE_IZQ ex1=expresion CORCHETE_DER CORCHETE_IZQ ex2=expresion CORCHETE_DER
+            {
+                $list.Add($ex1.ex)
+                $list.Add($ex2.ex)
+            }
 ;

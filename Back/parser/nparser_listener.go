@@ -29,6 +29,9 @@ type NparserListener interface {
 	// EnterAsignacion is called when entering the asignacion production.
 	EnterAsignacion(c *AsignacionContext)
 
+	// EnterAccesos_vector_array_asignacion is called when entering the accesos_vector_array_asignacion production.
+	EnterAccesos_vector_array_asignacion(c *Accesos_vector_array_asignacionContext)
+
 	// EnterExpresion is called when entering the expresion production.
 	EnterExpresion(c *ExpresionContext)
 
@@ -140,6 +143,9 @@ type NparserListener interface {
 	// EnterDimension_array is called when entering the dimension_array production.
 	EnterDimension_array(c *Dimension_arrayContext)
 
+	// EnterDimension_acceso_array is called when entering the dimension_acceso_array production.
+	EnterDimension_acceso_array(c *Dimension_acceso_arrayContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -160,6 +166,9 @@ type NparserListener interface {
 
 	// ExitAsignacion is called when exiting the asignacion production.
 	ExitAsignacion(c *AsignacionContext)
+
+	// ExitAccesos_vector_array_asignacion is called when exiting the accesos_vector_array_asignacion production.
+	ExitAccesos_vector_array_asignacion(c *Accesos_vector_array_asignacionContext)
 
 	// ExitExpresion is called when exiting the expresion production.
 	ExitExpresion(c *ExpresionContext)
@@ -271,4 +280,7 @@ type NparserListener interface {
 
 	// ExitDimension_array is called when exiting the dimension_array production.
 	ExitDimension_array(c *Dimension_arrayContext)
+
+	// ExitDimension_acceso_array is called when exiting the dimension_acceso_array production.
+	ExitDimension_acceso_array(c *Dimension_acceso_arrayContext)
 }
