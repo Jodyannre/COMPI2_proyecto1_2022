@@ -225,17 +225,17 @@ atributos_struct_template returns [*arraylist.List list]
 
 
 atributo_struct_template returns [Ast.Expresion ex]
-    : ID DOSPUNTOS tipo_dato 
+    : ID DOSPUNTOS tipo=tipo_dato_tipo 
         {
             fila := $ID.line
             columna := $ID.pos
-            $ex = simbolos.NewAtributoTemplate($ID.text,$tipo_dato.ex,false,fila,columna)
+            $ex = simbolos.NewAtributoTemplate($ID.text,$tipo.ex,false,fila,columna)
         }
-    | PUB ID DOSPUNTOS tipo_dato 
+    | PUB ID DOSPUNTOS tipo=tipo_dato_tipo 
         {
             fila := $ID.line
             columna := $ID.pos
-            $ex = simbolos.NewAtributoTemplate($ID.text,$tipo_dato.ex,true,fila,columna)             
+            $ex = simbolos.NewAtributoTemplate($ID.text,$tipo.ex,true,fila,columna)             
         }
 ;
 
@@ -244,7 +244,7 @@ struct_instancia returns [Ast.Expresion ex]
     {
         fila := $id.line
         columna := $id.pos       
-        tipo := simbolos.NewTipo(Ast.STRUCT, $id.text, fila,columna) 
+        tipo := Ast.TipoRetornado{Tipo:Ast.STRUCT, Valor:$id.text} 
         $ex = simbolos.NewStructInstancia(tipo,$att.list,false,fila,columna)
     }
 ;
@@ -269,7 +269,7 @@ atributo_struct_instancia returns [Ast.Expresion ex]
     {
         fila := $ID.line
         columna := $ID.pos
-        simbolos.NewAtributo($ID.text,$expresion.ex,false,fila,columna)
+        $ex = simbolos.NewAtributo($ID.text,$expresion.ex,false,fila,columna)
     }
 ;
 
@@ -1219,4 +1219,29 @@ dimension_acceso_array returns[*arraylist.List list]
                 $list.Add($ex1.ex)
                 $list.Add($ex2.ex)
             }
+;
+
+
+tipo_dato_tipo returns[Ast.TipoRetornado ex]
+    :   tipo_dato
+        {
+            $ex = Ast.TipoRetornado{
+                Valor: true,
+                Tipo: $tipo_dato.ex,
+            }
+        }
+    |   VEC MENOR tipo=tipo_dato_tipo MAYOR
+        {
+            $ex = Ast.TipoRetornado{
+                Valor: $tipo.ex,
+                Tipo: Ast.VECTOR,
+            }
+        }
+    |   ID_CAMEL
+        {   
+            $ex = Ast.TipoRetornado{
+                Valor: $ID_CAMEL.text,
+                Tipo: Ast.STRUCT,
+            }
+        }
 ;

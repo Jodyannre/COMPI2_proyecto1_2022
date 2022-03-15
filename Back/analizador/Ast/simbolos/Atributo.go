@@ -49,7 +49,7 @@ func (a Atributo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	a.Valor = valor
 	if esTipoFinal(valor.Tipo) && valor.Tipo != Ast.STRUCT {
-		a.TipoAtributo = NewTipo(valor.Tipo, true, a.Fila, a.Columna)
+		a.TipoAtributo = Ast.TipoRetornado{Tipo: valor.Tipo, Valor: true}
 	}
 
 	return Ast.TipoRetornado{

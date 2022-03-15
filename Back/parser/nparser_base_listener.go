@@ -340,3 +340,9 @@ func (s *BaseNparserListener) EnterDimension_acceso_array(ctx *Dimension_acceso_
 
 // ExitDimension_acceso_array is called when production dimension_acceso_array is exited.
 func (s *BaseNparserListener) ExitDimension_acceso_array(ctx *Dimension_acceso_arrayContext) {}
+
+// EnterTipo_dato_tipo is called when production tipo_dato_tipo is entered.
+func (s *BaseNparserListener) EnterTipo_dato_tipo(ctx *Tipo_dato_tipoContext) {}
+
+// ExitTipo_dato_tipo is called when production tipo_dato_tipo is exited.
+func (s *BaseNparserListener) ExitTipo_dato_tipo(ctx *Tipo_dato_tipoContext) {}

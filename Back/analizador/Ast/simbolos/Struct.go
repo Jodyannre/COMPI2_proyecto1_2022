@@ -9,7 +9,7 @@ import (
 )
 
 type StructInstancia struct {
-	Plantilla   Tipo
+	Plantilla   Ast.TipoRetornado
 	Tipo        Ast.TipoDato
 	Mutable     bool
 	Entorno     *Ast.Scope
@@ -18,7 +18,7 @@ type StructInstancia struct {
 	Columna     int
 }
 
-func NewStructInstancia(plantilla Tipo, atributos *arraylist.List, mutable bool, fila, columna int) StructInstancia {
+func NewStructInstancia(plantilla Ast.TipoRetornado, atributos *arraylist.List, mutable bool, fila, columna int) StructInstancia {
 	//Variables para la validación de tipos
 	nS := StructInstancia{
 		Plantilla:   plantilla,
@@ -33,7 +33,7 @@ func NewStructInstancia(plantilla Tipo, atributos *arraylist.List, mutable bool,
 
 func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	var plantilla StructTemplate
-	if s.Plantilla.TipoDato != Ast.STRUCT {
+	if s.Plantilla.Tipo != Ast.STRUCT {
 		//Error, porque la plantilla no es struct
 		fila := s.Fila
 		columna := s.Columna
@@ -157,12 +157,13 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 
 		attPlantilla := plantilla.Atributos[atributoActual.Nombre]
-		validadorTipo := CompararTipos(attActual.TipoAtributo.(Tipo), attPlantilla.TipoAtributo.(Tipo))
+		validadorTipo := CompararTipos(attActual.TipoAtributo.(Ast.TipoRetornado),
+			attPlantilla.TipoAtributo.(Ast.TipoRetornado))
 		if !validadorTipo {
 			return GetmsjError(validadorTipo, attActual, attPlantilla, scope)
 		}
 		//Todo bien ,entonces crear el struct
-		nuevoSimbolo := Ast.NewSimbolo(atributoActual.Nombre, attActual.Valor, atributoActual.Fila, atributoActual.Columna, attActual.TipoAtributo.(Tipo).TipoDato, atributoActual.Mutable, atributoActual.Publico)
+		nuevoSimbolo := Ast.NewSimbolo(atributoActual.Nombre, attActual.Valor, atributoActual.Fila, atributoActual.Columna, attActual.TipoAtributo.(Ast.TipoRetornado).Tipo, atributoActual.Mutable, atributoActual.Publico)
 
 		newScope.Add(nuevoSimbolo)
 	}
@@ -178,8 +179,8 @@ func GetmsjError(validadorTipo bool, atributo, template Atributo, scope *Ast.Sco
 	fila := atributo.Fila
 	columna := atributo.Columna
 	msg := ""
-	msg = "Semantic error,  can't assign " + Tipo_String(atributo.TipoAtributo.(Tipo)) +
-		" to field named \"" + template.Nombre + "\" " + Tipo_String(template.TipoAtributo.(Tipo)) +
+	msg = "Semantic error,  can't assign " + Tipo_String(atributo.TipoAtributo.(Ast.TipoRetornado)) +
+		" to field named \"" + template.Nombre + "\" " + Tipo_String(template.TipoAtributo.(Ast.TipoRetornado)) +
 		" -- Line: " + strconv.Itoa(fila) +
 		" Column: " + strconv.Itoa(columna)
 	nError := errores.NewError(fila, columna, msg)

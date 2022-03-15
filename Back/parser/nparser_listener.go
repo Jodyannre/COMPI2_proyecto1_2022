@@ -164,6 +164,9 @@ type NparserListener interface {
 	// EnterDimension_acceso_array is called when entering the dimension_acceso_array production.
 	EnterDimension_acceso_array(c *Dimension_acceso_arrayContext)
 
+	// EnterTipo_dato_tipo is called when entering the tipo_dato_tipo production.
+	EnterTipo_dato_tipo(c *Tipo_dato_tipoContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -319,4 +322,7 @@ type NparserListener interface {
 
 	// ExitDimension_acceso_array is called when exiting the dimension_acceso_array production.
 	ExitDimension_acceso_array(c *Dimension_acceso_arrayContext)
+
+	// ExitTipo_dato_tipo is called when exiting the tipo_dato_tipo production.
+	ExitTipo_dato_tipo(c *Tipo_dato_tipoContext)
 }

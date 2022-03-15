@@ -63,7 +63,7 @@ func main() {
 		tipo: String
 		}
 		let mut c1 = Carro { placa:"090PLO".to_string(),
-		color:"gris".to_string(), tipo:"mecanico".to_string() };
+		color:"gris".to_string(), tipo:5 };
 	`
 
 	//Obteniendo el input

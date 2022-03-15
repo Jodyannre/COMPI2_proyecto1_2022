@@ -71,11 +71,11 @@ func esTipoFinal(tipo Ast.TipoDato) bool {
 	}
 }
 
-func CompararTipos(tipoA Tipo, tipoB Tipo) bool {
-	if esTipoFinal(tipoA.TipoDato) && esTipoFinal(tipoB.TipoDato) {
-		if tipoA.TipoDato == tipoB.TipoDato {
+func CompararTipos(tipoA Ast.TipoRetornado, tipoB Ast.TipoRetornado) bool {
+	if esTipoFinal(tipoA.Tipo) && esTipoFinal(tipoB.Tipo) {
+		if tipoA.Tipo == tipoB.Tipo {
 			//Verificar si son structs
-			if tipoA.TipoDato == Ast.STRUCT {
+			if tipoA.Tipo == Ast.STRUCT {
 				if tipoA.Valor == tipoB.Valor {
 					return true
 				} else {
@@ -87,21 +87,21 @@ func CompararTipos(tipoA Tipo, tipoB Tipo) bool {
 			return false
 		}
 	}
-	if esTipoFinal(tipoA.TipoDato) && !esTipoFinal(tipoB.TipoDato) ||
-		!esTipoFinal(tipoA.TipoDato) && esTipoFinal(tipoB.TipoDato) {
+	if esTipoFinal(tipoA.Tipo) && !esTipoFinal(tipoB.Tipo) ||
+		!esTipoFinal(tipoA.Tipo) && esTipoFinal(tipoB.Tipo) {
 		return false
 	}
-	return CompararTipos(tipoA.Valor.(Tipo), tipoB.Valor.(Tipo))
+	return CompararTipos(tipoA.Valor.(Ast.TipoRetornado), tipoB.Valor.(Ast.TipoRetornado))
 }
 
-func Tipo_String(t Tipo) string {
-	if t.TipoDato == Ast.VECTOR {
-		return "Vec <" + Tipo_String(t.Valor.(Tipo)) + ">"
+func Tipo_String(t Ast.TipoRetornado) string {
+	if t.Tipo == Ast.VECTOR {
+		return "Vec <" + Tipo_String(t.Valor.(Ast.TipoRetornado)) + ">"
 	} else {
-		if t.TipoDato == Ast.STRUCT {
+		if t.Tipo == Ast.STRUCT {
 			return t.Valor.(string)
 		} else {
-			return Ast.ValorTipoDato[t.TipoDato]
+			return Ast.ValorTipoDato[t.Tipo]
 		}
 	}
 }
