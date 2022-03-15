@@ -54,8 +54,10 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		tipoGeneral, tipoParticular := elemento.(Ast.Abstracto).GetTipo()
 		if tipoParticular != Ast.IDENTIFICADOR && !EsFuncion(tipoParticular) {
 			tipoAnterior.Tipo = tipoParticular
+
 		} else {
 			tipoParticular = valorElemento.Tipo
+
 		}
 		if tipoAnterior.Tipo != Ast.INDEFINIDO {
 			if tipoAnterior.Tipo != tipoParticular {
@@ -144,7 +146,32 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 			}
 		}
-
+		//Verificar que los structs sean del mismo tipo
+		/*
+			if tipoParticular == Ast.STRUCT {
+				if tipoStructAnterior == "" {
+					tipoStructAnterior = valorElemento.Valor.(StructInstancia).Plantilla
+				} else {
+					if tipoStructAnterior != valorElemento.Valor.(StructInstancia).Plantilla {
+						//Error no se pueden guardar 2 tipos de vectores diferentes
+						fila := elemento.(Ast.Abstracto).GetFila()
+						columna := elemento.(Ast.Abstracto).GetColumna()
+						msg := "Semantic error, can't store " + valorElemento.Valor.(StructInstancia).Plantilla +
+							" to a VECTOR<" + tipoStructAnterior + ">" +
+							". -- Line: " + strconv.Itoa(fila) +
+							" Column: " + strconv.Itoa(columna)
+						nError := errores.NewError(fila, columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						scope.Errores.Add(nError)
+						scope.Consola += msg + "\n"
+						return Ast.TipoRetornado{
+							Tipo:  Ast.ERROR,
+							Valor: nError,
+						}
+					}
+				}
+			}
+		*/
 		//Todo bien, entonces agregar el elemento a la lista del vector
 		elementos.Add(valorElemento)
 		size++
@@ -160,6 +187,10 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	newVector := expresiones.NewVector(elementos, tipoVector, size, capacity, vacio, v.Fila, v.Columna)
 	newVector.TipoDelArray = tipoDelArrayAnterior.Tipo
 	newVector.TipoDelVector = tipoDelVectorAnterior.Tipo
+	if newVector.TipoDelVector == Ast.INDEFINIDO {
+		newVector.TipoDelVector = newVector.TipoVector
+	}
+
 	return Ast.TipoRetornado{
 		Tipo:  Ast.VECTOR,
 		Valor: newVector,

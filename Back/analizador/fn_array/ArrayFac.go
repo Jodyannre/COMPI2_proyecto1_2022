@@ -73,10 +73,10 @@ func (v ArrayFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			return nElemento
 		}
 		if nElemento.Tipo == Ast.ARRAY {
-			tipoDelArray = expresiones.GetTipoArray(nElemento.Valor.(expresiones.Array))
+			tipoDelArray = GetTipoArray(nElemento.Valor.(expresiones.Array))
 		}
 		if nElemento.Tipo == Ast.VECTOR {
-			tipoDelVector = expresiones.GetTipoVector(nElemento.Valor.(expresiones.Vector))
+			tipoDelVector = GetTipoVector(nElemento.Valor.(expresiones.Vector))
 		}
 		elementos.Add(nElemento)
 		sizeArray++

@@ -74,7 +74,7 @@ func (scope *Scope) Exist_fms(ident string) Simbolo {
 	}
 
 	//Verificar que la fms exista y si puede ser accedida
-	retorno = buscarMap(id, MODULO, scope_global)
+	retorno = buscarMap(id, MODULO, scope_global, scope)
 	if retorno.Tipo != NULL {
 		scope_encontrado = retorno.Valor.(Simbolo).Entorno
 		if scope_global != scope_encontrado {
@@ -88,7 +88,7 @@ func (scope *Scope) Exist_fms(ident string) Simbolo {
 		}
 		return retorno.Valor.(Simbolo)
 	}
-	retorno = buscarMap(id, STRUCT, scope_global)
+	retorno = buscarMap(id, STRUCT, scope_global, scope)
 	if retorno.Tipo != NULL {
 		scope_encontrado = retorno.Valor.(Simbolo).Entorno
 		if scope_global != scope_encontrado {
@@ -101,7 +101,7 @@ func (scope *Scope) Exist_fms(ident string) Simbolo {
 		}
 		return retorno.Valor.(Simbolo)
 	}
-	retorno = buscarMap(id, FUNCION, scope_global)
+	retorno = buscarMap(id, FUNCION, scope_global, scope)
 	if retorno.Tipo != NULL {
 		scope_encontrado = retorno.Valor.(Simbolo).Entorno
 		if scope_global != scope_encontrado {
@@ -117,31 +117,66 @@ func (scope *Scope) Exist_fms(ident string) Simbolo {
 	return NewSimbolo("", nil, -1, -1, ERROR_NO_EXISTE, false, false)
 }
 
-func buscarMap(id string, tipo TipoDato, scope *Scope) TipoRetornado {
+func (scope *Scope) Exist_fms_declaracion(ident string) Simbolo {
+	//Primero conseguir el scope global
+	var scope_global *Scope
+	var retorno TipoRetornado
+	id := strings.ToUpper(ident)
+	if scope.prev != nil {
+		for scope_global = scope; scope_global.prev != nil; scope_global = scope_global.prev {
+			//Buscando el scope global
+		}
+	} else {
+		scope_global = scope
+	}
+
+	//Verificar que la fms exista y si puede ser accedida
+	retorno = buscarMap(id, MODULO, scope_global, scope)
+	if retorno.Tipo != NULL {
+
+		return retorno.Valor.(Simbolo)
+	}
+	retorno = buscarMap(id, STRUCT, scope_global, scope)
+	if retorno.Tipo != NULL {
+
+		return retorno.Valor.(Simbolo)
+	}
+	retorno = buscarMap(id, FUNCION, scope_global, scope)
+	if retorno.Tipo != NULL {
+		return retorno.Valor.(Simbolo)
+	}
+	return NewSimbolo("", nil, -1, -1, ERROR_NO_EXISTE, false, false)
+}
+
+func buscarMap(id string, tipo TipoDato, scope *Scope, local *Scope) TipoRetornado {
 	var encontrado = false
 	var simbolo Simbolo
 	switch tipo {
 	case FUNCION:
 		for key, value := range scope.tablaFunciones {
 			if key == id {
-				encontrado = true
 				simbolo = value.(Simbolo)
+				encontrado = true
 				break
 			}
 		}
+
 	case MODULO:
 		for key, value := range scope.tablaModulos {
 			if key == id {
-				encontrado = true
+				//Verificar que sea publica
 				simbolo = value.(Simbolo)
+				encontrado = true
 				break
 			}
 		}
+
 	case STRUCT:
 		for key, value := range scope.tablaStructs {
 			if key == id {
-				encontrado = true
+				//Verificar que sea publica
 				simbolo = value.(Simbolo)
+				encontrado = true
 				break
 			}
 		}
@@ -175,7 +210,21 @@ func (scope *Scope) Addfms(simbolo Simbolo) {
 		scope_global.tablaFunciones[id] = simbolo
 	case MODULO:
 		scope_global.tablaModulos[id] = simbolo
-	case STRUCT:
+	case STRUCT_TEMPLATE:
+		scope_global.tablaStructs[id] = simbolo
+	}
+}
+
+func (scope *Scope) AddfmsParticular(simbolo Simbolo) {
+	scope_global := scope
+	id := strings.ToUpper(simbolo.Identificador)
+
+	switch simbolo.Tipo {
+	case FUNCION:
+		scope_global.tablaFunciones[id] = simbolo
+	case MODULO:
+		scope_global.tablaModulos[id] = simbolo
+	case STRUCT_TEMPLATE:
 		scope_global.tablaStructs[id] = simbolo
 	}
 }

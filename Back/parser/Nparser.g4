@@ -70,6 +70,7 @@ instruccion returns[interface{} ex]
             |printNormal PUNTOCOMA      {$ex = $printNormal.ex} 
             |printFormato PUNTOCOMA     {$ex = $printFormato.ex} 
             |metodos_vector PUNTOCOMA   {$ex = $metodos_vector.ex} 
+            |declaracion_struct_template {$ex = $declaracion_struct_template.ex}
 
 ;
 
@@ -171,14 +172,6 @@ declaracion returns[Ast.Instruccion ex]
             columna := $LET.pos 
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
         }
-        /* 
-    | LET MUT ID CORCHETE_IZQ tipo_dato PUNTOCOMA expresion CORCHETE_DER IGUAL expresion
-        {
-            fila := $LET.line
-            columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracionArray($ID.text,Ast.ARRAY,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
-        }
-    */
     | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion
         {
             fila := $LET.line
@@ -193,9 +186,93 @@ declaracion returns[Ast.Instruccion ex]
         }
    
 
-    //| STRUCT ID_CAMEL LLAVE_IZQ atributos LLAVE_DER
+
 
 ;
+
+declaracion_struct_template returns [Ast.Instruccion ex]
+: PUB STRUCT id=ID_CAMEL LLAVE_IZQ att=atributos_struct_template LLAVE_DER
+    {
+        fila := $id.line
+        columna := $id.pos       
+        //tipo := simbolos.NewTipo(Ast.STRUCT, $id.text, fila,columna) 
+        $ex = simbolos.NewDeclaracionStructTemplate($id.text,$att.list,true,fila,columna)   
+    }
+| STRUCT id=ID_CAMEL LLAVE_IZQ att=atributos_struct_template LLAVE_DER
+    {
+        fila := $id.line
+        columna := $id.pos       
+        //tipo := simbolos.NewTipo(Ast.STRUCT, $id.text, fila,columna) 
+        $ex = simbolos.NewDeclaracionStructTemplate($id.text,$att.list,false,fila,columna)        
+    }
+;
+
+
+
+
+atributos_struct_template returns [*arraylist.List list]
+@init{$list = arraylist.New()}
+    : lista_elementos = atributos_struct_template COMA att=atributo_struct_template 
+        {
+            $lista_elementos.list.Add($att.ex)
+            $list = $lista_elementos.list
+        }
+    | att=atributo_struct_template 
+        {
+            $list.Add($att.ex)
+        }
+;
+
+
+atributo_struct_template returns [Ast.Expresion ex]
+    : ID DOSPUNTOS tipo_dato 
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            $ex = simbolos.NewAtributoTemplate($ID.text,$tipo_dato.ex,false,fila,columna)
+        }
+    | PUB ID DOSPUNTOS tipo_dato 
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            $ex = simbolos.NewAtributoTemplate($ID.text,$tipo_dato.ex,true,fila,columna)             
+        }
+;
+
+struct_instancia returns [Ast.Expresion ex]
+    :   id=ID_CAMEL LLAVE_IZQ att=atributos_struct_instancia LLAVE_DER
+    {
+        fila := $id.line
+        columna := $id.pos       
+        tipo := simbolos.NewTipo(Ast.STRUCT, $id.text, fila,columna) 
+        $ex = simbolos.NewStructInstancia(tipo,$att.list,false,fila,columna)
+    }
+;
+
+
+atributos_struct_instancia returns [*arraylist.List list]
+@init{$list = arraylist.New()}
+    : lista_elementos = atributos_struct_instancia COMA att1=atributo_struct_instancia 
+        {
+            $lista_elementos.list.Add($att1.ex)
+            $list = $lista_elementos.list
+        }
+    | att2=atributo_struct_instancia 
+        {
+            $list.Add($att2.ex)
+        }
+;
+
+
+atributo_struct_instancia returns [Ast.Expresion ex]
+    : ID DOSPUNTOS expresion
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        simbolos.NewAtributo($ID.text,$expresion.ex,false,fila,columna)
+    }
+;
+
 
 
 declaracion_funcion returns [Ast.Instruccion ex]
@@ -429,6 +506,10 @@ expresion returns[Ast.Expresion ex]
     |   array
         {
             $ex = $array.ex
+        }
+    |   struct_instancia
+        {
+            $ex = $struct_instancia.ex   
         }
         //Acceso a array
     |   id=expresion lista=dimension_acceso_array

@@ -51,6 +51,46 @@ func (s *BaseNparserListener) EnterDeclaracion(ctx *DeclaracionContext) {}
 // ExitDeclaracion is called when production declaracion is exited.
 func (s *BaseNparserListener) ExitDeclaracion(ctx *DeclaracionContext) {}
 
+// EnterDeclaracion_struct_template is called when production declaracion_struct_template is entered.
+func (s *BaseNparserListener) EnterDeclaracion_struct_template(ctx *Declaracion_struct_templateContext) {
+}
+
+// ExitDeclaracion_struct_template is called when production declaracion_struct_template is exited.
+func (s *BaseNparserListener) ExitDeclaracion_struct_template(ctx *Declaracion_struct_templateContext) {
+}
+
+// EnterAtributos_struct_template is called when production atributos_struct_template is entered.
+func (s *BaseNparserListener) EnterAtributos_struct_template(ctx *Atributos_struct_templateContext) {}
+
+// ExitAtributos_struct_template is called when production atributos_struct_template is exited.
+func (s *BaseNparserListener) ExitAtributos_struct_template(ctx *Atributos_struct_templateContext) {}
+
+// EnterAtributo_struct_template is called when production atributo_struct_template is entered.
+func (s *BaseNparserListener) EnterAtributo_struct_template(ctx *Atributo_struct_templateContext) {}
+
+// ExitAtributo_struct_template is called when production atributo_struct_template is exited.
+func (s *BaseNparserListener) ExitAtributo_struct_template(ctx *Atributo_struct_templateContext) {}
+
+// EnterStruct_instancia is called when production struct_instancia is entered.
+func (s *BaseNparserListener) EnterStruct_instancia(ctx *Struct_instanciaContext) {}
+
+// ExitStruct_instancia is called when production struct_instancia is exited.
+func (s *BaseNparserListener) ExitStruct_instancia(ctx *Struct_instanciaContext) {}
+
+// EnterAtributos_struct_instancia is called when production atributos_struct_instancia is entered.
+func (s *BaseNparserListener) EnterAtributos_struct_instancia(ctx *Atributos_struct_instanciaContext) {
+}
+
+// ExitAtributos_struct_instancia is called when production atributos_struct_instancia is exited.
+func (s *BaseNparserListener) ExitAtributos_struct_instancia(ctx *Atributos_struct_instanciaContext) {
+}
+
+// EnterAtributo_struct_instancia is called when production atributo_struct_instancia is entered.
+func (s *BaseNparserListener) EnterAtributo_struct_instancia(ctx *Atributo_struct_instanciaContext) {}
+
+// ExitAtributo_struct_instancia is called when production atributo_struct_instancia is exited.
+func (s *BaseNparserListener) ExitAtributo_struct_instancia(ctx *Atributo_struct_instanciaContext) {}
+
 // EnterDeclaracion_funcion is called when production declaracion_funcion is entered.
 func (s *BaseNparserListener) EnterDeclaracion_funcion(ctx *Declaracion_funcionContext) {}
 

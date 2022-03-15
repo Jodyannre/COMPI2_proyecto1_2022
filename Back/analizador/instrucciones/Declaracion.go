@@ -38,12 +38,27 @@ func (d Declaracion) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 }
 
 func (d Declaracion) Run(scope *Ast.Scope) interface{} {
+
 	//Verificar que el id no exista
 
 	existe := scope.Exist_actual(d.Id)
 
 	//Primero verificar que no es un if expresion
 	_, tipoIn := d.Valor.(Ast.Abstracto).GetTipo()
+
+	//Verificar si es un struct y si el tipo de la variable es indefinido o error
+	if d.Tipo != Ast.INDEFINIDO && tipoIn == Ast.STRUCT {
+		msg := "Semantic error, can't initialize a" + Ast.ValorTipoDato[d.Tipo] + "with " + Ast.ValorTipoDato[tipoIn] + " value." +
+			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+		nError := errores.NewError(d.Fila, d.Columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
 
 	//Verificar que sea un primitivo i64 y la declaración sea usize
 

@@ -23,6 +23,24 @@ type NparserListener interface {
 	// EnterDeclaracion is called when entering the declaracion production.
 	EnterDeclaracion(c *DeclaracionContext)
 
+	// EnterDeclaracion_struct_template is called when entering the declaracion_struct_template production.
+	EnterDeclaracion_struct_template(c *Declaracion_struct_templateContext)
+
+	// EnterAtributos_struct_template is called when entering the atributos_struct_template production.
+	EnterAtributos_struct_template(c *Atributos_struct_templateContext)
+
+	// EnterAtributo_struct_template is called when entering the atributo_struct_template production.
+	EnterAtributo_struct_template(c *Atributo_struct_templateContext)
+
+	// EnterStruct_instancia is called when entering the struct_instancia production.
+	EnterStruct_instancia(c *Struct_instanciaContext)
+
+	// EnterAtributos_struct_instancia is called when entering the atributos_struct_instancia production.
+	EnterAtributos_struct_instancia(c *Atributos_struct_instanciaContext)
+
+	// EnterAtributo_struct_instancia is called when entering the atributo_struct_instancia production.
+	EnterAtributo_struct_instancia(c *Atributo_struct_instanciaContext)
+
 	// EnterDeclaracion_funcion is called when entering the declaracion_funcion production.
 	EnterDeclaracion_funcion(c *Declaracion_funcionContext)
 
@@ -160,6 +178,24 @@ type NparserListener interface {
 
 	// ExitDeclaracion is called when exiting the declaracion production.
 	ExitDeclaracion(c *DeclaracionContext)
+
+	// ExitDeclaracion_struct_template is called when exiting the declaracion_struct_template production.
+	ExitDeclaracion_struct_template(c *Declaracion_struct_templateContext)
+
+	// ExitAtributos_struct_template is called when exiting the atributos_struct_template production.
+	ExitAtributos_struct_template(c *Atributos_struct_templateContext)
+
+	// ExitAtributo_struct_template is called when exiting the atributo_struct_template production.
+	ExitAtributo_struct_template(c *Atributo_struct_templateContext)
+
+	// ExitStruct_instancia is called when exiting the struct_instancia production.
+	ExitStruct_instancia(c *Struct_instanciaContext)
+
+	// ExitAtributos_struct_instancia is called when exiting the atributos_struct_instancia production.
+	ExitAtributos_struct_instancia(c *Atributos_struct_instanciaContext)
+
+	// ExitAtributo_struct_instancia is called when exiting the atributo_struct_instancia production.
+	ExitAtributo_struct_instancia(c *Atributo_struct_instanciaContext)
 
 	// ExitDeclaracion_funcion is called when exiting the declaracion_funcion production.
 	ExitDeclaracion_funcion(c *Declaracion_funcionContext)

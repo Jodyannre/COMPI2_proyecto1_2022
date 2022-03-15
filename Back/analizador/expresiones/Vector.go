@@ -2,6 +2,7 @@ package expresiones
 
 import (
 	"Back/analizador/Ast"
+	//"Back/analizador/instrucciones"
 
 	"github.com/colegno/arraylist"
 )
@@ -12,12 +13,14 @@ type Vector struct {
 	TipoVector    Ast.TipoDato
 	TipoDelVector Ast.TipoDato
 	TipoDelArray  Ast.TipoDato
-	Fila          int
-	Columna       int
-	Mutable       bool
-	Vacio         bool
-	Size          int
-	Capacity      int
+	TipoDelStruct string
+	//TipoVector2   instrucciones.Tipo
+	Fila     int
+	Columna  int
+	Mutable  bool
+	Vacio    bool
+	Size     int
+	Capacity int
 }
 
 func NewVector(valor *arraylist.List, tipoVector Ast.TipoDato, size, capacity int, vacio bool, fila, columna int) Vector {
@@ -34,6 +37,7 @@ func NewVector(valor *arraylist.List, tipoVector Ast.TipoDato, size, capacity in
 		Vacio:         vacio,
 		TipoDelVector: Ast.INDEFINIDO,
 		TipoDelArray:  Ast.INDEFINIDO,
+		TipoDelStruct: "INDEFINIDO",
 	}
 	return nV
 }

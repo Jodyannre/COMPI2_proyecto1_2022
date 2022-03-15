@@ -57,20 +57,13 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-	fn valores(x: &mut Vec<i64>) {
-		x[0] = 3;
-		x[1] = 7;
-		x[2] = 5+3;
-		x[3] = 16; 
-	}
-	fn arreglos(x: &mut[&str]){
-		x[0] = "adios".to_string() + " esta es otra cadena";
-	}
-	let mut x = vec![1,2,3,4,5];
-	let mut arr1: [String; 2] = ["Hola".to_string(), "Mundo".to_string()];
-    //valores(&mut x);
-	arreglos(&mut arr1);
-    println!("{:?}",arr1);
+	struct Carro {
+		placa: String,
+		color: String,
+		tipo: String
+		}
+		let mut c1 = Carro { placa:"090PLO".to_string(),
+		color:"gris".to_string(), tipo:"mecanico".to_string() };
 	`
 
 	//Obteniendo el input

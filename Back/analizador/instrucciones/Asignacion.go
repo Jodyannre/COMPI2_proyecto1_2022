@@ -318,12 +318,12 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 					}
 				} else if vectorGuardado.TipoVector == Ast.VECTOR {
 					//Verificar que los tipos de vectores que se guardan son correctos
-					if vectorGuardado.TipoDelVector != expresiones.GetTipoVector(vectorEntrante) ||
+					if vectorGuardado.TipoDelVector != fn_vectores.GetTipoVector(vectorEntrante) ||
 						!fn_vectores.GetNivelesVector(vectorGuardado, vectorEntrante) {
 						//Error no se pueden guardar 2 tipos de vectores diferentes
 						fila := vectorEntrante.GetFila()
 						columna := vectorEntrante.GetColumna()
-						msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[expresiones.GetTipoVector(vectorEntrante)] +
+						msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[fn_vectores.GetTipoVector(vectorEntrante)] +
 							"> to a VECTOR<" + Ast.ValorTipoDato[vectorGuardado.TipoDelVector] + ">" +
 							". -- Line: " + strconv.Itoa(fila) +
 							" Column: " + strconv.Itoa(columna)
@@ -374,14 +374,14 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 						}
 					} else {
 						//Copiar los valores del vector guardado al nuevo vector entrante
-						CopiarArray(&arrayGuardado, &arrayEntrante, simbolo_id)
+						CopiarArray(arrayGuardado, arrayEntrante, simbolo_id)
 						valor = Ast.TipoRetornado{
 							Tipo:  Ast.VECTOR,
 							Valor: arrayEntrante,
 						}
 					}
 				} else {
-					CopiarArray(&arrayGuardado, &arrayEntrante, simbolo_id)
+					CopiarArray(arrayGuardado, arrayEntrante, simbolo_id)
 					valor = Ast.TipoRetornado{
 						Tipo:  Ast.VECTOR,
 						Valor: arrayEntrante,
@@ -536,12 +536,12 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 					}
 				} else if vectorGuardado.TipoVector == Ast.VECTOR {
 					//Verificar que los tipos de vectores que se guardan son correctos
-					if vectorGuardado.TipoDelVector != expresiones.GetTipoVector(vectorEntrante) ||
+					if vectorGuardado.TipoDelVector != fn_vectores.GetTipoVector(vectorEntrante) ||
 						!fn_vectores.GetNivelesVector(vectorGuardado, vectorEntrante) {
 						//Error no se pueden guardar 2 tipos de vectores diferentes
 						fila := vectorEntrante.GetFila()
 						columna := vectorEntrante.GetColumna()
-						msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[expresiones.GetTipoVector(vectorEntrante)] +
+						msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[fn_vectores.GetTipoVector(vectorEntrante)] +
 							"> to a VECTOR<" + Ast.ValorTipoDato[vectorGuardado.TipoDelVector] + ">" +
 							". -- Line: " + strconv.Itoa(fila) +
 							" Column: " + strconv.Itoa(columna)
@@ -607,7 +607,7 @@ func CopiarVector(vectorGuardado *expresiones.Vector, vectorEntrante *expresione
 	vectorEntrante.TipoVector = vectorGuardado.TipoVector
 }
 
-func CopiarArray(arrayGuardado *expresiones.Array, arrayEntrante *expresiones.Array, simbolo Ast.Simbolo) {
+func CopiarArray(arrayGuardado expresiones.Array, arrayEntrante expresiones.Array, simbolo Ast.Simbolo) {
 	arrayEntrante.Columna = simbolo.Columna
 	arrayEntrante.Fila = simbolo.Fila
 	arrayEntrante.Mutable = simbolo.Mutable
