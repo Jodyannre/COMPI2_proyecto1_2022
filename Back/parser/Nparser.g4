@@ -160,17 +160,20 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,Ast.VOID,$expresion.ex,fila,columna)
         }
 
-    | LET ID DOSPUNTOS VEC MENOR tipo_dato MAYOR IGUAL expresion
+    | LET ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,false,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
+            tipoVector := $tipo.ex
+            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,false,false,fila,columna)    
+    
         }
-    | LET MUT ID DOSPUNTOS VEC MENOR tipo_dato MAYOR IGUAL expresion
+    | LET MUT ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,$tipo_dato.ex,$expresion.ex,fila,columna)            
+            tipoVector := $tipo.ex
+            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,true,false,fila,columna)            
         }
     | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion
         {
@@ -1196,13 +1199,13 @@ dimension_array returns[Ast.Expresion ex]
             dimension.(expresiones.DimensionArray).Elementos.Add($expresion.ex)
             $ex = dimension
         }
-    | CORCHETE_IZQ tipo_dato PUNTOCOMA expresion CORCHETE_DER
+    | CORCHETE_IZQ tipo=tipo_dato_tipo PUNTOCOMA expresion CORCHETE_DER
         {
             fila := $CORCHETE_IZQ.line
             columna := $CORCHETE_IZQ.pos
             listaD := arraylist.New()
             listaD.Add($expresion.ex)
-            $ex = expresiones.NewDimensionArray(listaD, $tipo_dato.ex,fila,columna)
+            $ex = expresiones.NewDimensionArray(listaD, $tipo.ex,fila,columna)
         }
 
 ;

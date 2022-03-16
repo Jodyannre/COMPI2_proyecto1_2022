@@ -38,10 +38,8 @@ func (v VecFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	cantidad := elementoVeces.(Ast.Expresion).GetValue(scope)
 	elemento := v.Elementos.GetValue(0).(Ast.Expresion).GetValue(scope)
 	sizeVector := 0
-	tipoDelVector := Ast.INDEFINIDO
-	tipoDelArray := Ast.INDEFINIDO
+	tipoDelVector := Ast.TipoRetornado{Valor: true, Tipo: Ast.INDEFINIDO}
 	vacio := true
-	var tipoVector Ast.TipoDato
 
 	if cantidad.Tipo == Ast.ERROR {
 		return cantidad
@@ -73,18 +71,22 @@ func (v VecFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			return nElemento
 		}
 		if nElemento.Tipo == Ast.VECTOR {
-			tipoDelVector = GetTipoVector(nElemento.Valor.(expresiones.Vector))
+			tipoDelVector = Ast.TipoRetornado{Tipo: Ast.VECTOR, Valor: nElemento.Valor.(expresiones.Vector).TipoVector}
+		} else if tipoDelVector.Tipo == Ast.INDEFINIDO {
+			tipoDelVector = Ast.TipoRetornado{Tipo: nElemento.Tipo, Valor: true}
+			if tipoDelVector.Tipo == Ast.STRUCT {
+				//Agregar el simbolo del struct
+				tipoDelVector.Valor = nElemento.Valor.(Ast.Structs).GetPlantilla()
+			}
 		}
 		elementos.Add(nElemento)
 		sizeVector++
 		if vacio {
 			vacio = false
-			tipoVector = elemento.Tipo
 		}
 	}
-	vector := expresiones.NewVector(elementos, tipoVector, sizeVector, sizeVector, vacio, v.Fila, v.Columna)
-	vector.TipoDelVector = tipoDelVector
-	vector.TipoDelArray = tipoDelArray
+	vector := expresiones.NewVector(elementos, tipoDelVector, sizeVector, sizeVector, vacio, v.Fila, v.Columna)
+	vector.TipoVector = tipoDelVector
 	return Ast.TipoRetornado{
 		Tipo:  Ast.VECTOR,
 		Valor: vector,

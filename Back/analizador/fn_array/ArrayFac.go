@@ -39,7 +39,7 @@ func (v ArrayFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	elemento := v.Elementos.GetValue(0).(Ast.Expresion).GetValue(scope)
 	sizeArray := 0
 	tipoDelVector := Ast.INDEFINIDO
-	tipoDelArray := Ast.INDEFINIDO
+	tipoDelArray := Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true}
 	vacio := true
 	var tipoArray Ast.TipoDato
 
@@ -73,7 +73,7 @@ func (v ArrayFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			return nElemento
 		}
 		if nElemento.Tipo == Ast.ARRAY {
-			tipoDelArray = GetTipoArray(nElemento.Valor.(expresiones.Array))
+			tipoDelArray = nElemento.Valor.(expresiones.Array).TipoDelArray
 		}
 		if nElemento.Tipo == Ast.VECTOR {
 			tipoDelVector = GetTipoVector(nElemento.Valor.(expresiones.Vector))
@@ -86,16 +86,20 @@ func (v ArrayFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 
-	array := expresiones.NewArray(elementos, tipoArray, sizeArray, v.Fila, v.Columna)
-	array.TipoDelVector = tipoDelVector
-	array.TipoDelArray = tipoDelArray
-	if array.TipoDelArray == Ast.INDEFINIDO {
-		array.TipoDelArray = array.TipoArray
+	newArray := expresiones.NewArray(elementos, tipoArray, sizeArray, v.Fila, v.Columna)
+	newArray.TipoDelVector = tipoDelVector
+	if tipoDelArray.Tipo == Ast.ARRAY {
+		newArray.TipoDelArray = Ast.TipoRetornado{Tipo: Ast.ARRAY, Valor: tipoDelArray}
+	} else {
+		newArray.TipoDelArray = tipoDelArray
+	}
+	if newArray.TipoDelArray.Tipo == Ast.INDEFINIDO {
+		newArray.TipoDelArray = tipoDelArray
 	}
 
 	return Ast.TipoRetornado{
 		Tipo:  Ast.ARRAY,
-		Valor: array,
+		Valor: newArray,
 	}
 }
 

@@ -25,7 +25,7 @@ func NewVecNew(fila, columna int) VecNew {
 
 func (w VecNew) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	elementos := arraylist.New()
-	vector := expresiones.NewVector(elementos, Ast.INDEFINIDO, 0, 0, true, w.Fila, w.Columna)
+	vector := expresiones.NewVector(elementos, Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true}, 0, 0, true, w.Fila, w.Columna)
 	return Ast.TipoRetornado{
 		Tipo:  Ast.VECTOR,
 		Valor: vector,

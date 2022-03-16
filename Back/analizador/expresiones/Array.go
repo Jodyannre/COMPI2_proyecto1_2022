@@ -14,7 +14,7 @@ type Array struct {
 	Columna       int
 	Mutable       bool
 	TipoDelVector Ast.TipoDato
-	TipoDelArray  Ast.TipoDato
+	TipoDelArray  Ast.TipoRetornado
 	TipoDelStruct string
 	Size          int //Tamaño de la dimensión
 }
@@ -27,7 +27,7 @@ func NewArray(elementos *arraylist.List, TipoArray Ast.TipoDato, size, fila, col
 		Columna:       columna,
 		TipoArray:     TipoArray,
 		TipoDelVector: Ast.INDEFINIDO,
-		TipoDelArray:  Ast.INDEFINIDO,
+		TipoDelArray:  Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true},
 		TipoDelStruct: "INDEFINIDO",
 		Size:          size,
 	}
@@ -79,3 +79,12 @@ func GetTipoArray(array Array) Ast.TipoDato {
 	return array.TipoArray
 }
 */
+
+func EsArray(tipo Ast.TipoDato) Ast.TipoDato {
+	switch tipo {
+	case Ast.ARRAY, Ast.ARRAY_ELEMENTOS, Ast.ARRAY_FAC:
+		return Ast.ARRAY
+	default:
+		return tipo
+	}
+}

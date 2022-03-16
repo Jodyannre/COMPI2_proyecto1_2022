@@ -96,7 +96,7 @@ func (p InsertVec) Run(scope *Ast.Scope) interface{} {
 	//Verificar que el vector sea mutable
 	if !simbolo.Mutable {
 		msg := "Semantic error, can't store " + Ast.ValorTipoDato[valor.Tipo] + " value" +
-			" in a not mutable Vec<" + Ast.ValorTipoDato[vector.TipoVector] + ">." +
+			" in a not mutable Vec<" + Ast.ValorTipoDato[vector.Tipo] + ">." +
 			" -- Line: " + strconv.Itoa(p.Fila) +
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
@@ -109,10 +109,10 @@ func (p InsertVec) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 
-	if valor.Tipo != vector.TipoVector {
+	if valor.Tipo != vector.TipoVector.Tipo {
 		//Error de tipos dentro del vector
 		msg := "Semantic error, can't store " + Ast.ValorTipoDato[valor.Tipo] + " value" +
-			" in a Vec<" + Ast.ValorTipoDato[vector.TipoVector] + ">." +
+			" in a Vec<" + Ast.ValorTipoDato[vector.Tipo] + ">." +
 			" -- Line: " + strconv.Itoa(p.Fila) +
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
@@ -124,6 +124,46 @@ func (p InsertVec) Run(scope *Ast.Scope) interface{} {
 			Valor: nError,
 		}
 	}
+
+	//Verificar si es vector el que se va a agregar y el tipo del vector
+	if valor.Tipo == Ast.VECTOR {
+		if !expresiones.CompararTipos(valor.Valor.(expresiones.Vector).TipoVector, vector.TipoVector) {
+			//Error, no se puede guardar ese tipo de vector en este vector
+			msg := "Semantic error, can't store " + expresiones.Tipo_String(valor.Valor.(expresiones.Vector).TipoVector) + " value" +
+				" in a VEC< " + expresiones.Tipo_String(vector.TipoVector) + ">." +
+				" -- Line: " + strconv.Itoa(p.Fila) +
+				" Column: " + strconv.Itoa(p.Columna)
+			nError := errores.NewError(p.Fila, p.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+	}
+	//Verificar si es un struct el que se va a agregar
+	if valor.Tipo == Ast.STRUCT {
+		plantilla := valor.Valor.(Ast.Structs).GetPlantilla()
+		tipoStruct := Ast.TipoRetornado{Valor: plantilla, Tipo: Ast.STRUCT}
+		if !expresiones.CompararTipos(tipoStruct, vector.TipoVector) {
+			//Error, no se puede guardar ese tipo de vector en este vector
+			msg := "Semantic error, can't store " + plantilla + " value" +
+				" in a VEC< " + expresiones.Tipo_String(vector.TipoVector) + ">." +
+				" -- Line: " + strconv.Itoa(p.Fila) +
+				" Column: " + strconv.Itoa(p.Columna)
+			nError := errores.NewError(p.Fila, p.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+	}
+
 	//Get la posición en donde se quiere agregar el nuevo valor
 	posicion = p.Posicion.(Ast.Expresion).GetValue(scope)
 	_, tipoParticular = p.Posicion.(Ast.Abstracto).GetTipo()
@@ -163,27 +203,6 @@ func (p InsertVec) Run(scope *Ast.Scope) interface{} {
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
-		}
-	}
-
-	if valor.Tipo == Ast.VECTOR {
-		tipoVector := GetTipoVector(valor.Valor.(expresiones.Vector))
-		//Me estoy arriesgando a que uno de los 2 este vacio y truene todo //////////////////////////////////
-		if tipoVector != vector.TipoDelVector ||
-			!GetNivelesVector(vector.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector), valor.Valor.(expresiones.Vector)) {
-			//Error, no se puede guardar ese tipo de vector en este vector
-			msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[tipoVector] + "> value" +
-				" in a VECTOR<" + Ast.ValorTipoDato[vector.TipoDelVector] + ">." +
-				" -- Line: " + strconv.Itoa(p.Fila) +
-				" Column: " + strconv.Itoa(p.Columna)
-			nError := errores.NewError(p.Fila, p.Columna, msg)
-			nError.Tipo = Ast.ERROR_SEMANTICO
-			scope.Errores.Add(nError)
-			scope.Consola += msg + "\n"
-			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
-				Valor: nError,
-			}
 		}
 	}
 

@@ -8,36 +8,29 @@ import (
 )
 
 type Vector struct {
-	Tipo          Ast.TipoDato
-	Valor         *arraylist.List
-	TipoVector    Ast.TipoDato
-	TipoDelVector Ast.TipoDato
-	TipoDelArray  Ast.TipoDato
-	TipoDelStruct string
-	//TipoVector2   instrucciones.Tipo
-	Fila     int
-	Columna  int
-	Mutable  bool
-	Vacio    bool
-	Size     int
-	Capacity int
+	Tipo       Ast.TipoDato
+	Valor      *arraylist.List
+	TipoVector Ast.TipoRetornado
+	Fila       int
+	Columna    int
+	Mutable    bool
+	Vacio      bool
+	Size       int
+	Capacity   int
 }
 
-func NewVector(valor *arraylist.List, tipoVector Ast.TipoDato, size, capacity int, vacio bool, fila, columna int) Vector {
+func NewVector(valor *arraylist.List, tipoVector Ast.TipoRetornado, size, capacity int, vacio bool, fila, columna int) Vector {
 	//Crear el vector dependiendo de las banderas
 	nV := Vector{
-		Tipo:          Ast.VECTOR,
-		Fila:          fila,
-		Columna:       columna,
-		Valor:         valor,
-		TipoVector:    tipoVector,
-		Mutable:       false,
-		Size:          size,
-		Capacity:      capacity,
-		Vacio:         vacio,
-		TipoDelVector: Ast.INDEFINIDO,
-		TipoDelArray:  Ast.INDEFINIDO,
-		TipoDelStruct: "INDEFINIDO",
+		Tipo:       Ast.VECTOR,
+		Fila:       fila,
+		Columna:    columna,
+		Valor:      valor,
+		TipoVector: tipoVector,
+		Mutable:    false,
+		Size:       size,
+		Capacity:   capacity,
+		Vacio:      vacio,
 	}
 	return nV
 }
@@ -61,7 +54,7 @@ func (v Vector) GetColumna() int {
 	return v.Columna
 }
 
-func (v Vector) GetTipoVector() Ast.TipoDato {
+func (v Vector) GetTipoVector() Ast.TipoRetornado {
 	return v.TipoVector
 }
 
@@ -104,5 +97,75 @@ func UpdatePosition(v *Vector, posicion int, valorEntrante interface{}, scope *A
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
 		Valor: true,
+	}
+}
+
+func GetTipoFinal(tipo Ast.TipoRetornado) Ast.TipoRetornado {
+	if EsTipoFinal(tipo.Tipo) {
+		if tipo.Tipo != Ast.STRUCT {
+			return Ast.TipoRetornado{
+				Tipo:  tipo.Tipo,
+				Valor: true,
+			}
+		}
+		return Ast.TipoRetornado{
+			Tipo:  tipo.Tipo,
+			Valor: tipo.Valor,
+		}
+	} else {
+		return GetTipoFinal(tipo.Valor.(Ast.TipoRetornado))
+	}
+}
+
+func EsTipoFinal(tipo Ast.TipoDato) bool {
+	switch tipo {
+	case Ast.I64, Ast.F64, Ast.CHAR, Ast.STRING, Ast.BOOLEAN, Ast.STRUCT, Ast.INDEFINIDO:
+		return true
+	default:
+		return false
+	}
+}
+
+func CompararTipos(tipoA Ast.TipoRetornado, tipoB Ast.TipoRetornado) bool {
+	if EsTipoFinal(tipoA.Tipo) && EsTipoFinal(tipoB.Tipo) {
+		if tipoA.Tipo == tipoB.Tipo {
+			//Verificar si son structs
+			if tipoA.Tipo == Ast.STRUCT {
+				if tipoA.Valor == tipoB.Valor {
+					return true
+				} else {
+					return false
+				}
+			}
+			return true
+		} else {
+			return false
+		}
+	}
+	if EsTipoFinal(tipoA.Tipo) && !EsTipoFinal(tipoB.Tipo) ||
+		!EsTipoFinal(tipoA.Tipo) && EsTipoFinal(tipoB.Tipo) {
+		return false
+	}
+	return CompararTipos(tipoA.Valor.(Ast.TipoRetornado), tipoB.Valor.(Ast.TipoRetornado))
+}
+
+func Tipo_String(t Ast.TipoRetornado) string {
+	if t.Tipo == Ast.VECTOR {
+		return "Vec <" + Tipo_String(t.Valor.(Ast.TipoRetornado)) + ">"
+	} else {
+		if t.Tipo == Ast.STRUCT {
+			return t.Valor.(string)
+		} else {
+			return Ast.ValorTipoDato[t.Tipo]
+		}
+	}
+}
+
+func EsVector(tipo Ast.TipoDato) Ast.TipoDato {
+	switch tipo {
+	case Ast.VEC_ELEMENTOS, Ast.VEC_FAC, Ast.VEC_WITH_CAPACITY, Ast.VEC_NEW:
+		return Ast.VECTOR
+	default:
+		return tipo
 	}
 }

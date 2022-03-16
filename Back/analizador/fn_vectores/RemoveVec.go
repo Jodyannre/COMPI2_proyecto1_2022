@@ -87,7 +87,7 @@ func (p RemoveVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	//Verificar que el vector sea mutable
 	if !simbolo.Mutable {
 		msg := "Semantic error, can't remove an elment from an inmutable Vector<" +
-			Ast.ValorTipoDato[vector.TipoVector] + ">." +
+			expresiones.Tipo_String(vector.TipoVector) + ">." +
 			" -- Line: " + strconv.Itoa(p.Fila) +
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)

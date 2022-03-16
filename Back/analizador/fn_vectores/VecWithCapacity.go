@@ -65,7 +65,7 @@ func (v VecWithCapacity) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 
-	vector := expresiones.NewVector(elementos, Ast.INDEFINIDO, size, capacity, vacio, v.Fila, v.Columna)
+	vector := expresiones.NewVector(elementos, Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true}, size, capacity, vacio, v.Fila, v.Columna)
 	return Ast.TipoRetornado{
 		Tipo:  Ast.VECTOR,
 		Valor: vector,

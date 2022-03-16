@@ -31,7 +31,7 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	elementos := arraylist.New()
 	var elemento interface{}
-	var tipoVector Ast.TipoDato
+	tipoVector := Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true}
 	valorElemento := Ast.TipoRetornado{}
 	tipoAnterior := Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true}
 	tipoDelVectorAnterior := Ast.TipoRetornado{Tipo: Ast.INDEFINIDO, Valor: true}
@@ -52,12 +52,22 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 		//Calcular los tipos del elemento
 		tipoGeneral, tipoParticular := elemento.(Ast.Abstracto).GetTipo()
-		if tipoParticular != Ast.IDENTIFICADOR && !EsFuncion(tipoParticular) {
-			tipoAnterior.Tipo = tipoParticular
-
-		} else {
-			tipoParticular = valorElemento.Tipo
-
+		tipoParticular = expresiones.EsVector(tipoParticular)
+		if tipoGeneral != Ast.EXPRESION {
+			//Error, no se puede guardar algo que no sea una expresión en el vector
+			fila := elemento.(Ast.Abstracto).GetFila()
+			columna := elemento.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, can't store " + Ast.ValorTipoDato[tipoParticular] + " to a vector" +
+				". -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
 		}
 		if tipoAnterior.Tipo != Ast.INDEFINIDO {
 			if tipoAnterior.Tipo != tipoParticular {
@@ -78,30 +88,14 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 			}
 		}
-		if tipoGeneral != Ast.EXPRESION {
-			//Error, no se puede guardar algo que no sea una expresión en el vector
-			fila := elemento.(Ast.Abstracto).GetFila()
-			columna := elemento.(Ast.Abstracto).GetColumna()
-			msg := "Semantic error, can't store " + Ast.ValorTipoDato[tipoParticular] + " to a vector" +
-				". -- Line: " + strconv.Itoa(fila) +
-				" Column: " + strconv.Itoa(columna)
-			nError := errores.NewError(fila, columna, msg)
-			nError.Tipo = Ast.ERROR_SEMANTICO
-			scope.Errores.Add(nError)
-			scope.Consola += msg + "\n"
-			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
-				Valor: nError,
-			}
-		}
 
 		//Si es un array o un vector, verificar que los tipos sean correctos
-		if tipoParticular == Ast.VECTOR {
+		if tipoParticular == Ast.VECTOR && tipoAnterior.Tipo != Ast.INDEFINIDO {
 			vector = valorElemento.Valor.(expresiones.Vector)
-			if tipoDelVectorAnterior.Tipo == Ast.INDEFINIDO {
+			if tipoAnterior.Tipo == Ast.INDEFINIDO {
 				tipoDelVectorAnterior.Tipo = GetTipoVector(vector)
 			} else {
-				if tipoDelVectorAnterior.Tipo != GetTipoVector(vector) {
+				if !expresiones.CompararTipos(tipoAnterior.Valor.(Ast.TipoRetornado), vector.TipoVector) {
 					//Error no se pueden guardar 2 tipos de vectores diferentes
 					fila := elemento.(Ast.Abstracto).GetFila()
 					columna := elemento.(Ast.Abstracto).GetColumna()
@@ -122,16 +116,16 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 
 		//Si es un array, verificar que los arrays sean del mismo tipo
-		if tipoParticular == Ast.ARRAY {
+		if tipoParticular == Ast.ARRAY && tipoAnterior.Tipo != Ast.INDEFINIDO {
 			array = valorElemento.Valor.(expresiones.Array)
 			if tipoDelArrayAnterior.Tipo == Ast.INDEFINIDO {
-				tipoDelArrayAnterior.Tipo = GetTipoArray(array)
+				tipoDelArrayAnterior.Tipo = array.TipoDelArray.Tipo
 			} else {
-				if tipoDelArrayAnterior.Tipo != GetTipoArray(array) {
+				if tipoDelArrayAnterior.Tipo != array.TipoDelArray.Tipo {
 					//Error no se pueden guardar 2 tipos de vectores diferentes
 					fila := elemento.(Ast.Abstracto).GetFila()
 					columna := elemento.(Ast.Abstracto).GetColumna()
-					msg := "Semantic error, can't store ARRAY[" + Ast.ValorTipoDato[GetTipoArray(array)] +
+					msg := "Semantic error, can't store ARRAY[" + Ast.ValorTipoDato[array.TipoDelArray.Tipo] +
 						"] to a VECTOR<ARRAY[" + Ast.ValorTipoDato[tipoDelArrayAnterior.Tipo] + "]>" +
 						". -- Line: " + strconv.Itoa(fila) +
 						" Column: " + strconv.Itoa(columna)
@@ -146,50 +140,56 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 			}
 		}
-		//Verificar que los structs sean del mismo tipo
-		/*
-			if tipoParticular == Ast.STRUCT {
-				if tipoStructAnterior == "" {
-					tipoStructAnterior = valorElemento.Valor.(StructInstancia).Plantilla
-				} else {
-					if tipoStructAnterior != valorElemento.Valor.(StructInstancia).Plantilla {
-						//Error no se pueden guardar 2 tipos de vectores diferentes
-						fila := elemento.(Ast.Abstracto).GetFila()
-						columna := elemento.(Ast.Abstracto).GetColumna()
-						msg := "Semantic error, can't store " + valorElemento.Valor.(StructInstancia).Plantilla +
-							" to a VECTOR<" + tipoStructAnterior + ">" +
-							". -- Line: " + strconv.Itoa(fila) +
-							" Column: " + strconv.Itoa(columna)
-						nError := errores.NewError(fila, columna, msg)
-						nError.Tipo = Ast.ERROR_SEMANTICO
-						scope.Errores.Add(nError)
-						scope.Consola += msg + "\n"
-						return Ast.TipoRetornado{
-							Tipo:  Ast.ERROR,
-							Valor: nError,
-						}
-					}
+		if tipoParticular == Ast.STRUCT && tipoAnterior.Tipo != Ast.INDEFINIDO {
+			if valorElemento.Valor.(Ast.Structs).GetPlantilla() != tipoAnterior.Valor {
+				fila := elemento.(Ast.Abstracto).GetFila()
+				columna := elemento.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, can't store" + valorElemento.Valor.(Ast.Structs).GetPlantilla() +
+					"to a VECTOR<" + tipoAnterior.Valor.(string) + ">" +
+					". -- Line: " + strconv.Itoa(fila) +
+					" Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				scope.Errores.Add(nError)
+				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
 				}
 			}
-		*/
+
+		}
+
+		if tipoParticular == Ast.STRUCT {
+			tipoAnterior.Tipo = tipoParticular
+			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla()
+		} else if tipoParticular != Ast.IDENTIFICADOR && !EsFuncion(tipoParticular) && tipoParticular != Ast.VECTOR {
+			tipoAnterior.Tipo = tipoParticular
+
+		} else if tipoParticular == Ast.VECTOR {
+			tipoAnterior = Ast.TipoRetornado{
+				Tipo:  Ast.VECTOR,
+				Valor: valorElemento.Valor.(expresiones.Vector).TipoVector,
+			}
+
+		} else {
+			tipoAnterior.Tipo = valorElemento.Tipo
+		}
+
 		//Todo bien, entonces agregar el elemento a la lista del vector
 		elementos.Add(valorElemento)
 		size++
-		tipoAnterior.Tipo = valorElemento.Tipo
+		//tipoAnterior.Tipo = valorElemento.Tipo
 		if vacio {
 			vacio = false
-			tipoVector = tipoParticular
+			tipoVector = tipoAnterior
 		}
 	}
 	//Actualizar capacity
 	capacity = size
 
 	newVector := expresiones.NewVector(elementos, tipoVector, size, capacity, vacio, v.Fila, v.Columna)
-	newVector.TipoDelArray = tipoDelArrayAnterior.Tipo
-	newVector.TipoDelVector = tipoDelVectorAnterior.Tipo
-	if newVector.TipoDelVector == Ast.INDEFINIDO {
-		newVector.TipoDelVector = newVector.TipoVector
-	}
+	newVector.Tipo = Ast.VECTOR
 
 	return Ast.TipoRetornado{
 		Tipo:  Ast.VECTOR,
@@ -210,21 +210,21 @@ func (v VecElementos) GetColumna() int {
 }
 
 func GetTipoVector(vector expresiones.Vector) Ast.TipoDato {
-	if vector.TipoVector == Ast.VECTOR {
-		return vector.TipoDelVector
+	if vector.Tipo == Ast.VECTOR {
+		return vector.Tipo
 	}
-	if vector.TipoVector == Ast.ARRAY {
-		return vector.TipoDelArray
+	if vector.Tipo == Ast.ARRAY {
+		return vector.Tipo
 	}
-	return vector.TipoVector
+	return vector.Tipo
 }
 
 func GetNivelesVector(vectorGuardado expresiones.Vector, vectorEntrante expresiones.Vector) bool {
-	if vectorGuardado.TipoVector == Ast.VECTOR && vectorEntrante.TipoVector != Ast.VECTOR ||
-		vectorGuardado.TipoVector != Ast.VECTOR && vectorEntrante.TipoVector == Ast.VECTOR {
+	if vectorGuardado.Tipo == Ast.VECTOR && vectorEntrante.Tipo != Ast.VECTOR ||
+		vectorGuardado.Tipo != Ast.VECTOR && vectorEntrante.Tipo == Ast.VECTOR {
 		return false
 	}
-	if vectorGuardado.TipoVector == Ast.VECTOR && vectorEntrante.TipoVector == Ast.VECTOR {
+	if vectorGuardado.Tipo == Ast.VECTOR && vectorEntrante.Tipo == Ast.VECTOR {
 		//Verificar si tiene elementos ambos
 		if vectorGuardado.Valor.Len() > 0 && vectorEntrante.Valor.Len() > 0 {
 			return GetNivelesVector(vectorGuardado.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector),
@@ -235,14 +235,9 @@ func GetNivelesVector(vectorGuardado expresiones.Vector, vectorEntrante expresio
 	return true
 }
 
-func GetTipoArray(array expresiones.Array) Ast.TipoDato {
-	if array.TipoArray == Ast.VECTOR {
-		return array.TipoDelVector
-	}
-	if array.TipoArray == Ast.ARRAY {
-		return array.TipoDelArray
-	}
-	return array.TipoArray
+func GetTipoArray(array expresiones.Array) Ast.TipoRetornado {
+	return array.TipoDelArray
+
 }
 
 func EsFuncion(tipo interface{}) bool {

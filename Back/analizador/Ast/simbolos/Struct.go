@@ -151,6 +151,9 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 		//Get el valor del atributo
 		valorAtt := atributoActual.GetValue(scope)
+		if valorAtt.Tipo == Ast.ERROR {
+			return valorAtt
+		}
 		attActual := valorAtt.Valor.(Atributo)
 		if valorAtt.Tipo == Ast.ERROR {
 			return valorAtt
@@ -203,4 +206,8 @@ func (v StructInstancia) GetFila() int {
 }
 func (v StructInstancia) GetColumna() int {
 	return v.Columna
+}
+
+func (s StructInstancia) GetPlantilla() string {
+	return s.Plantilla.Valor.(string)
 }

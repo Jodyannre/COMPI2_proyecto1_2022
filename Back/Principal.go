@@ -58,12 +58,15 @@ func main() {
 	*/
 	var input string = `
 	struct Carro {
-		placa: String,
-		color: String,
-		tipo: String
+		color: String
 		}
-		let mut c1 = Carro { placa:"090PLO".to_string(),
-		color:"gris".to_string(), tipo:5 };
+		let mut arr3: [[[i64; 4];2]; 2] = 
+		[
+			[ [ [1] ], [ [9] ] ],
+			[ [ [2] ], [ [8] ] ]
+		];
+
+
 	`
 
 	//Obteniendo el input

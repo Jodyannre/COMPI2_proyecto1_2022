@@ -13,3 +13,7 @@ type Abstracto interface {
 	GetFila() int
 	GetColumna() int
 }
+
+type Structs interface {
+	GetPlantilla() string
+}

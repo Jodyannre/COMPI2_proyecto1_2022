@@ -85,8 +85,8 @@ func (p ContainsVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	if vector.Vacio {
 		resultado = false
-	} else if valor.Tipo != vector.TipoVector {
-		msg := "Semantic error, expected &" + Ast.ValorTipoDato[vector.TipoVector] +
+	} else if valor.Tipo != vector.TipoVector.Tipo {
+		msg := "Semantic error, expected &" + expresiones.Tipo_String(vector.TipoVector) +
 			", found &" + Ast.ValorTipoDato[valor.Tipo] + "." +
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
@@ -96,6 +96,31 @@ func (p ContainsVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
+		}
+	} else if valor.Tipo == Ast.VECTOR {
+
+		if !expresiones.CompararTipos(valor.Valor.(expresiones.Vector).TipoVector, vector.TipoVector) {
+			//Error, no se puede guardar ese tipo de vector en este vector
+			msg := "Semantic error, can't store " + expresiones.Tipo_String(valor.Valor.(expresiones.Vector).TipoVector) + " value" +
+				" in a VEC< " + expresiones.Tipo_String(vector.TipoVector) + ">." +
+				" -- Line: " + strconv.Itoa(p.Fila) +
+				" Column: " + strconv.Itoa(p.Columna)
+			nError := errores.NewError(p.Fila, p.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+		for i := 0; i < vector.Valor.Len(); i++ {
+			//Primero verificar que sean del mismo tipo
+			elemento := vector.Valor.GetValue(i).(Ast.TipoRetornado)
+			if elemento.Valor == valor.Valor {
+				resultado = true
+				break
+			}
 		}
 	} else {
 		for i := 0; i < vector.Valor.Len(); i++ {

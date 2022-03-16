@@ -145,7 +145,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 		}
 		//Primero verificar
 		//Existe, ahora verificar los tipos
-		if array.TipoDelArray == valor.Tipo {
+		if array.TipoDelArray.Tipo == valor.Tipo {
 			//Los tipos son correctos, actualizar el símbolo
 
 			//Revisar si es vector y si es del tipo de vector correcto
@@ -155,10 +155,10 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 				if vectorEntrante.TipoVector != vectorGuardado.TipoVector {
 					//Hay varias opciones y una es que la lista que entra es indefinida
 					//Y la otra es que si traiga un tipo diferente
-					if vectorEntrante.TipoVector != Ast.INDEFINIDO {
+					if vectorEntrante.Tipo != Ast.INDEFINIDO {
 						//Generar el Error, de lo contrario todo bien
-						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.TipoVector] + ">" +
-							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.TipoVector] + ">" +
+						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.Tipo] + ">" +
+							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.Tipo] + ">" +
 							" type. -- Line: " + strconv.Itoa(a.Fila) +
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
@@ -218,7 +218,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 			//Error de tipos, generar un error semántico
 			//fmt.Println("Erro de tipos")
 			msg := "Semantic error, can't assign " + Ast.ValorTipoDato[int(valor.Tipo)] +
-				" type to ARRAY[" + Ast.ValorTipoDato[array.TipoDelArray] + "]" +
+				" type to ARRAY[" + Ast.ValorTipoDato[array.TipoDelArray.Tipo] + "]" +
 				" type. -- Line: " + strconv.Itoa(a.Fila) +
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
@@ -294,10 +294,10 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 				if vectorEntrante.TipoVector != vectorGuardado.TipoVector {
 					//Hay varias opciones y una es que la lista que entra es indefinida
 					//Y la otra es que si traiga un tipo diferente
-					if vectorEntrante.TipoVector != Ast.INDEFINIDO {
+					if vectorEntrante.Tipo != Ast.INDEFINIDO {
 						//Generar el Error, de lo contrario todo bien
-						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.TipoVector] + ">" +
-							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.TipoVector] + ">" +
+						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.Tipo] + ">" +
+							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.Tipo] + ">" +
 							" type. -- Line: " + strconv.Itoa(a.Fila) +
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
@@ -316,15 +316,15 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 							Valor: vectorEntrante,
 						}
 					}
-				} else if vectorGuardado.TipoVector == Ast.VECTOR {
+				} else if vectorGuardado.Tipo == Ast.VECTOR {
 					//Verificar que los tipos de vectores que se guardan son correctos
-					if vectorGuardado.TipoDelVector != fn_vectores.GetTipoVector(vectorEntrante) ||
+					if vectorGuardado.Tipo != fn_vectores.GetTipoVector(vectorEntrante) ||
 						!fn_vectores.GetNivelesVector(vectorGuardado, vectorEntrante) {
 						//Error no se pueden guardar 2 tipos de vectores diferentes
 						fila := vectorEntrante.GetFila()
 						columna := vectorEntrante.GetColumna()
 						msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[fn_vectores.GetTipoVector(vectorEntrante)] +
-							"> to a VECTOR<" + Ast.ValorTipoDato[vectorGuardado.TipoDelVector] + ">" +
+							"> to a VECTOR<" + Ast.ValorTipoDato[vectorGuardado.Tipo] + ">" +
 							". -- Line: " + strconv.Itoa(fila) +
 							" Column: " + strconv.Itoa(columna)
 						nError := errores.NewError(fila, columna, msg)
@@ -507,7 +507,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 		}
 		//Primero verificar
 		//Existe, ahora verificar los tipos
-		if vector.TipoVector == valor.Tipo {
+		if vector.Tipo == valor.Tipo {
 			//Los tipos son correctos, actualizar el símbolo
 			//Revisar si es vector y si es del tipo de vector correcto
 			if valor.Tipo == Ast.VECTOR {
@@ -516,10 +516,10 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 				if vectorEntrante.TipoVector != vectorGuardado.TipoVector {
 					//Hay varias opciones y una es que la lista que entra es indefinida
 					//Y la otra es que si trae un tipo diferente
-					if vectorEntrante.TipoVector != Ast.INDEFINIDO {
+					if vectorEntrante.Tipo != Ast.INDEFINIDO {
 						//Generar el Error, de lo contrario todo bien
-						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.TipoVector] + ">" +
-							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.TipoVector] + ">" +
+						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[vectorEntrante.Tipo] + ">" +
+							" to Vector<" + Ast.ValorTipoDato[vectorGuardado.Tipo] + ">" +
 							" type. -- Line: " + strconv.Itoa(a.Fila) +
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
@@ -534,15 +534,15 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 						//Copiar los valores del vector guardado al nuevo vector entrante
 						agregarElemento = true
 					}
-				} else if vectorGuardado.TipoVector == Ast.VECTOR {
+				} else if vectorGuardado.Tipo == Ast.VECTOR {
 					//Verificar que los tipos de vectores que se guardan son correctos
-					if vectorGuardado.TipoDelVector != fn_vectores.GetTipoVector(vectorEntrante) ||
+					if vectorGuardado.Tipo != fn_vectores.GetTipoVector(vectorEntrante) ||
 						!fn_vectores.GetNivelesVector(vectorGuardado, vectorEntrante) {
 						//Error no se pueden guardar 2 tipos de vectores diferentes
 						fila := vectorEntrante.GetFila()
 						columna := vectorEntrante.GetColumna()
 						msg := "Semantic error, can't store VECTOR<" + Ast.ValorTipoDato[fn_vectores.GetTipoVector(vectorEntrante)] +
-							"> to a VECTOR<" + Ast.ValorTipoDato[vectorGuardado.TipoDelVector] + ">" +
+							"> to a VECTOR<" + Ast.ValorTipoDato[vectorGuardado.Tipo] + ">" +
 							". -- Line: " + strconv.Itoa(fila) +
 							" Column: " + strconv.Itoa(columna)
 						nError := errores.NewError(fila, columna, msg)
@@ -576,7 +576,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 			fila := a.Valor.(Ast.Abstracto).GetFila()
 			columna := a.Valor.(Ast.Abstracto).GetColumna()
 			msg := "Semantic error, can't store " + Ast.ValorTipoDato[valor.Tipo] +
-				" to a VECTOR<" + Ast.ValorTipoDato[vector.TipoVector] + ">" +
+				" to a VECTOR<" + Ast.ValorTipoDato[vector.Tipo] + ">" +
 				". -- Line: " + strconv.Itoa(fila) +
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)

@@ -255,6 +255,8 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 	case Ast.LIBRE:
 		//Espacios libres en un vector
 		salida += ""
+	case Ast.STRUCT:
+		salida += valor.Valor.(Ast.Structs).GetPlantilla()
 	case Ast.ARRAY:
 		//Recorrer todos sus elementos e irlos convirtiendo en string
 		lista := valor.Valor.(expresiones.Array).Elementos
@@ -347,6 +349,8 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 			salida += strconv.FormatBool(valor.Valor.(bool))
 		case Ast.VECTOR, Ast.ARRAY:
 			salida = To_String(valor).(Ast.TipoRetornado).Valor.(string)
+		case Ast.STRUCT:
+			salida += valor.Valor.(Ast.Structs).GetPlantilla()
 		default:
 		}
 

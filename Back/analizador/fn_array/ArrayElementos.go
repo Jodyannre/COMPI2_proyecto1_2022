@@ -51,13 +51,9 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 		//Calcular los tipos del elemento
 		tipoGeneral, tipoParticular := elemento.(Ast.Abstracto).GetTipo()
-		if tipoParticular != Ast.IDENTIFICADOR && !EsFuncion(tipoParticular) {
-			tipoAnterior.Tipo = tipoParticular
-		} else {
-			tipoParticular = valorElemento.Tipo
-		}
+
 		if tipoAnterior.Tipo != Ast.INDEFINIDO {
-			if tipoAnterior.Tipo != tipoParticular {
+			if tipoAnterior.Tipo != expresiones.EsArray(tipoParticular) {
 				//Los tipos son diferentes, error
 				fila := elemento.(Ast.Abstracto).GetFila()
 				columna := elemento.(Ast.Abstracto).GetColumna()
@@ -93,7 +89,7 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 
 		//Si es un array o un vector, verificar que los tipos sean correctos
-		if tipoParticular == Ast.VECTOR {
+		if tipoParticular == Ast.VECTOR && tipoAnterior.Tipo != Ast.INDEFINIDO {
 			vector = valorElemento.Valor.(expresiones.Vector)
 			if tipoDelVectorAnterior.Tipo == Ast.INDEFINIDO {
 				tipoDelVectorAnterior.Tipo = GetTipoVector(vector)
@@ -116,16 +112,58 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					}
 				}
 			}
-		}
+		} else
 
 		//Si es un array, verificar que los arrays sean del mismo tipo
-		if tipoParticular == Ast.ARRAY {
+		if expresiones.EsArray(tipoParticular) == Ast.ARRAY && tipoAnterior.Tipo != Ast.INDEFINIDO {
 			array = valorElemento.Valor.(expresiones.Array)
-			if tipoDelArrayAnterior.Tipo == Ast.INDEFINIDO {
-				tipoDelArrayAnterior.Tipo = GetTipoArray(array)
+			if tipoAnterior.Tipo == Ast.INDEFINIDO {
+				tipoAnterior = Ast.TipoRetornado{
+					Tipo:  Ast.ARRAY,
+					Valor: valorElemento.Valor.(expresiones.Array).TipoDelArray,
+				}
 			} else {
-				if tipoDelArrayAnterior.Tipo != GetTipoArray(array) {
-					//Error no se pueden guardar 2 tipos de vectores diferentes
+				if !expresiones.CompararTipos(tipoAnterior.Valor.(Ast.TipoRetornado), array.TipoDelArray) {
+					//Error no se pueden guardar 2 tipos de array diferentes
+					//Verificar si el problema es por las dimensiones
+					if tipoAnterior.Tipo == Ast.ARRAY && array.TipoDelArray.Tipo == Ast.ARRAY {
+						tipofinal1 := expresiones.GetTipoFinal(tipoAnterior.Valor.(Ast.TipoRetornado))
+						tipofinal2 := expresiones.GetTipoFinal(array.TipoDelArray)
+
+						if tipofinal1 != tipofinal2 {
+							//No pueden guardar tipos diferentes
+							fila := elemento.(Ast.Abstracto).GetFila()
+							columna := elemento.(Ast.Abstracto).GetColumna()
+							msg := "Semantic error, can't store ARRAY[" + Ast.ValorTipoDato[tipofinal1.Tipo] +
+								"] to a ARRAY[" + Ast.ValorTipoDato[tipofinal2.Tipo] + "]" +
+								". -- Line: " + strconv.Itoa(fila) +
+								" Column: " + strconv.Itoa(columna)
+							nError := errores.NewError(fila, columna, msg)
+							nError.Tipo = Ast.ERROR_SEMANTICO
+							scope.Errores.Add(nError)
+							scope.Consola += msg + "\n"
+							return Ast.TipoRetornado{
+								Tipo:  Ast.ERROR,
+								Valor: nError,
+							}
+						} else {
+							//Problema de dimensiones
+							fila := elemento.(Ast.Abstracto).GetFila()
+							columna := elemento.(Ast.Abstracto).GetColumna()
+							msg := "Semantic error, ARRAY dimensions do not match." +
+								" -- Line: " + strconv.Itoa(fila) +
+								" Column: " + strconv.Itoa(columna)
+							nError := errores.NewError(fila, columna, msg)
+							nError.Tipo = Ast.ERROR_SEMANTICO
+							scope.Errores.Add(nError)
+							scope.Consola += msg + "\n"
+							return Ast.TipoRetornado{
+								Tipo:  Ast.ERROR,
+								Valor: nError,
+							}
+						}
+					}
+
 					fila := elemento.(Ast.Abstracto).GetFila()
 					columna := elemento.(Ast.Abstracto).GetColumna()
 					msg := "Semantic error, can't store ARRAY[" + Ast.ValorTipoDato[GetTipoArray(array)] +
@@ -140,30 +178,70 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 						Tipo:  Ast.ERROR,
 						Valor: nError,
 					}
+				} else {
+					tipoAnterior.Valor = tipoAnterior.Valor.(Ast.TipoRetornado)
 				}
 			}
+		} else if tipoParticular == Ast.STRUCT && tipoAnterior.Tipo != Ast.INDEFINIDO {
+			if valorElemento.Valor.(Ast.Structs).GetPlantilla() != tipoAnterior.Valor {
+				fila := elemento.(Ast.Abstracto).GetFila()
+				columna := elemento.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, can't store" + valorElemento.Valor.(Ast.Structs).GetPlantilla() +
+					"to an ARRAY[" + tipoAnterior.Valor.(string) + "]" +
+					". -- Line: " + strconv.Itoa(fila) +
+					" Column: " + strconv.Itoa(columna)
+				nError := errores.NewError(fila, columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				scope.Errores.Add(nError)
+				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
+			tipoAnterior.Tipo = Ast.STRUCT
+			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla()
+
+		}
+		if tipoParticular == Ast.STRUCT {
+			tipoAnterior.Tipo = Ast.STRUCT
+			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla()
+		} else if tipoParticular != Ast.IDENTIFICADOR && !EsFuncion(tipoParticular) && tipoParticular != Ast.ARRAY {
+			tipoAnterior.Tipo = tipoParticular
+		} else if expresiones.EsArray(tipoParticular) == Ast.ARRAY {
+			tipoAnterior = Ast.TipoRetornado{
+				Tipo:  Ast.ARRAY,
+				Valor: valorElemento.Valor.(expresiones.Array).TipoDelArray,
+			}
+		} else {
+			tipoAnterior.Tipo = valorElemento.Tipo
 		}
 
 		//Todo bien, entonces agregar el elemento a la lista del vector
 		elementos.Add(valorElemento)
 		size++
-		tipoAnterior.Tipo = valorElemento.Tipo
 		if vacio {
 			vacio = false
-			tipoVector = tipoParticular
+			tipoVector = expresiones.EsArray(tipoParticular)
 		}
 	}
 	//Actualizar capacity
 
 	newArray := expresiones.NewArray(elementos, tipoVector, size, v.Fila, v.Columna)
-	newArray.TipoDelArray = tipoDelArrayAnterior.Tipo
+	if tipoAnterior.Tipo == Ast.ARRAY {
+		newArray.TipoDelArray = Ast.TipoRetornado{Tipo: Ast.ARRAY, Valor: tipoAnterior}
+	} else {
+		newArray.TipoDelArray = tipoAnterior
+	}
 	newArray.TipoDelVector = tipoDelVectorAnterior.Tipo
-	if newArray.TipoDelArray == Ast.INDEFINIDO {
-		newArray.TipoDelArray = newArray.TipoArray
+	if newArray.TipoDelArray.Tipo == Ast.INDEFINIDO {
+		newArray.TipoDelArray.Tipo = newArray.TipoArray
 	}
 
-	concordancia := ConcordanciaDimensiones(newArray)
-	if concordancia.Tipo == Ast.ERROR {
+	//concordancia := ConcordanciaDimensiones(newArray)
+	concordancia2 := ConcordanciaArray(newArray)
+
+	if concordancia2 == "NULL" {
 		fila := elemento.(Ast.Abstracto).GetFila()
 		columna := elemento.(Ast.Abstracto).GetColumna()
 		msg := "Semantic error, ARRAY dimensions do not match." +
@@ -197,21 +275,21 @@ func (v ArrayElementos) GetColumna() int {
 }
 
 func GetTipoVector(vector expresiones.Vector) Ast.TipoDato {
-	if vector.TipoVector == Ast.VECTOR {
-		return vector.TipoDelVector
+	if vector.TipoVector.Tipo == Ast.VECTOR {
+		return vector.Tipo
 	}
-	if vector.TipoVector == Ast.ARRAY {
-		return vector.TipoDelArray
+	if vector.Tipo == Ast.ARRAY {
+		return vector.Tipo
 	}
-	return vector.TipoVector
+	return vector.Tipo
 }
 
 func GetNivelesVector(vectorGuardado expresiones.Vector, vectorEntrante expresiones.Vector) bool {
-	if vectorGuardado.TipoVector == Ast.VECTOR && vectorEntrante.TipoVector != Ast.VECTOR ||
-		vectorGuardado.TipoVector != Ast.VECTOR && vectorEntrante.TipoVector == Ast.VECTOR {
+	if vectorGuardado.Tipo == Ast.VECTOR && vectorEntrante.Tipo != Ast.VECTOR ||
+		vectorGuardado.Tipo != Ast.VECTOR && vectorEntrante.Tipo == Ast.VECTOR {
 		return false
 	}
-	if vectorGuardado.TipoVector == Ast.VECTOR && vectorEntrante.TipoVector == Ast.VECTOR {
+	if vectorGuardado.Tipo == Ast.VECTOR && vectorEntrante.Tipo == Ast.VECTOR {
 		//Verificar si tiene elementos ambos
 		if vectorGuardado.Valor.Len() > 0 && vectorEntrante.Valor.Len() > 0 {
 			return GetNivelesVector(vectorGuardado.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector),
@@ -227,7 +305,7 @@ func GetTipoArray(array expresiones.Array) Ast.TipoDato {
 		return array.TipoDelVector
 	}
 	if array.TipoArray == Ast.ARRAY {
-		return array.TipoDelArray
+		return array.TipoDelArray.Tipo
 	}
 	return array.TipoArray
 }
@@ -296,4 +374,25 @@ func CompararListas(listaActual *arraylist.List, listaAnterior *arraylist.List) 
 		}
 	}
 	return true
+}
+
+func ConcordanciaArray(arr expresiones.Array) string {
+	//Primero verificar si tiene hijos y si los hijos son arrays
+	actual := ""
+	anterior := ""
+	for i := 0; i < arr.Elementos.Len(); i++ {
+		elemento := arr.Elementos.GetValue(i).(Ast.TipoRetornado)
+		if elemento.Tipo != Ast.ARRAY {
+			return strconv.Itoa(arr.Elementos.Len())
+		}
+		actual = strconv.Itoa(arr.Elementos.Len()) + "," + ConcordanciaArray(elemento.Valor.(expresiones.Array))
+		if anterior == "" {
+			anterior = actual
+		} else {
+			if anterior != actual {
+				return "NULL"
+			}
+		}
+	}
+	return actual
 }

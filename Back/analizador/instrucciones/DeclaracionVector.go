@@ -3,46 +3,47 @@ package instrucciones
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"Back/analizador/expresiones"
 	"strconv"
 )
 
 type DeclaracionVector struct {
-	Id            string
-	Tipo          Ast.TipoDato
-	TipoVector    Ast.TipoDato
-	TipoDelVector Ast.TipoDato
-	TipoDelStruct string
-	TipoDelArray  Ast.TipoDato
-	Mutable       bool
-	Publico       bool
-	Valor         interface{}
-	Fila          int
-	Columna       int
+	Id         string
+	Tipo       Ast.TipoDato
+	TipoVector Ast.TipoRetornado
+	Mutable    bool
+	Publico    bool
+	Valor      interface{}
+	Fila       int
+	Columna    int
 }
 
-func NewDeclaracionVector(id string, mutable, publico bool, tipoVector Ast.TipoDato, tipoStruct string,
-	valor interface{}, fila int, columna int) DeclaracionVector {
+func NewDeclaracionVector(id string, tipoVector Ast.TipoRetornado, valor interface{}, mutable, publico bool,
+	fila int, columna int) DeclaracionVector {
 	nd := DeclaracionVector{
-		Id:            id,
-		Tipo:          Ast.DECLARACION,
-		TipoDelVector: tipoVector,
-		TipoDelStruct: tipoStruct,
-		Mutable:       mutable,
-		Publico:       publico,
-		Valor:         valor,
-		Fila:          fila,
-		Columna:       columna,
+		Id:         id,
+		Tipo:       Ast.DECLARACION,
+		TipoVector: tipoVector,
+		Mutable:    mutable,
+		Publico:    publico,
+		Valor:      valor,
+		Fila:       fila,
+		Columna:    columna,
 	}
 	return nd
 }
 
 func (d DeclaracionVector) Run(scope *Ast.Scope) interface{} {
 	//Verificar que no exista
-
+	esIndefinido := false
 	existe := scope.Exist_actual(d.Id)
 	//Calcular el valor del elemento a asignar
 	valor := d.Valor.(Ast.Expresion).GetValue(scope)
 
+	//Verificar error en el valor
+	if valor.Tipo == Ast.ERROR {
+		return valor
+	}
 	//Primero verificar que no es un if expresion
 	tipoIn := valor.Tipo
 
@@ -74,9 +75,56 @@ func (d DeclaracionVector) Run(scope *Ast.Scope) interface{} {
 		}
 	}
 
-	//Verificar que los tipos sean correctos
+	//Verificar que los tipos de los vectores sean correctos
+	if !expresiones.CompararTipos(d.TipoVector, valor.Valor.(expresiones.Vector).TipoVector) {
+		if valor.Valor.(expresiones.Vector).TipoVector.Tipo == Ast.INDEFINIDO {
+			//Es uno vacio y no hay error, modificar el tipo
+			esIndefinido = true
+		} else {
+			msg := "Semantic error, can't initialize a Vec<" + expresiones.Tipo_String(d.TipoVector) +
+				"> with Vec<" + expresiones.Tipo_String(valor.Valor.(expresiones.Vector).TipoVector) + "> value." +
+				" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+			nError := errores.NewError(d.Fila, d.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+	}
 
-	return nil
+	//Crear el símbolo y agregarlo al scope
+	if esIndefinido {
+		nVector := valor.Valor.(expresiones.Vector)
+		nVector.TipoVector = d.TipoVector
+		nSimbolo := Ast.Simbolo{
+			Identificador: d.Id,
+			Valor:         Ast.TipoRetornado{Tipo: Ast.VECTOR, Valor: nVector},
+			Fila:          d.Fila,
+			Columna:       d.Columna,
+			Tipo:          nVector.Tipo,
+			Mutable:       d.Mutable,
+			Publico:       d.Publico,
+			Entorno:       scope,
+		}
+		scope.Add(nSimbolo)
+	} else {
+		nSimbolo := Ast.Simbolo{
+			Identificador: d.Id,
+			Valor:         valor,
+			Fila:          d.Fila,
+			Columna:       d.Columna,
+			Tipo:          valor.Tipo,
+			Mutable:       d.Mutable,
+			Publico:       d.Publico,
+			Entorno:       scope,
+		}
+		scope.Add(nSimbolo)
+	}
+
+	return Ast.TipoRetornado{Valor: true, Tipo: Ast.EJECUTADO}
 }
 
 func (op DeclaracionVector) GetFila() int {

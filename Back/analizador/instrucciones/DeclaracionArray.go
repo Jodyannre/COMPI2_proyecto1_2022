@@ -6,6 +6,7 @@ import (
 	"Back/analizador/expresiones"
 	"Back/analizador/fn_array"
 	"strconv"
+	"strings"
 
 	"github.com/colegno/arraylist"
 )
@@ -13,7 +14,7 @@ import (
 type DeclaracionArray struct {
 	Id        string
 	Tipo      Ast.TipoDato
-	TipoArray Ast.TipoDato
+	TipoArray Ast.TipoRetornado
 	Dimension interface{}
 	Mutable   bool
 	Publico   bool
@@ -43,7 +44,7 @@ func (d DeclaracionArray) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 
 func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	//Verificar que exista, recuperar los arryas y los tipos
-	var validacionDimensiones Ast.TipoRetornado
+	var validacionDimensiones string
 	existe := scope.Exist_actual(d.Id)
 	_, tipoIn := d.Valor.(Ast.Abstracto).GetTipo()
 	valor := d.Valor.(Ast.Expresion).GetValue(scope)
@@ -70,7 +71,7 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 		return dimension
 	}
 	//Recuperar el tipo del array que se espera desde dimension
-	d.TipoArray = d.Dimension.(expresiones.DimensionArray).TipoArray
+	//d.TipoArray = d.Dimension.(expresiones.DimensionArray).TipoArray
 
 	//Primero que vengan arrays
 	if !EsArray(tipoIn) {
@@ -88,20 +89,14 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	}
 
 	//Verificar que las dimensiones concuerda con la lista de arrays
-	validacionDimensiones = fn_array.ConcordanciaDimensiones(valor.Valor)
-	//Lo devuelve al reves
-
-	if validacionDimensiones.Tipo == Ast.ERROR {
-		return validacionDimensiones
+	validacionDimensiones = fn_array.ConcordanciaArray(valor.Valor.(expresiones.Array))
+	//Conseguir la lista
+	split := strings.Split(validacionDimensiones, ",")
+	//Crear la lista con las posiciones
+	listaDimensiones := arraylist.New()
+	for _, num := range split {
+		listaDimensiones.Add(num)
 	}
-
-	//Voltear las posiciones, porque el método las devuelve al revés
-	copiaLista := validacionDimensiones.Valor.(*arraylist.List)
-	nuevaLista := arraylist.New()
-	for i := copiaLista.Len() - 1; i >= 0; i-- {
-		nuevaLista.Add(copiaLista.GetValue(i))
-	}
-	validacionDimensiones.Valor = nuevaLista
 
 	//Comparar las lista de dimensiones
 	//Get primitivos del array de dimension
@@ -110,7 +105,7 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 		arrayDimension.Add(dimension.Valor.(*arraylist.List).GetValue(i).(Ast.TipoRetornado).Valor)
 	}
 
-	if !fn_array.CompararListas(validacionDimensiones.Valor.(*arraylist.List), arrayDimension) {
+	if !fn_array.CompararListas(listaDimensiones, arrayDimension) {
 		msg := "Semantic error, ARRAY dimension does not match" +
 			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
 		nError := errores.NewError(d.Fila, d.Columna, msg)
@@ -124,17 +119,17 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	}
 
 	//Validar el tipo del array
-	if d.TipoArray != valor.Valor.(expresiones.Array).TipoDelArray {
+	if d.TipoArray.Tipo != valor.Valor.(expresiones.Array).TipoDelArray.Tipo {
 		fila := valor.Valor.(expresiones.Array).GetFila()
 		columna := valor.Valor.(expresiones.Array).GetColumna()
 		var tipoDelArray Ast.TipoDato
-		if valor.Valor.(expresiones.Array).TipoDelArray == Ast.INDEFINIDO {
+		if valor.Valor.(expresiones.Array).TipoDelArray.Tipo == Ast.INDEFINIDO {
 			tipoDelArray = valor.Valor.(expresiones.Array).TipoArray
 		} else {
-			tipoDelArray = valor.Valor.(expresiones.Array).TipoDelArray
+			tipoDelArray = valor.Valor.(expresiones.Array).TipoDelArray.Tipo
 		}
 		msg := "Semantic error, can't initialize ARRAY[" + Ast.ValorTipoDato[tipoDelArray] +
-			"] with a ARRAY[" + Ast.ValorTipoDato[d.TipoArray] + "]" +
+			"] with a ARRAY[" + Ast.ValorTipoDato[d.TipoArray.Tipo] + "]" +
 			". -- Line: " + strconv.Itoa(fila) +
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)

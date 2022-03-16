@@ -10,14 +10,14 @@ import (
 
 type DimensionArray struct {
 	Tipo         Ast.TipoDato
-	TipoArray    Ast.TipoDato
+	TipoArray    Ast.TipoRetornado
 	TipoEspecial string
 	Elementos    *arraylist.List
 	Fila         int
 	Columna      int
 }
 
-func NewDimensionArray(elementos *arraylist.List, TipoArray Ast.TipoDato, fila, columna int) DimensionArray {
+func NewDimensionArray(elementos *arraylist.List, TipoArray Ast.TipoRetornado, fila, columna int) DimensionArray {
 	nA := DimensionArray{
 		Tipo:         Ast.DIMENSION_ARRAY,
 		Elementos:    elementos,
