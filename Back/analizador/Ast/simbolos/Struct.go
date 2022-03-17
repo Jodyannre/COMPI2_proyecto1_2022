@@ -3,7 +3,10 @@ package simbolos
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
+	"Back/analizador/expresiones"
+	"Back/analizador/fn_array"
 	"strconv"
+	"strings"
 
 	"github.com/colegno/arraylist"
 )
@@ -163,11 +166,56 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		validadorTipo := CompararTipos(attActual.TipoAtributo.(Ast.TipoRetornado),
 			attPlantilla.TipoAtributo.(Ast.TipoRetornado))
 		if !validadorTipo {
-			return GetmsjError(validadorTipo, attActual, attPlantilla, scope)
+			if attPlantilla.TipoAtributo.(Ast.TipoRetornado).Tipo == Ast.DIMENSION_ARRAY {
+				listaPrePlantilla := attPlantilla.TipoAtributo.(Ast.TipoRetornado).Valor.(expresiones.DimensionArray).GetValue(scope)
+				listaEntrante := fn_array.ConcordanciaArray(attActual.Valor.(Ast.TipoRetornado).Valor.(expresiones.Array))
+				arrayDimension := arraylist.New()
+				for i := 0; i < listaPrePlantilla.Valor.(*arraylist.List).Len(); i++ {
+					arrayDimension.Add(listaPrePlantilla.Valor.(*arraylist.List).GetValue(i).(Ast.TipoRetornado).Valor)
+				}
+				split := strings.Split(listaEntrante, ",")
+				//Crear la lista con las posiciones
+				listaDimensiones := arraylist.New()
+				for _, num := range split {
+					numero, _ := strconv.Atoi(num)
+					listaDimensiones.Add(numero)
+				}
+
+				//Comparar las lista de dimensiones
+				if !fn_array.CompararListas(listaDimensiones, arrayDimension) {
+					fila := attActual.Valor.(Ast.TipoRetornado).Valor.(Ast.Abstracto).GetFila()
+					columna := attActual.Valor.(Ast.TipoRetornado).Valor.(Ast.Abstracto).GetColumna()
+					msg := "Semantic error, ARRAY dimension does not match" +
+						" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+					nError := errores.NewError(fila, columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+				//Ahora comparar los tipos
+				//Recuperar el tipo de la plantilla
+				tipoArrayPlantilla := Ast.TipoRetornado{
+					Tipo:  Ast.ARRAY,
+					Valor: attPlantilla.TipoAtributo.(Ast.TipoRetornado).Valor.(expresiones.DimensionArray).TipoArray,
+				}
+				validadorTipo := CompararTipos(attActual.TipoAtributo.(Ast.TipoRetornado),
+					tipoArrayPlantilla)
+				if !validadorTipo {
+					return GetmsjError(validadorTipo, attActual, attPlantilla, scope)
+				}
+
+			} else {
+				return GetmsjError(validadorTipo, attActual, attPlantilla, scope)
+			}
 		}
+
 		//Todo bien ,entonces crear el struct
 		nuevoSimbolo := Ast.NewSimbolo(atributoActual.Nombre, attActual.Valor, atributoActual.Fila, atributoActual.Columna, attActual.TipoAtributo.(Ast.TipoRetornado).Tipo, atributoActual.Mutable, atributoActual.Publico)
-
+		nuevoSimbolo.Publico = attPlantilla.Publico
 		newScope.Add(nuevoSimbolo)
 	}
 	//Agregar el scope al struct y finalizar retornando el scope
@@ -183,8 +231,8 @@ func GetmsjError(validadorTipo bool, atributo, template Atributo, scope *Ast.Sco
 	columna := atributo.Columna
 	msg := ""
 	msg = "Semantic error,  can't assign " + Tipo_String(atributo.TipoAtributo.(Ast.TipoRetornado)) +
-		" to field named \"" + template.Nombre + "\" " + Tipo_String(template.TipoAtributo.(Ast.TipoRetornado)) +
-		" -- Line: " + strconv.Itoa(fila) +
+		" to field named \"" + template.Nombre + "\" (" + Tipo_String(template.TipoAtributo.(Ast.TipoRetornado)) +
+		") -- Line: " + strconv.Itoa(fila) +
 		" Column: " + strconv.Itoa(columna)
 	nError := errores.NewError(fila, columna, msg)
 	nError.Tipo = Ast.ERROR_SEMANTICO

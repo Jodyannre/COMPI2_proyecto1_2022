@@ -57,16 +57,24 @@ func main() {
 		fmt.Println(salida)
 	*/
 	var input string = `
-	struct Carro {
-		color: String
-		}
-		let mut arr3: [[[i64; 4];2]; 2] = 
-		[
-			[ [ [1] ], [ [9] ] ],
-			[ [ [2] ], [ [8] ] ]
+
+	let arr1: [&str; 2] = ["Hola", "Mundo"];
+
+	struct Alumno {
+		nombre: String,
+		calificacion: [i64;5]
+	}
+	let mut vector = vec![vec![1; 10],vec![2; 8],vec![3; 15],vec![5; 2],vec![8; 1]];
+	let mut arreglo: [[[i64; 4];2]; 2] = [
+		[ [ 1, 3, 5, 7], [ 9, 11, 13, 15] ],
+		[ [ 2, 4, 6, 8], [10, 12, 14, 16] ]
 		];
+	let instancia = Alumno {nombre: "Jose Daniel".to_string(),calificacion: [10;5]};
+	let v2 = vec![69; 3];
+	vector[1][7] = v2;
 
 
+	println!("El vector ahora es {:?}",instancia.calificacion);
 	`
 
 	//Obteniendo el input

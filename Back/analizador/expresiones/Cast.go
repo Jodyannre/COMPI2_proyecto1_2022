@@ -76,10 +76,15 @@ func (c Cast) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 func (c Cast) convertir(nuevoTipo Ast.TipoDato, valor Ast.TipoRetornado, scope *Ast.Scope) Ast.TipoRetornado {
 	var nuevoValor Ast.TipoRetornado
 	switch nuevoTipo {
+	case Ast.USIZE:
+		switch valor.Tipo {
+		case Ast.I64:
+			nuevoValor.Valor = valor.Valor.(int)
+		}
 	case Ast.I64:
 		// Esperamos un i64, f64, bool o char
 		switch valor.Tipo {
-		case Ast.I64:
+		case Ast.I64, Ast.USIZE:
 			nuevoValor.Valor = valor.Valor.(int)
 		case Ast.F64:
 			nuevoValor.Valor = int(valor.Valor.(float64))
@@ -143,14 +148,15 @@ func (c Cast) convertir(nuevoTipo Ast.TipoDato, valor Ast.TipoRetornado, scope *
 }
 
 // El primero es el valor inicial y el segundo es el tipo objetivo
-var conversion = [7][10]Ast.TipoDato{
-	{Ast.I64, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.CHAR, Ast.NULL, Ast.NULL, Ast.NULL},
+var conversion = [8][10]Ast.TipoDato{
+	{Ast.I64, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE, Ast.CHAR, Ast.NULL, Ast.NULL},
 	{Ast.I64, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.BOOLEAN, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.CHAR, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.CHAR, Ast.NULL, Ast.NULL},
 }
 
 /* TIpo
@@ -167,7 +173,7 @@ var conversion = [7][10]Ast.TipoDato{
 */
 
 func CanConvert(tipo Ast.TipoDato, tipoObjetivo Ast.TipoDato) bool {
-	if tipo > 6 || tipoObjetivo > 6 {
+	if tipo > 7 || tipoObjetivo > 7 {
 		return false
 	}
 	if tipo == 2 || tipo == 3 || tipo == 4 ||

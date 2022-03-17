@@ -2,6 +2,7 @@ package simbolos
 
 import (
 	"Back/analizador/Ast"
+	"Back/analizador/expresiones"
 )
 
 type Atributo struct {
@@ -47,10 +48,17 @@ func (a Atributo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		return valor
 	}
 
-	a.Valor = valor
 	if esTipoFinal(valor.Tipo) && valor.Tipo != Ast.STRUCT {
 		a.TipoAtributo = Ast.TipoRetornado{Tipo: valor.Tipo, Valor: true}
+	} else if valor.Tipo == Ast.STRUCT {
+		nombreStruct := valor.Valor.(Ast.Structs).GetPlantilla()
+		a.TipoAtributo = Ast.TipoRetornado{Tipo: valor.Tipo, Valor: nombreStruct}
+	} else if valor.Tipo == Ast.DIMENSION_ARRAY {
+		a.TipoAtributo = Ast.TipoRetornado{Tipo: Ast.ARRAY, Valor: a.Valor.(expresiones.DimensionArray).TipoArray}
+	} else if valor.Tipo == Ast.ARRAY {
+		a.TipoAtributo = Ast.TipoRetornado{Tipo: Ast.ARRAY, Valor: valor.Valor.(expresiones.Array).TipoDelArray}
 	}
+	a.Valor = valor
 
 	return Ast.TipoRetornado{
 		Tipo:  Ast.ATRIBUTO,

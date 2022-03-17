@@ -94,7 +94,10 @@ func (v ArrayFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		newArray.TipoDelArray = tipoDelArray
 	}
 	if newArray.TipoDelArray.Tipo == Ast.INDEFINIDO {
-		newArray.TipoDelArray = tipoDelArray
+		newArray.TipoDelArray = Ast.TipoRetornado{
+			Tipo:  tipoArray,
+			Valor: true,
+		}
 	}
 
 	return Ast.TipoRetornado{

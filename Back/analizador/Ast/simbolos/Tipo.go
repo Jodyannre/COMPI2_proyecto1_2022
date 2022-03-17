@@ -64,7 +64,8 @@ func getTipoFinal(tipo Tipo) Ast.TipoRetornado {
 
 func esTipoFinal(tipo Ast.TipoDato) bool {
 	switch tipo {
-	case Ast.I64, Ast.F64, Ast.CHAR, Ast.STRING, Ast.BOOLEAN, Ast.STRUCT:
+	case Ast.I64, Ast.F64, Ast.CHAR, Ast.STRING, Ast.STR, Ast.USIZE, Ast.BOOLEAN, Ast.STRUCT, Ast.INDEFINIDO,
+		Ast.DIMENSION_ARRAY:
 		return true
 	default:
 		return false

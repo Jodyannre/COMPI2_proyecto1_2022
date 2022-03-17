@@ -91,7 +91,7 @@ func (p Push) Run(scope *Ast.Scope) interface{} {
 	//Verificar que el vector sea mutable
 	if !simbolo.Mutable {
 		msg := "Semantic error, can't store " + Ast.ValorTipoDato[valor.Tipo] + " value" +
-			" in a not mutable VECTOR<>." +
+			" in a not mutable VECTOR<" + expresiones.Tipo_String(vector.TipoVector) + ">." +
 			" -- Line: " + strconv.Itoa(p.Fila) +
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)

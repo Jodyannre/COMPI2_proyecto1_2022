@@ -5,6 +5,8 @@ import (
 	"Back/analizador/errores"
 	"Back/analizador/expresiones"
 	"strconv"
+
+	"github.com/colegno/arraylist"
 )
 
 type AccesoVec struct {
@@ -174,6 +176,84 @@ func (p AccesoVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		resultado = vector.(expresiones.Array).Elementos.GetValue(posicion.Valor.(int)).(Ast.TipoRetornado)
 	}
 	return resultado
+}
+
+func UpdateElemento(array expresiones.Vector, elementos *arraylist.List, posiciones *arraylist.List, scope *Ast.Scope, objeto interface{}) Ast.TipoRetornado {
+	posicion := posiciones.GetValue(0).(int)
+	elemento := elementos.GetValue(0)
+	posiciones.RemoveAtIndex(0)
+	elementos.RemoveAtIndex(0)
+	if posicion >= array.Size || posicion < 0 {
+		//Error, out of bounds
+		fila := elemento.(Ast.Abstracto).GetFila()
+		columna := elemento.(Ast.Abstracto).GetColumna()
+		msg := "Semantic error, index (" + strconv.Itoa(posicion) + ") out of bounds." +
+			". -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+	if posiciones.Len() == 0 {
+		//Actualizar el elemento siempre y cuando no sea una capa vector
+		next := array.Valor.GetValue(posicion).(Ast.TipoRetornado)
+		if next.Tipo == Ast.VECTOR {
+			//No se puede guardar en esa posición porque es posición de array
+			fila := elemento.(Ast.Abstracto).GetFila()
+			columna := elemento.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, index (" + strconv.Itoa(posicion) + "). Can't access to that position." +
+				". -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+		nuevaLista := *arraylist.New()
+		for i := 0; i < array.Valor.Len(); i++ {
+			if i == posicion {
+				//Reemplazar el elemento
+				nuevaLista.Add(objeto)
+				continue
+			}
+			nuevaLista.Add(array.Valor.GetValue(i))
+		}
+		array.Valor.Clear()
+		for i := 0; i < nuevaLista.Len(); i++ {
+			array.Valor.Add(nuevaLista.GetValue(i))
+		}
+		return Ast.TipoRetornado{Valor: true, Tipo: Ast.EJECUTADO}
+	}
+	if posiciones.Len() > 0 && array.TipoVector.Tipo != Ast.VECTOR {
+		//Error, no hay más dimensiones
+		fila := elemento.(Ast.Abstracto).GetFila()
+		columna := elemento.(Ast.Abstracto).GetColumna()
+		msg := "Semantic error, index (" + strconv.Itoa(posicion) + ") out of bounds." +
+			". -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+	next := array.Valor.GetValue(posicion).(Ast.TipoRetornado)
+	valorNext := next.Valor.(expresiones.Vector)
+	//Validar que el siguiente sea un array y que todavía existan posiciones que buscar
+	return UpdateElemento(valorNext, elementos, posiciones, scope, objeto)
+
 }
 
 func (v AccesoVec) GetTipo() (Ast.TipoDato, Ast.TipoDato) {

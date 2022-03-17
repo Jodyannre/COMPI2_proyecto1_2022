@@ -34,6 +34,7 @@ func NewDeclaracionArray(id string, dimension interface{},
 		Fila:      fila,
 		Columna:   columna,
 		Dimension: dimension,
+		TipoArray: dimension.(expresiones.DimensionArray).TipoArray,
 	}
 	return nd
 }
@@ -95,7 +96,8 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	//Crear la lista con las posiciones
 	listaDimensiones := arraylist.New()
 	for _, num := range split {
-		listaDimensiones.Add(num)
+		numero, _ := strconv.Atoi(num)
+		listaDimensiones.Add(numero)
 	}
 
 	//Comparar las lista de dimensiones
@@ -117,19 +119,20 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 			Valor: nError,
 		}
 	}
-
+	//expresiones.GetTipoFinal(valor.Valor.(expresiones.Array).TipoDelArray.Tipo)
 	//Validar el tipo del array
-	if d.TipoArray.Tipo != valor.Valor.(expresiones.Array).TipoDelArray.Tipo {
+	if d.TipoArray.Tipo != expresiones.GetTipoFinal(valor.Valor.(expresiones.Array).TipoDelArray).Tipo {
 		fila := valor.Valor.(expresiones.Array).GetFila()
 		columna := valor.Valor.(expresiones.Array).GetColumna()
-		var tipoDelArray Ast.TipoDato
+		var tipoDelArray string
 		if valor.Valor.(expresiones.Array).TipoDelArray.Tipo == Ast.INDEFINIDO {
-			tipoDelArray = valor.Valor.(expresiones.Array).TipoArray
+			tipoDelArray = Ast.ValorTipoDato[d.TipoArray.Tipo]
 		} else {
-			tipoDelArray = valor.Valor.(expresiones.Array).TipoDelArray.Tipo
+			tipoDelArray = expresiones.Tipo_String(expresiones.GetTipoFinal(d.TipoArray))
 		}
-		msg := "Semantic error, can't initialize ARRAY[" + Ast.ValorTipoDato[tipoDelArray] +
-			"] with a ARRAY[" + Ast.ValorTipoDato[d.TipoArray.Tipo] + "]" +
+		msg := "Semantic error, can't initialize ARRAY[" + tipoDelArray +
+			"] with a ARRAY[" +
+			Ast.ValorTipoDato[expresiones.GetTipoFinal(valor.Valor.(expresiones.Array).TipoDelArray).Tipo] + "]" +
 			". -- Line: " + strconv.Itoa(fila) +
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)

@@ -333,7 +333,7 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 		//Convertir los valores a string
 
 		switch valor.Tipo {
-		case Ast.I64:
+		case Ast.I64, Ast.USIZE:
 			salida += strconv.Itoa(valor.Valor.(int))
 		case Ast.F64:
 			salida += strconv.FormatFloat(valor.Valor.(float64), 'f', -1, 64)

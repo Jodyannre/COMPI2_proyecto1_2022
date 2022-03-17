@@ -133,6 +133,17 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
             true,false,Ast.VOID,valor,fila,columna)                
         }
+        /* 
+    | LET MUT ID DOSPUNTOS tipo=tipo_dato_tipo
+        {        
+            fila := $LET.line
+            columna := $LET.pos
+            valor := expresiones.NewPrimitivo(nil, Ast.NULL,fila,columna)
+            $ex = instrucciones.NewDeclaracion($ID.text,$tipo.ex,
+            true,false,Ast.VOID,valor,fila,columna)                
+        }
+    */
+    
     | LET MUT ID DOSPUNTOS tipo_dato IGUAL expresion
         {
             fila := $LET.line
@@ -379,6 +390,55 @@ asignacion returns[Ast.Instruccion ex]
         columna := $IGUAL.pos
         $ex = instrucciones.NewAsignacion($id.ex,$control_expresion.ex,fila,columna)
     }
+    | ID IGUAL expresion
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        id := expresiones.NewIdentificador($ID.text, Ast.IDENTIFICADOR,fila,columna)
+        $ex = instrucciones.NewAsignacion(id,$expresion.ex,fila,columna)
+    }
+    | ID IGUAL control_expresion
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        id := expresiones.NewIdentificador($ID.text, Ast.IDENTIFICADOR,fila,columna)
+        $ex = instrucciones.NewAsignacion(id,$control_expresion.ex,fila,columna)
+    }
+    | idExp=expresion IGUAL valor=expresion
+    {
+        fila := $IGUAL.line
+        columna := $IGUAL.pos-1
+        $ex = instrucciones.NewAsignacion($idExp.ex,$valor.ex,fila,columna)           
+    }
+
+    | ex1=expresion PUNTO atributo=ID IGUAL ex2=expresion
+        {
+            filaS := $PUNTO.line
+            columnaS := $PUNTO.pos-1
+            filaA := $atributo.line
+            columnaA := $atributo.pos-1
+            idAtributo := expresiones.NewIdentificador($atributo.text,Ast.IDENTIFICADOR,filaA,columnaA)
+            acceso := simbolos.NewAccesoStruct($ex1.ex,idAtributo,filaS,columnaS)
+            elemento := localctx.(*AsignacionContext).GetEx1().GetEx()
+            fila := elemento.(Ast.Abstracto).GetFila()
+            columna := elemento.(Ast.Abstracto).GetColumna()
+            $ex = simbolos.NewAsignacionStruct(acceso,$ex2.ex,fila,columna)
+
+        }
+    | ex1=expresion PUNTO atributo=ID IGUAL ex3=control_expresion
+        {
+            filaS := $PUNTO.line
+            columnaS := $PUNTO.pos-1
+            filaA := $atributo.line
+            columnaA := $atributo.pos-1
+            idAtributo := expresiones.NewIdentificador($atributo.text,Ast.IDENTIFICADOR,filaA,columnaA)
+            acceso := simbolos.NewAccesoStruct($ex1.ex,idAtributo,filaS,columnaS)
+            elemento := localctx.(*AsignacionContext).GetEx1().GetEx()
+            fila := elemento.(Ast.Abstracto).GetFila()
+            columna := elemento.(Ast.Abstracto).GetColumna()
+            $ex = simbolos.NewAsignacionStruct(acceso,$ex3.ex,fila,columna)
+        }
+
 ;
 
 accesos_vector_array_asignacion returns [Ast.Expresion ex]
@@ -408,18 +468,6 @@ accesos_vector_array_asignacion returns [Ast.Expresion ex]
         }
 ;
 
-
-/* 
-atributos returns[*arraylist.List list]
-@init{ list := arrayList.New()}
-    : atributos atributo
-    | atributo
-;
-
-atributo returns[simbolos.Atributo ex]
-    : ID DOSPUNTOS tipo_dato
-;
-*/
 
 expresion returns[Ast.Expresion ex] 
     :   op=(RESTA|NOT) op_izq= expresion
@@ -514,6 +562,16 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $struct_instancia.ex   
         }
+    |   obj=expresion PUNTO atributo=ID 
+    {
+            filaS := $PUNTO.line
+            columnaS := $PUNTO.pos-1
+            filaA := $atributo.line
+            columnaA := $atributo.pos-1
+            idAtributo := expresiones.NewIdentificador($atributo.text,Ast.IDENTIFICADOR,filaA,columnaA)
+            fmt.Println(idAtributo)
+            $ex = simbolos.NewAccesoStruct($obj.ex,idAtributo,filaS,columnaS)
+    }
         //Acceso a array
     |   id=expresion lista=dimension_acceso_array
         {
@@ -522,6 +580,7 @@ expresion returns[Ast.Expresion ex]
             columna := elemento.(Ast.Abstracto).GetColumna() -1 
             $ex = fn_array.NewAccesoArray($id.ex,$lista.list,fila,columna)           
         }
+        /* 
         //Acceso a vector
     |   id=expresion CORCHETE_IZQ index=expresion CORCHETE_DER  
         {
@@ -529,6 +588,7 @@ expresion returns[Ast.Expresion ex]
             columna := $CORCHETE_IZQ.pos-1 
             $ex = fn_vectores.NewAccesoVec($id.ex,$index.ex,Ast.VEC_ACCESO,fila,columna)
         }
+    */
         //Metodo len de vector
     |   id=expresion PUNTO LEN PAR_IZQ PAR_DER
         {
@@ -1217,11 +1277,11 @@ dimension_acceso_array returns[*arraylist.List list]
                 $lista_elementos.list.Add($expresion.ex)
                 $list = $lista_elementos.list
             }
-    |   CORCHETE_IZQ ex1=expresion CORCHETE_DER CORCHETE_IZQ ex2=expresion CORCHETE_DER
+    |   CORCHETE_IZQ ex1=expresion CORCHETE_DER /*CORCHETE_IZQ ex2=expresion CORCHETE_DER*/
             {
                 $list.Add($ex1.ex)
-                $list.Add($ex2.ex)
             }
+            //$list.Add($ex2.ex)
 ;
 
 
@@ -1247,4 +1307,30 @@ tipo_dato_tipo returns[Ast.TipoRetornado ex]
                 Tipo: Ast.STRUCT,
             }
         }
+    |   dimension_array
+        {
+            $ex = Ast.TipoRetornado{
+                Valor: $dimension_array.ex,
+                Tipo: Ast.DIMENSION_ARRAY,
+            }
+
+        }
+
 ;
+
+/* 
+acceso_atributo_struct returns[Ast.Expresion ex]
+    :
+     
+    |   estructura=ID PUNTO atributo=ID 
+        {
+            filaS := $estructura.line
+            columnaS := $estructura.pos-1
+            filaA := $atributo.line
+            columnaA := $atributo.pos-1
+            idStruct := expresiones.NewIdentificador($estructura.text,Ast.IDENTIFICADOR,filaS,columnaS)
+            idAtributo := expresiones.NewIdentificador($atributo.text,Ast.IDENTIFICADOR,filaA,columnaA)
+            $ex = simbolos.NewAccesoStruct(idStruct,idAtributo,filaS,columnaS)
+        }
+;
+*/
