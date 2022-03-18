@@ -58,23 +58,47 @@ func main() {
 	*/
 	var input string = `
 
-	let arr1: [&str; 2] = ["Hola", "Mundo"];
-
-	struct Alumno {
-		nombre: String,
-		calificacion: [i64;5]
+	struct Carro{
+		modelo: String,
+		color: String,
+		anio: i64
 	}
-	let mut vector = vec![vec![1; 10],vec![2; 8],vec![3; 15],vec![5; 2],vec![8; 1]];
-	let mut arreglo: [[[i64; 4];2]; 2] = [
-		[ [ 1, 3, 5, 7], [ 9, 11, 13, 15] ],
-		[ [ 2, 4, 6, 8], [10, 12, 14, 16] ]
-		];
-	let instancia = Alumno {nombre: "Jose Daniel".to_string(),calificacion: [10;5]};
-	let v2 = vec![69; 3];
-	vector[1][7] = v2;
+	mod Inventario{
+		pub struct Caja{
+			total: f64,
+			actual: f64
+		}
+		pub fn saludar(){
+			println!("Hola buenos días.");
+		}
+	}
 
+	fn main (){
+		let mut nuevoCarro = Carro{
+			modelo:"Toyota Yaris".to_string(),
+			color: "rojo".to_string(),
+			anio: 2011
+		};
+		Inventario::saludar();
+		let variable1 = Inventario::Caja{
+			total: 2.25,
+			actual: 5.75
+		};
+		let mut variable2: Inventario::Caja;
+		let variable3: Inventario::Caja = Inventario::Caja{
+			total: 2.25,
+			actual: 5.75			
+		};
 
-	println!("El vector ahora es {:?}",instancia.calificacion);
+		println!("{} {}",variable3.total,variable3.actual);
+	}
+	fn imprimirAlgo() -> Carro{
+		println!("Todavia sin funcionalidad");
+	}
+	fn funcion2() -> Inventario::Caja{
+		println!("Todavia sin funcionalidad 2");
+	}
+
 	`
 
 	//Obteniendo el input

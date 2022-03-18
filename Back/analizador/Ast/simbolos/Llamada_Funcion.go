@@ -36,8 +36,9 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	//Crear el scope para la nueva función
 	newScope := Ast.NewScope("funcion", scope)
 
-	//Verificar que la función existe
-	simbolo = newScope.Exist_fms(l.Identificador.(expresiones.Identificador).Valor)
+	//Verificar que la función existe en el ámbilo global
+	simbolo = newScope.Exist_fms_local(l.Identificador.(expresiones.Identificador).Valor)
+	//Sino verificar que exista en el local
 
 	if simbolo.Tipo != Ast.FUNCION ||
 		simbolo.Tipo == Ast.ERROR_ACCESO_PRIVADO ||

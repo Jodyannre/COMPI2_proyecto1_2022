@@ -6,6 +6,7 @@ type Simbolo struct {
 	Fila               int
 	Columna            int
 	Tipo               TipoDato
+	TipoEspecial       TipoRetornado
 	Mutable            bool
 	Publico            bool
 	Entorno            *Scope
@@ -35,6 +36,7 @@ func NewSimbolo(identificador string, valor interface{}, fila int, columna int,
 		Referencia:         false,
 		Referencia_puntero: nil,
 		Entorno:            nil,
+		TipoEspecial:       TipoRetornado{Valor: true, Tipo: INDEFINIDO},
 	}
 	return simbolo
 }

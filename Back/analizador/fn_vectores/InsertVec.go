@@ -145,7 +145,7 @@ func (p InsertVec) Run(scope *Ast.Scope) interface{} {
 	}
 	//Verificar si es un struct el que se va a agregar
 	if valor.Tipo == Ast.STRUCT {
-		plantilla := valor.Valor.(Ast.Structs).GetPlantilla()
+		plantilla := valor.Valor.(Ast.Structs).GetPlantilla(scope)
 		tipoStruct := Ast.TipoRetornado{Valor: plantilla, Tipo: Ast.STRUCT}
 		if !expresiones.CompararTipos(tipoStruct, vector.TipoVector) {
 			//Error, no se puede guardar ese tipo de vector en este vector

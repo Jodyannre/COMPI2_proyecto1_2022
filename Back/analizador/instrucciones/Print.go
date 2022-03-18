@@ -171,7 +171,7 @@ func (p PrintF) Run(scope *Ast.Scope) interface{} {
 				resultado := p.GetCompareValues(scope, i, posiciones_regex[i])
 				if resultado.Tipo != Ast.ERROR {
 					valor = p.Expresiones.GetValue(i).(Ast.Expresion).GetValue(scope)
-					preCadena = To_String(valor.(Ast.TipoRetornado)).(Ast.TipoRetornado)
+					preCadena = To_String(valor.(Ast.TipoRetornado), scope).(Ast.TipoRetornado)
 					//valor = p.Expresiones.GetValue(i).(Ast.Expresion).GetValue(scope)
 					if preCadena.Tipo == Ast.ERROR {
 						//Crear el error y retornarlo
@@ -203,7 +203,7 @@ func (p PrintF) Run(scope *Ast.Scope) interface{} {
 	}
 }
 
-func To_String(valor Ast.TipoRetornado) interface{} {
+func To_String(valor Ast.TipoRetornado, scope *Ast.Scope) interface{} {
 	salida := ""
 	preSalida := Ast.TipoRetornado{
 		Tipo:  Ast.STRING,
@@ -234,7 +234,7 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 				salida += ", "
 			}
 			elemento = lista.GetValue(i).(Ast.TipoRetornado)
-			resultado := To_String(elemento)
+			resultado := To_String(elemento, scope)
 			tipoAnterior = elemento.Tipo
 			if elemento.Tipo == Ast.STRING ||
 				elemento.Tipo == Ast.STR ||
@@ -256,7 +256,7 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 		//Espacios libres en un vector
 		salida += ""
 	case Ast.STRUCT:
-		salida += valor.Valor.(Ast.Structs).GetPlantilla()
+		salida += valor.Valor.(Ast.Structs).GetPlantilla(scope)
 	case Ast.ARRAY:
 		//Recorrer todos sus elementos e irlos convirtiendo en string
 		lista := valor.Valor.(expresiones.Array).Elementos
@@ -268,7 +268,7 @@ func To_String(valor Ast.TipoRetornado) interface{} {
 				salida += ", "
 			}
 			elemento = lista.GetValue(i).(Ast.TipoRetornado)
-			resultado := To_String(elemento)
+			resultado := To_String(elemento, scope)
 			tipoAnterior = elemento.Tipo
 			if elemento.Tipo == Ast.STRING ||
 				elemento.Tipo == Ast.STR ||
@@ -348,9 +348,9 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 		case Ast.BOOLEAN:
 			salida += strconv.FormatBool(valor.Valor.(bool))
 		case Ast.VECTOR, Ast.ARRAY:
-			salida = To_String(valor).(Ast.TipoRetornado).Valor.(string)
+			salida = To_String(valor, scope).(Ast.TipoRetornado).Valor.(string)
 		case Ast.STRUCT:
-			salida += valor.Valor.(Ast.Structs).GetPlantilla()
+			salida += valor.Valor.(Ast.Structs).GetPlantilla(scope)
 		default:
 		}
 

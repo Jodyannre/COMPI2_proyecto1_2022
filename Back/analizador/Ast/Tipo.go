@@ -189,6 +189,7 @@ const (
 	TIPO
 	ACCESO_STRUCT
 	ASIGNACION_STRUCT
+	FUNCION_MAIN
 )
 
 type TipoRetornado struct {
@@ -214,4 +215,20 @@ func EsPrimitivo(tipo TipoDato) bool {
 	} else {
 		return false
 	}
+}
+
+func EsFuncion(tipo interface{}) bool {
+	validador := false
+
+	switch tipo {
+	case FUNCION, VEC_NEW, VEC_ACCESO,
+		VEC_LEN, VEC_CONTAINS,
+		VEC_CAPACITY, VEC_REMOVE, ARRAY_FAC, ARRAY_ELEMENTOS, ARRAY,
+		VEC_ELEMENTOS, VEC_FAC, VEC_WITH_CAPACITY, DIMENSION_ARRAY, LLAMADA_FUNCION:
+		validador = true
+	default:
+		validador = false
+	}
+
+	return validador
 }

@@ -27,11 +27,23 @@ func (s *BaseNparserListener) EnterInicio(ctx *InicioContext) {}
 // ExitInicio is called when production inicio is exited.
 func (s *BaseNparserListener) ExitInicio(ctx *InicioContext) {}
 
-// EnterBloque is called when production bloque is entered.
-func (s *BaseNparserListener) EnterBloque(ctx *BloqueContext) {}
+// EnterInstruccionesGlobales is called when production instruccionesGlobales is entered.
+func (s *BaseNparserListener) EnterInstruccionesGlobales(ctx *InstruccionesGlobalesContext) {}
 
-// ExitBloque is called when production bloque is exited.
-func (s *BaseNparserListener) ExitBloque(ctx *BloqueContext) {}
+// ExitInstruccionesGlobales is called when production instruccionesGlobales is exited.
+func (s *BaseNparserListener) ExitInstruccionesGlobales(ctx *InstruccionesGlobalesContext) {}
+
+// EnterInstruccionesModulos is called when production instruccionesModulos is entered.
+func (s *BaseNparserListener) EnterInstruccionesModulos(ctx *InstruccionesModulosContext) {}
+
+// ExitInstruccionesModulos is called when production instruccionesModulos is exited.
+func (s *BaseNparserListener) ExitInstruccionesModulos(ctx *InstruccionesModulosContext) {}
+
+// EnterInstruccionesControl is called when production instruccionesControl is entered.
+func (s *BaseNparserListener) EnterInstruccionesControl(ctx *InstruccionesControlContext) {}
+
+// ExitInstruccionesControl is called when production instruccionesControl is exited.
+func (s *BaseNparserListener) ExitInstruccionesControl(ctx *InstruccionesControlContext) {}
 
 // EnterInstrucciones is called when production instrucciones is entered.
 func (s *BaseNparserListener) EnterInstrucciones(ctx *InstruccionesContext) {}
@@ -39,11 +51,53 @@ func (s *BaseNparserListener) EnterInstrucciones(ctx *InstruccionesContext) {}
 // ExitInstrucciones is called when production instrucciones is exited.
 func (s *BaseNparserListener) ExitInstrucciones(ctx *InstruccionesContext) {}
 
+// EnterBloque is called when production bloque is entered.
+func (s *BaseNparserListener) EnterBloque(ctx *BloqueContext) {}
+
+// ExitBloque is called when production bloque is exited.
+func (s *BaseNparserListener) ExitBloque(ctx *BloqueContext) {}
+
+// EnterBloque_control is called when production bloque_control is entered.
+func (s *BaseNparserListener) EnterBloque_control(ctx *Bloque_controlContext) {}
+
+// ExitBloque_control is called when production bloque_control is exited.
+func (s *BaseNparserListener) ExitBloque_control(ctx *Bloque_controlContext) {}
+
+// EnterBloque_modulo is called when production bloque_modulo is entered.
+func (s *BaseNparserListener) EnterBloque_modulo(ctx *Bloque_moduloContext) {}
+
+// ExitBloque_modulo is called when production bloque_modulo is exited.
+func (s *BaseNparserListener) ExitBloque_modulo(ctx *Bloque_moduloContext) {}
+
+// EnterInstruccionGlobal is called when production instruccionGlobal is entered.
+func (s *BaseNparserListener) EnterInstruccionGlobal(ctx *InstruccionGlobalContext) {}
+
+// ExitInstruccionGlobal is called when production instruccionGlobal is exited.
+func (s *BaseNparserListener) ExitInstruccionGlobal(ctx *InstruccionGlobalContext) {}
+
+// EnterInstruccionModulo is called when production instruccionModulo is entered.
+func (s *BaseNparserListener) EnterInstruccionModulo(ctx *InstruccionModuloContext) {}
+
+// ExitInstruccionModulo is called when production instruccionModulo is exited.
+func (s *BaseNparserListener) ExitInstruccionModulo(ctx *InstruccionModuloContext) {}
+
 // EnterInstruccion is called when production instruccion is entered.
 func (s *BaseNparserListener) EnterInstruccion(ctx *InstruccionContext) {}
 
 // ExitInstruccion is called when production instruccion is exited.
 func (s *BaseNparserListener) ExitInstruccion(ctx *InstruccionContext) {}
+
+// EnterInstruccionControl is called when production instruccionControl is entered.
+func (s *BaseNparserListener) EnterInstruccionControl(ctx *InstruccionControlContext) {}
+
+// ExitInstruccionControl is called when production instruccionControl is exited.
+func (s *BaseNparserListener) ExitInstruccionControl(ctx *InstruccionControlContext) {}
+
+// EnterFuncion_main is called when production funcion_main is entered.
+func (s *BaseNparserListener) EnterFuncion_main(ctx *Funcion_mainContext) {}
+
+// ExitFuncion_main is called when production funcion_main is exited.
+func (s *BaseNparserListener) ExitFuncion_main(ctx *Funcion_mainContext) {}
 
 // EnterDeclaracion is called when production declaracion is entered.
 func (s *BaseNparserListener) EnterDeclaracion(ctx *DeclaracionContext) {}
@@ -90,6 +144,12 @@ func (s *BaseNparserListener) EnterAtributo_struct_instancia(ctx *Atributo_struc
 
 // ExitAtributo_struct_instancia is called when production atributo_struct_instancia is exited.
 func (s *BaseNparserListener) ExitAtributo_struct_instancia(ctx *Atributo_struct_instanciaContext) {}
+
+// EnterDeclaracion_modulo is called when production declaracion_modulo is entered.
+func (s *BaseNparserListener) EnterDeclaracion_modulo(ctx *Declaracion_moduloContext) {}
+
+// ExitDeclaracion_modulo is called when production declaracion_modulo is exited.
+func (s *BaseNparserListener) ExitDeclaracion_modulo(ctx *Declaracion_moduloContext) {}
 
 // EnterDeclaracion_funcion is called when production declaracion_funcion is entered.
 func (s *BaseNparserListener) EnterDeclaracion_funcion(ctx *Declaracion_funcionContext) {}
@@ -346,3 +406,23 @@ func (s *BaseNparserListener) EnterTipo_dato_tipo(ctx *Tipo_dato_tipoContext) {}
 
 // ExitTipo_dato_tipo is called when production tipo_dato_tipo is exited.
 func (s *BaseNparserListener) ExitTipo_dato_tipo(ctx *Tipo_dato_tipoContext) {}
+
+// EnterAcceso_modulo is called when production acceso_modulo is entered.
+func (s *BaseNparserListener) EnterAcceso_modulo(ctx *Acceso_moduloContext) {}
+
+// ExitAcceso_modulo is called when production acceso_modulo is exited.
+func (s *BaseNparserListener) ExitAcceso_modulo(ctx *Acceso_moduloContext) {}
+
+// EnterAcceso_modulo_elementos is called when production acceso_modulo_elementos is entered.
+func (s *BaseNparserListener) EnterAcceso_modulo_elementos(ctx *Acceso_modulo_elementosContext) {}
+
+// ExitAcceso_modulo_elementos is called when production acceso_modulo_elementos is exited.
+func (s *BaseNparserListener) ExitAcceso_modulo_elementos(ctx *Acceso_modulo_elementosContext) {}
+
+// EnterAcceso_modulo_elemento_final is called when production acceso_modulo_elemento_final is entered.
+func (s *BaseNparserListener) EnterAcceso_modulo_elemento_final(ctx *Acceso_modulo_elemento_finalContext) {
+}
+
+// ExitAcceso_modulo_elemento_final is called when production acceso_modulo_elemento_final is exited.
+func (s *BaseNparserListener) ExitAcceso_modulo_elemento_final(ctx *Acceso_modulo_elemento_finalContext) {
+}

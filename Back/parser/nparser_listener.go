@@ -11,14 +11,41 @@ type NparserListener interface {
 	// EnterInicio is called when entering the inicio production.
 	EnterInicio(c *InicioContext)
 
-	// EnterBloque is called when entering the bloque production.
-	EnterBloque(c *BloqueContext)
+	// EnterInstruccionesGlobales is called when entering the instruccionesGlobales production.
+	EnterInstruccionesGlobales(c *InstruccionesGlobalesContext)
+
+	// EnterInstruccionesModulos is called when entering the instruccionesModulos production.
+	EnterInstruccionesModulos(c *InstruccionesModulosContext)
+
+	// EnterInstruccionesControl is called when entering the instruccionesControl production.
+	EnterInstruccionesControl(c *InstruccionesControlContext)
 
 	// EnterInstrucciones is called when entering the instrucciones production.
 	EnterInstrucciones(c *InstruccionesContext)
 
+	// EnterBloque is called when entering the bloque production.
+	EnterBloque(c *BloqueContext)
+
+	// EnterBloque_control is called when entering the bloque_control production.
+	EnterBloque_control(c *Bloque_controlContext)
+
+	// EnterBloque_modulo is called when entering the bloque_modulo production.
+	EnterBloque_modulo(c *Bloque_moduloContext)
+
+	// EnterInstruccionGlobal is called when entering the instruccionGlobal production.
+	EnterInstruccionGlobal(c *InstruccionGlobalContext)
+
+	// EnterInstruccionModulo is called when entering the instruccionModulo production.
+	EnterInstruccionModulo(c *InstruccionModuloContext)
+
 	// EnterInstruccion is called when entering the instruccion production.
 	EnterInstruccion(c *InstruccionContext)
+
+	// EnterInstruccionControl is called when entering the instruccionControl production.
+	EnterInstruccionControl(c *InstruccionControlContext)
+
+	// EnterFuncion_main is called when entering the funcion_main production.
+	EnterFuncion_main(c *Funcion_mainContext)
 
 	// EnterDeclaracion is called when entering the declaracion production.
 	EnterDeclaracion(c *DeclaracionContext)
@@ -40,6 +67,9 @@ type NparserListener interface {
 
 	// EnterAtributo_struct_instancia is called when entering the atributo_struct_instancia production.
 	EnterAtributo_struct_instancia(c *Atributo_struct_instanciaContext)
+
+	// EnterDeclaracion_modulo is called when entering the declaracion_modulo production.
+	EnterDeclaracion_modulo(c *Declaracion_moduloContext)
 
 	// EnterDeclaracion_funcion is called when entering the declaracion_funcion production.
 	EnterDeclaracion_funcion(c *Declaracion_funcionContext)
@@ -167,17 +197,53 @@ type NparserListener interface {
 	// EnterTipo_dato_tipo is called when entering the tipo_dato_tipo production.
 	EnterTipo_dato_tipo(c *Tipo_dato_tipoContext)
 
+	// EnterAcceso_modulo is called when entering the acceso_modulo production.
+	EnterAcceso_modulo(c *Acceso_moduloContext)
+
+	// EnterAcceso_modulo_elementos is called when entering the acceso_modulo_elementos production.
+	EnterAcceso_modulo_elementos(c *Acceso_modulo_elementosContext)
+
+	// EnterAcceso_modulo_elemento_final is called when entering the acceso_modulo_elemento_final production.
+	EnterAcceso_modulo_elemento_final(c *Acceso_modulo_elemento_finalContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
-	// ExitBloque is called when exiting the bloque production.
-	ExitBloque(c *BloqueContext)
+	// ExitInstruccionesGlobales is called when exiting the instruccionesGlobales production.
+	ExitInstruccionesGlobales(c *InstruccionesGlobalesContext)
+
+	// ExitInstruccionesModulos is called when exiting the instruccionesModulos production.
+	ExitInstruccionesModulos(c *InstruccionesModulosContext)
+
+	// ExitInstruccionesControl is called when exiting the instruccionesControl production.
+	ExitInstruccionesControl(c *InstruccionesControlContext)
 
 	// ExitInstrucciones is called when exiting the instrucciones production.
 	ExitInstrucciones(c *InstruccionesContext)
 
+	// ExitBloque is called when exiting the bloque production.
+	ExitBloque(c *BloqueContext)
+
+	// ExitBloque_control is called when exiting the bloque_control production.
+	ExitBloque_control(c *Bloque_controlContext)
+
+	// ExitBloque_modulo is called when exiting the bloque_modulo production.
+	ExitBloque_modulo(c *Bloque_moduloContext)
+
+	// ExitInstruccionGlobal is called when exiting the instruccionGlobal production.
+	ExitInstruccionGlobal(c *InstruccionGlobalContext)
+
+	// ExitInstruccionModulo is called when exiting the instruccionModulo production.
+	ExitInstruccionModulo(c *InstruccionModuloContext)
+
 	// ExitInstruccion is called when exiting the instruccion production.
 	ExitInstruccion(c *InstruccionContext)
+
+	// ExitInstruccionControl is called when exiting the instruccionControl production.
+	ExitInstruccionControl(c *InstruccionControlContext)
+
+	// ExitFuncion_main is called when exiting the funcion_main production.
+	ExitFuncion_main(c *Funcion_mainContext)
 
 	// ExitDeclaracion is called when exiting the declaracion production.
 	ExitDeclaracion(c *DeclaracionContext)
@@ -199,6 +265,9 @@ type NparserListener interface {
 
 	// ExitAtributo_struct_instancia is called when exiting the atributo_struct_instancia production.
 	ExitAtributo_struct_instancia(c *Atributo_struct_instanciaContext)
+
+	// ExitDeclaracion_modulo is called when exiting the declaracion_modulo production.
+	ExitDeclaracion_modulo(c *Declaracion_moduloContext)
 
 	// ExitDeclaracion_funcion is called when exiting the declaracion_funcion production.
 	ExitDeclaracion_funcion(c *Declaracion_funcionContext)
@@ -325,4 +394,13 @@ type NparserListener interface {
 
 	// ExitTipo_dato_tipo is called when exiting the tipo_dato_tipo production.
 	ExitTipo_dato_tipo(c *Tipo_dato_tipoContext)
+
+	// ExitAcceso_modulo is called when exiting the acceso_modulo production.
+	ExitAcceso_modulo(c *Acceso_moduloContext)
+
+	// ExitAcceso_modulo_elementos is called when exiting the acceso_modulo_elementos production.
+	ExitAcceso_modulo_elementos(c *Acceso_modulo_elementosContext)
+
+	// ExitAcceso_modulo_elemento_final is called when exiting the acceso_modulo_elemento_final production.
+	ExitAcceso_modulo_elemento_final(c *Acceso_modulo_elemento_finalContext)
 }

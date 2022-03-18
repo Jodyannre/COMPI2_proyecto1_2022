@@ -229,7 +229,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 				//Primero traer el tipo del símbolo declarado
 				if valor.Tipo == Ast.STRUCT {
 					tipoSimbolo := expresiones.GetTipoFinal(array.(expresiones.Array).TipoDelArray).Valor.(string)
-					tipoValor := valor.Valor.(Ast.Structs).GetPlantilla()
+					tipoValor := valor.Valor.(Ast.Structs).GetPlantilla(scope)
 
 					if tipoSimbolo != tipoValor {
 						//Error, los structs no son iguales
@@ -362,7 +362,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 				//Primero traer el tipo del símbolo declarado
 				if valor.Tipo == Ast.STRUCT {
 					tipoSimbolo := expresiones.GetTipoFinal(array.(expresiones.Vector).TipoVector).Valor.(string)
-					tipoValor := valor.Valor.(Ast.Structs).GetPlantilla()
+					tipoValor := valor.Valor.(Ast.Structs).GetPlantilla(scope)
 
 					if tipoSimbolo != tipoValor {
 						//Error, los structs no son iguales
@@ -714,7 +714,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 		if vector.TipoVector.Tipo == valor.Tipo {
 			//Verificar que no sea un struct
 			if valor.Tipo == Ast.STRUCT {
-				tipoStruct := valor.Valor.(Ast.Structs).GetPlantilla()
+				tipoStruct := valor.Valor.(Ast.Structs).GetPlantilla(scope)
 				if tipoStruct != expresiones.GetTipoFinal(vector.TipoVector).Valor {
 					fila := valor.Valor.(Ast.Abstracto).GetFila()
 					columna := valor.Valor.(Ast.Abstracto).GetColumna()

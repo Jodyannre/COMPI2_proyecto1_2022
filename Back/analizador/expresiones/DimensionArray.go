@@ -48,6 +48,37 @@ func (d DimensionArray) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		listaDimensiones.Add(valor)
 
 	}
+
+	//Ejectuar el tipo por si es un acceso a modulo
+	if d.TipoArray.Tipo == Ast.ACCESO_MODULO {
+		resultadoAcceso := d.TipoArray.Valor.(Ast.Expresion).GetValue(scope)
+		//Verificar posible error
+		if resultadoAcceso.Tipo == Ast.ERROR {
+			return resultadoAcceso
+		}
+		//Verificar que sea un struct
+		if resultadoAcceso.Tipo != Ast.STRUCT_TEMPLATE {
+			//Error se espera un struct template
+			msg := "Semantic error, a STRUCT was expected." +
+				" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+			nError := errores.NewError(d.Fila, d.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+
+		}
+		//Todo bien , resultado del acceso es un símbolo
+		d.TipoArray = Ast.TipoRetornado{
+			Tipo:  Ast.STRUCT,
+			Valor: resultadoAcceso.Valor.(Ast.Simbolo).Identificador,
+		}
+
+	}
+
 	return Ast.TipoRetornado{
 		Tipo:  Ast.DIMENSION_ARRAY,
 		Valor: listaDimensiones,

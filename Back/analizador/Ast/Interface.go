@@ -15,5 +15,9 @@ type Abstracto interface {
 }
 
 type Structs interface {
-	GetPlantilla() string
+	GetPlantilla(scope *Scope) string
+}
+
+type AccesosM interface {
+	GetTipoFromAccesoModulo(tipo TipoRetornado, scope *Scope) TipoRetornado
 }

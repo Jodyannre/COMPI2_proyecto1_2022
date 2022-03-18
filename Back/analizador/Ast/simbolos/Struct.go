@@ -36,7 +36,10 @@ func NewStructInstancia(plantilla Ast.TipoRetornado, atributos *arraylist.List, 
 
 func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	var plantilla StructTemplate
-	if s.Plantilla.Tipo != Ast.STRUCT {
+	var nombreNewScope string
+	var simboloPlantilla Ast.Simbolo
+	var resultadoAccesoModulo Ast.TipoRetornado
+	if s.Plantilla.Tipo != Ast.STRUCT && s.Plantilla.Tipo != Ast.ACCESO_MODULO {
 		//Error, porque la plantilla no es struct
 		fila := s.Fila
 		columna := s.Columna
@@ -52,9 +55,35 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			Valor: nError,
 		}
 	}
+	if s.Plantilla.Tipo == Ast.STRUCT {
+		simboloPlantilla = scope.Exist_fms(s.Plantilla.Valor.(string))
+		nombreNewScope = s.Plantilla.Valor.(string)
+	} else {
+		//Es un acceso a modulo, ejecutarlo
+		resultadoAccesoModulo = s.Plantilla.Valor.(AccesoModulo).GetValue(scope)
+		if resultadoAccesoModulo.Tipo == Ast.ERROR {
+			return resultadoAccesoModulo
+		} else if resultadoAccesoModulo.Tipo != Ast.STRUCT_TEMPLATE {
+			//Error se esperaba un struct
+			fila := s.Fila
+			columna := s.Columna
+			msg := "Semantic error, an STRUCT was expected." +
+				" -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+		simboloPlantilla = resultadoAccesoModulo.Valor.(Ast.Simbolo)
+		nombreNewScope = simboloPlantilla.Identificador
+	}
 
-	simboloPlantilla := scope.Exist_fms(s.Plantilla.Valor.(string))
-	newScope := Ast.NewScope(s.Plantilla.Valor.(string), scope)
+	newScope := Ast.NewScope(nombreNewScope, scope)
 
 	//Verificar que la plantilla exista o que no haya algún tipo de error
 	if simboloPlantilla.Tipo == Ast.ERROR_NO_EXISTE {
@@ -256,6 +285,14 @@ func (v StructInstancia) GetColumna() int {
 	return v.Columna
 }
 
-func (s StructInstancia) GetPlantilla() string {
+func (s StructInstancia) GetPlantilla(scope *Ast.Scope) string {
+	if s.Plantilla.Tipo == Ast.ACCESO_MODULO {
+		resultado := s.Plantilla.Valor.(AccesoModulo).GetTipoFromAccesoModulo(s.Plantilla, scope)
+		if resultado.Tipo == Ast.ERROR {
+			return "ERROR"
+		} else {
+			return resultado.Valor.(string)
+		}
+	}
 	return s.Plantilla.Valor.(string)
 }

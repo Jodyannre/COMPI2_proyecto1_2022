@@ -27,20 +27,51 @@ options{
 
 
 inicio returns[*arraylist.List lista] 
-            : instrucciones	
+            : instruccionesGlobales	
             {
-                $lista = $instrucciones.list
+                $lista = $instruccionesGlobales.list
             }
 ;
 
 
-bloque returns[*arraylist.List list] 
-            : LLAVE_IZQ instrucciones LLAVE_DER	
-            {
-                $list = $instrucciones.list
-            }
+instruccionesGlobales returns [*arraylist.List list]
+			@init{
+				$list =  arraylist.New()
+			}
+			: e += instruccionGlobal*  {
+				listInt := localctx.(*InstruccionesGlobalesContext).GetE()
+					for _, e := range listInt {
+						$list.Add(e.GetEx())
+					}
+			}
 ;
 
+
+instruccionesModulos returns [*arraylist.List list]
+			@init{
+				$list =  arraylist.New()
+			}
+			: e += instruccionModulo*  {
+				listInt := localctx.(*InstruccionesModulosContext).GetE()
+					for _, e := range listInt {
+						$list.Add(e.GetEx())
+					}
+			}
+;
+
+instruccionesControl returns [*arraylist.List list]
+			@init{
+				$list =  arraylist.New()
+			}
+			: e += instruccionControl*  {
+				listInt := localctx.(*InstruccionesControlContext).GetE()
+					for _, e := range listInt {
+						$list.Add(e.GetEx())
+					}
+			}
+;
+
+/* Para el main, funciones, etc */
 instrucciones returns [*arraylist.List list]
 			@init{
 				$list =  arraylist.New()
@@ -53,13 +84,51 @@ instrucciones returns [*arraylist.List list]
 			}
 ;
 
+
+bloque returns[*arraylist.List list] 
+            : LLAVE_IZQ instrucciones LLAVE_DER	
+            {
+                $list = $instrucciones.list
+            }
+;
+
+bloque_control returns [*arraylist.List list]
+            : LLAVE_IZQ instruccionesControl LLAVE_DER	
+            {
+                $list = $instruccionesControl.list
+            }
+;
+
+bloque_modulo returns[*arraylist.List list]
+            : LLAVE_IZQ instruccionesModulos LLAVE_DER	
+            {
+                $list = $instruccionesModulos.list
+            }
+;
+
+
+instruccionGlobal returns[interface{} ex]
+            : funcion_main                  {$ex = $funcion_main.ex}
+            | declaracion_struct_template   {$ex = $declaracion_struct_template.ex} 
+            | declaracion_funcion           {$ex = $declaracion_funcion.ex} 
+            | declaracion_modulo            {$ex = $declaracion_modulo.ex} 
+;
+
+instruccionModulo returns[interface{} ex]
+            : declaracion_struct_template   {$ex = $declaracion_struct_template.ex} 
+            | declaracion_funcion           {$ex = $declaracion_funcion.ex} 
+            | declaracion_modulo            {$ex = $declaracion_modulo.ex} 
+
+;
+
+
 instruccion returns[interface{} ex] 
 			:llamada_funcion PUNTOCOMA  {$ex = $llamada_funcion.ex}
             |asignacion PUNTOCOMA       {$ex = $asignacion.ex}
             |expresion PUNTOCOMA   	    {$ex = $expresion.ex}	
-            |expresion                  {$ex = $expresion.ex}
+            //|expresion                  {$ex = $expresion.ex}
             |declaracion PUNTOCOMA      {$ex = $declaracion.ex}	
-            |declaracion_funcion        {$ex = $declaracion_funcion.ex}      
+            //|declaracion_funcion        {$ex = $declaracion_funcion.ex}      
             |control_if                 {$ex = $control_if.ex}	 
             |control_match              {$ex = $control_match.ex}   
             |control_loop               {$ex = $control_loop.ex}
@@ -70,16 +139,50 @@ instruccion returns[interface{} ex]
             |printNormal PUNTOCOMA      {$ex = $printNormal.ex} 
             |printFormato PUNTOCOMA     {$ex = $printFormato.ex} 
             |metodos_vector PUNTOCOMA   {$ex = $metodos_vector.ex} 
-            |declaracion_struct_template {$ex = $declaracion_struct_template.ex}
+            //|declaracion_struct_template {$ex = $declaracion_struct_template.ex}
 
 ;
 
-/* 
-instrucciones returns[*arraylist.List list]  : instruccion;
 
 
-instruccion returns[*arraylist.List list] : expresion;
-*/
+instruccionControl returns[interface{} ex] 
+			:llamada_funcion PUNTOCOMA  {$ex = $llamada_funcion.ex}
+            |asignacion PUNTOCOMA       {$ex = $asignacion.ex}
+            |expresion PUNTOCOMA   	    {$ex = $expresion.ex}	
+            |expresion                  {$ex = $expresion.ex}
+            |declaracion PUNTOCOMA      {$ex = $declaracion.ex}	
+            //|declaracion_funcion        {$ex = $declaracion_funcion.ex}      
+            |control_if                 {$ex = $control_if.ex}	 
+            |control_match              {$ex = $control_match.ex}   
+            |control_loop               {$ex = $control_loop.ex}
+            |control_while              {$ex = $control_while.ex}
+            |ibreak PUNTOCOMA           {$ex = $ibreak.ex}             
+            |icontinue PUNTOCOMA        {$ex = $icontinue.ex} 
+            |ireturn PUNTOCOMA          {$ex = $ireturn.ex} 
+            |printNormal PUNTOCOMA      {$ex = $printNormal.ex} 
+            |printFormato PUNTOCOMA     {$ex = $printFormato.ex} 
+            |metodos_vector PUNTOCOMA   {$ex = $metodos_vector.ex} 
+            //|declaracion_struct_template {$ex = $declaracion_struct_template.ex}
+
+;
+
+
+
+funcion_main returns[Ast.Expresion ex]
+    : FN MAIN PAR_IZQ PAR_DER bloque 
+        {
+            fila := $FN.line
+            columna := $FN.pos     
+            $ex = simbolos.NewFuncionMain($bloque.list,fila,columna)             
+        }
+    | FN MAIN PAR_IZQ PAR_DER LLAVE_IZQ LLAVE_DER
+        {
+            fila := $FN.line
+            columna := $FN.pos
+            instrucciones := arraylist.New()   
+            $ex = simbolos.NewFuncionMain(instrucciones,fila,columna)           
+        }
+;
 
 
 declaracion returns[Ast.Instruccion ex]
@@ -87,51 +190,51 @@ declaracion returns[Ast.Instruccion ex]
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
-            false,false,Ast.VOID,$expresion.ex,fila,columna)
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
+            false,false,fila,columna)
         }
     | LET ID IGUAL control_expresion
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
-            false,false,Ast.VOID,$control_expresion.ex,fila,columna)
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$control_expresion.ex,
+            false,false,fila,columna)
         }
-    | LET ID DOSPUNTOS tipo_dato IGUAL expresion
+    | LET ID DOSPUNTOS tipo_dato_tipo IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
-            false,false,Ast.VOID,$expresion.ex,fila,columna)            
+            $ex = instrucciones.NewDeclaracionTotal($ID.text,$expresion.ex,
+            $tipo_dato_tipo.ex,false,false,fila,columna)             
         }
-    | LET ID DOSPUNTOS tipo_dato IGUAL control_expresion
+    | LET ID DOSPUNTOS tipo_dato_tipo IGUAL control_expresion
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
-            false,false,Ast.VOID,$control_expresion.ex,fila,columna)            
+            $ex = instrucciones.NewDeclaracionTotal($ID.text,$control_expresion.ex,
+            $tipo_dato_tipo.ex,false,false,fila,columna)   
         }
     | LET MUT ID IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
-                true,false,Ast.VOID,$expresion.ex,fila,columna)                 
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
+            true,false,fila,columna)                 
         }
     | LET MUT ID IGUAL control_expresion
-    {
-        fila := $ID.line
-        columna := $ID.pos
-        $ex = instrucciones.NewDeclaracion($ID.text,Ast.INDEFINIDO,
-            true,false,Ast.VOID,$control_expresion.ex,fila,columna)  
-    }
-    | LET MUT ID DOSPUNTOS tipo_dato
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$control_expresion.ex,
+            true,false,fila,columna) 
+        }
+    | LET MUT ID DOSPUNTOS tipo_dato_tipo
         {        
             fila := $LET.line
             columna := $LET.pos
-            valor := expresiones.NewPrimitivo(nil, Ast.NULL,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
-            true,false,Ast.VOID,valor,fila,columna)                
+            //valor := expresiones.NewPrimitivo(nil, Ast.NULL,fila,columna)
+            $ex = instrucciones.NewDeclaracionConTipo($ID.text,$tipo_dato_tipo.ex,
+            true,false,fila,columna)            
         }
         /* 
     | LET MUT ID DOSPUNTOS tipo=tipo_dato_tipo
@@ -144,31 +247,34 @@ declaracion returns[Ast.Instruccion ex]
         }
     */
     
-    | LET MUT ID DOSPUNTOS tipo_dato IGUAL expresion
+    | LET MUT ID DOSPUNTOS tipo_dato_tipo IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
-            true,false,Ast.VOID,$expresion.ex,fila,columna)               
+            $ex = instrucciones.NewDeclaracionTotal($ID.text,$expresion.ex,
+            $tipo_dato_tipo.ex,true,false,fila,columna)                
         }
-    | LET MUT ID DOSPUNTOS tipo_dato IGUAL control_expresion
+    | LET MUT ID DOSPUNTOS tipo_dato_tipo IGUAL control_expresion
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracion($ID.text,$tipo_dato.ex,
-            true,false,Ast.VOID,$control_expresion.ex,fila,columna)               
-        }  
+            $ex = instrucciones.NewDeclaracionTotal($ID.text,$control_expresion.ex,
+            $tipo_dato_tipo.ex,true,false,fila,columna)                
+        } 
+        /*  
     | LET ID IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos 
             $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,false,false,Ast.VOID,$expresion.ex,fila,columna)
         }
+    */
     | LET MUT ID IGUAL expresion
         {
             fila := $LET.line
             columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.VECTOR,true,false,Ast.VOID,$expresion.ex,fila,columna)
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
+            true,false,fila,columna)
         }
 
     | LET ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
@@ -261,6 +367,13 @@ struct_instancia returns [Ast.Expresion ex]
         tipo := Ast.TipoRetornado{Tipo:Ast.STRUCT, Valor:$id.text} 
         $ex = simbolos.NewStructInstancia(tipo,$att.list,false,fila,columna)
     }
+    |   tipo_dato_tipo LLAVE_IZQ att=atributos_struct_instancia LLAVE_DER
+    {
+        fila := $LLAVE_IZQ.line
+        columna := $LLAVE_IZQ.pos -1      
+        //tipo := Ast.TipoRetornado{Tipo:Ast.ACCESO_MODULO, Valor:$tipo_dato_tipo.ex} 
+        $ex = simbolos.NewStructInstancia($tipo_dato_tipo.ex,$att.list,false,fila,columna)
+    }
 ;
 
 
@@ -288,40 +401,60 @@ atributo_struct_instancia returns [Ast.Expresion ex]
 ;
 
 
+declaracion_modulo returns [Ast.Instruccion ex]
+    :   MOD ID_CAMEL bloque_modulo
+        {
+            fila := $MOD.line
+            columna := $MOD.pos -1
+            id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna) 
+            modulo := simbolos.NewModulo(id,$bloque_modulo.list,false,fila,columna)
+            $ex = simbolos.NewDeclaracionModulo(modulo,false,fila,columna)
+
+        }
+    |   PUB MOD ID_CAMEL bloque_modulo
+        {
+            fila := $PUB.line
+            columna := $PUB.pos -1 
+            id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)          
+            modulo := simbolos.NewModulo(id,$bloque_modulo.list,true,fila,columna)
+            $ex = simbolos.NewDeclaracionModulo(modulo,true,fila,columna)
+        }
+;
+
 
 declaracion_funcion returns [Ast.Instruccion ex]
 
-    : PUB FN ID PAR_IZQ PAR_DER FN_TIPO_RETORNO tipo_dato bloque 
+    : PUB FN ID PAR_IZQ PAR_DER FN_TIPO_RETORNO tipo_dato_tipo bloque 
         {
             parametros := arraylist.New() 
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            parametros,$tipo_dato.ex,true,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
-            funcion,fila,columna)            
-        }
-    
+            parametros,$tipo_dato_tipo.ex,true,fila,columna)
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,$tipo_dato_tipo.ex,
+            false,true,fila,columna)            
+        } 
     | PUB FN ID PAR_IZQ PAR_DER bloque
         {
             parametros := arraylist.New() 
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            parametros,Ast.VOID,true,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
-            funcion,fila,columna)            
+            parametros,Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true},true,fila,columna)
+            nTipo := Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true}
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,nTipo,
+            false,true,fila,columna)            
         }
 
-    | FN ID PAR_IZQ PAR_DER FN_TIPO_RETORNO tipo_dato bloque
+    | FN ID PAR_IZQ PAR_DER FN_TIPO_RETORNO tipo_dato_tipo bloque
         {
             fila := $FN.line
             columna := $FN.pos
             parametros := arraylist.New()
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            parametros,$tipo_dato.ex,false,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
-            funcion,fila,columna)
+            parametros,$tipo_dato_tipo.ex,false,fila,columna)
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,$tipo_dato_tipo.ex,
+            false,false,fila,columna)  
         }
 
     | FN ID PAR_IZQ PAR_DER bloque
@@ -330,19 +463,20 @@ declaracion_funcion returns [Ast.Instruccion ex]
             columna := $FN.pos
             parametros := arraylist.New()
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            parametros,Ast.VOID,false,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
-            funcion,fila,columna)
+            parametros,Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true},false,fila,columna)
+            nTipo := Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true}
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,nTipo,
+            false,false,fila,columna)  
         }
 
-    | PUB FN ID PAR_IZQ parametros_funcion PAR_DER FN_TIPO_RETORNO tipo_dato bloque
+    | PUB FN ID PAR_IZQ parametros_funcion PAR_DER FN_TIPO_RETORNO tipo_dato_tipo bloque
         {
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            $parametros_funcion.list,$tipo_dato.ex,true,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
-            funcion,fila,columna)            
+            $parametros_funcion.list,$tipo_dato_tipo.ex,true,fila,columna)
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,$tipo_dato_tipo.ex,
+            false,true,fila,columna)            
         }
 
     | PUB FN ID PAR_IZQ parametros_funcion PAR_DER bloque
@@ -350,19 +484,20 @@ declaracion_funcion returns [Ast.Instruccion ex]
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            $parametros_funcion.list,Ast.VOID,true,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,true,Ast.VOID,
-            funcion,fila,columna)            
+            $parametros_funcion.list,Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true},true,fila,columna)
+            nTipo := Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true}
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,nTipo,
+            false,true,fila,columna)            
         }
 
-    | FN ID PAR_IZQ parametros_funcion PAR_DER FN_TIPO_RETORNO tipo_dato bloque
+    | FN ID PAR_IZQ parametros_funcion PAR_DER FN_TIPO_RETORNO tipo_dato_tipo bloque
         {
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            $parametros_funcion.list,$tipo_dato.ex,false,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
-            funcion,fila,columna)
+            $parametros_funcion.list,$tipo_dato_tipo.ex,true,fila,columna)
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,$tipo_dato_tipo.ex,
+            false,false,fila,columna)  
         }
 
     | FN ID PAR_IZQ parametros_funcion PAR_DER bloque
@@ -370,11 +505,11 @@ declaracion_funcion returns [Ast.Instruccion ex]
             fila := $FN.line
             columna := $FN.pos
             funcion := simbolos.NewFuncion($ID.text,Ast.FUNCION,$bloque.list,
-            $parametros_funcion.list,Ast.VOID,false,fila,columna)
-            $ex = instrucciones.NewDeclaracion($ID.text,Ast.FUNCION,false,false,Ast.VOID,
-            funcion,fila,columna)
+            $parametros_funcion.list,Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true},true,fila,columna)
+            nTipo := Ast.TipoRetornado{Tipo:Ast.VOID,Valor:true}
+            $ex = simbolos.NewDeclaracionFuncion($ID.text,funcion,nTipo,
+            false,false,fila,columna)  
         }
-    
 ;
 
 asignacion returns[Ast.Instruccion ex]
@@ -562,6 +697,10 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $struct_instancia.ex   
         }
+    |   acceso_modulo
+        {
+            $ex = $acceso_modulo.ex   
+        }
     |   obj=expresion PUNTO atributo=ID 
     {
             filaS := $PUNTO.line
@@ -743,13 +882,13 @@ bloque_else_if returns [*arraylist.List list]
 
 
 else_if returns [Ast.Instruccion ex]
-    : ELSE IF expresion bloque
+    : ELSE IF expresion bloquec=bloque
     {
         fila:= $ELSE.line
 		columna:= $ELSE.pos
 		columna++
         lista_null := arraylist.New()
-        $ex = exp_ins.NewIF($expresion.ex,$bloque.list,lista_null,Ast.ELSEIF,fila,columna,false)	
+        $ex = exp_ins.NewIF($expresion.ex,$bloquec.list,lista_null,Ast.ELSEIF,fila,columna,false)	
     }
 ;
 
@@ -758,7 +897,7 @@ else_if returns [Ast.Instruccion ex]
 
 
 control_if_exp returns[Ast.Instruccion ex]
-	:IF expresion bloqueIf = bloque
+	:IF expresion bloqueIf = bloque_control
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
@@ -766,7 +905,7 @@ control_if_exp returns[Ast.Instruccion ex]
 		lista_null := arraylist.New()
 		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_null,Ast.IF_EXPRESION,fila,columna,true)
 	}	
-	|IF expresion bloqueIf = bloque ELSE bloqueElse = bloque
+	|IF expresion bloqueIf = bloque_control ELSE bloqueElse = bloque_control
 	  
 	{
 		fila:= $IF.line
@@ -778,7 +917,7 @@ control_if_exp returns[Ast.Instruccion ex]
 		lista_entonces.Add(Else)
 		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)	
 	}
-	|IF expresion bloqueIf = bloque bloque_else_if_exp
+	|IF expresion bloqueIf = bloque_control bloque_else_if_exp
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
@@ -786,7 +925,7 @@ control_if_exp returns[Ast.Instruccion ex]
 		lista_entonces := $bloque_else_if_exp.list
 		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
 	}
-	|IF expresion bloqueIf = bloque bloque_else_if_exp ELSE bloqueElse = bloque
+	|IF expresion bloqueIf = bloque_control bloque_else_if_exp ELSE bloqueElse = bloque_control
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
@@ -812,13 +951,13 @@ bloque_else_if_exp returns [*arraylist.List list]
 
 
 else_if_exp returns [Ast.Instruccion ex]
-    : ELSE IF expresion bloque
+    : ELSE IF expresion bloquec=bloque_control
     {
         fila:= $ELSE.line
 		columna:= $ELSE.pos
 		columna++
         lista_null := arraylist.New()
-        $ex = exp_ins.NewIF($expresion.ex,$bloque.list,lista_null,Ast.ELSEIF_EXPRESION,fila,columna,true)	
+        $ex = exp_ins.NewIF($expresion.ex,$bloquec.list,lista_null,Ast.ELSEIF_EXPRESION,fila,columna,true)	
     }
 ;
 
@@ -855,7 +994,7 @@ control_case returns[*arraylist.List list]
 
 
 cases returns[Ast.Instruccion ex]
-    : case_match CASE bloque COMA
+    : case_match CASE bloquec=bloque COMA
     {
 
         fila := $CASE.line
@@ -864,9 +1003,9 @@ cases returns[Ast.Instruccion ex]
         listaTemp := $case_match.list
         _, tipo := listaTemp.GetValue(0).(Ast.Abstracto).GetTipo()
         if tipo == Ast.DEFAULT{
-            $ex = exp_ins.NewCase($case_match.list,$bloque.list, Ast.CASE,fila,columna,true)
+            $ex = exp_ins.NewCase($case_match.list,$bloquec.list, Ast.CASE,fila,columna,true)
         }else{
-            $ex = exp_ins.NewCase($case_match.list,$bloque.list, Ast.CASE,fila,columna,false)
+            $ex = exp_ins.NewCase($case_match.list,$bloquec.list, Ast.CASE,fila,columna,false)
         }      
     }
 ;
@@ -921,7 +1060,7 @@ control_case_exp returns[*arraylist.List list]
 
 
 cases_exp returns[Ast.Instruccion ex]
-    : case_match_exp CASE bloque COMA
+    : case_match_exp CASE bloquec=bloque_control COMA
     {
         fila := $CASE.line
         columna := $CASE.line -1
@@ -929,9 +1068,9 @@ cases_exp returns[Ast.Instruccion ex]
         listaTemp := $case_match_exp.list
         _, tipo := listaTemp.GetValue(0).(Ast.Abstracto).GetTipo()
         if tipo == Ast.DEFAULT{
-            $ex = exp_ins.NewCase($case_match_exp.list,$bloque.list, Ast.CASE_EXPRESION,fila,columna,true)
+            $ex = exp_ins.NewCase($case_match_exp.list,$bloquec.list, Ast.CASE_EXPRESION,fila,columna,true)
         }else{
-            $ex = exp_ins.NewCase($case_match_exp.list,$bloque.list, Ast.CASE_EXPRESION,fila,columna,false)
+            $ex = exp_ins.NewCase($case_match_exp.list,$bloquec.list, Ast.CASE_EXPRESION,fila,columna,false)
         }      
     }
 ;
@@ -1008,11 +1147,11 @@ control_loop returns[Ast.Instruccion ex]
 
 
 control_loop_exp returns[Ast.Instruccion ex]
-    : LOOP bloque 
+    : LOOP bloquec=bloque_control 
     {
         fila := $LOOP.line
         columna := $LOOP.pos
-        $ex = bucles.NewLoop(Ast.LOOP_EXPRESION,$bloque.list,fila,columna)
+        $ex = bucles.NewLoop(Ast.LOOP_EXPRESION,$bloquec.list,fila,columna)
     }
 ;
 
@@ -1310,13 +1449,63 @@ tipo_dato_tipo returns[Ast.TipoRetornado ex]
     |   dimension_array
         {
             $ex = Ast.TipoRetornado{
-                Valor: $dimension_array.ex,
-                Tipo: Ast.DIMENSION_ARRAY,
-            }
+            Valor: $dimension_array.ex,
+            Tipo: Ast.DIMENSION_ARRAY,
+            }   
 
+        }
+    |   acceso_modulo
+        {
+            $ex = Ast.TipoRetornado{
+                Valor: $acceso_modulo.ex,
+                Tipo: Ast.ACCESO_MODULO,
+            }
         }
 
 ;
+
+acceso_modulo returns[Ast.Expresion ex]
+    : acceso = acceso_modulo_elementos
+        {
+            lista := localctx.(*Acceso_moduloContext).GetAcceso().GetList()
+            elemento := lista.GetValue(lista.Len()-1)
+            fila:= elemento.(Ast.Abstracto).GetFila()
+            columna:= elemento.(Ast.Abstracto).GetColumna()
+            $ex = simbolos.NewAccesoModulo($acceso.list,fila,columna)
+        }
+;
+
+acceso_modulo_elementos returns[*arraylist.List list]
+@init{$list = arraylist.New()}
+    :  lista_elementos=acceso_modulo_elementos id=acceso_modulo_elemento_final
+        {
+            $lista_elementos.list.Add($id.ex)
+            $list = $lista_elementos.list          
+        }
+    |   ID_CAMEL
+        {
+            fila:= $ID_CAMEL.line
+            columna:= $ID_CAMEL.pos-1       
+            id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)   
+            $list.Add(id)
+        }
+;
+
+
+acceso_modulo_elemento_final returns [Ast.Expresion ex]
+    : DOBLE_DOSPUNTOS ID_CAMEL
+        {
+            fila:= $ID_CAMEL.line
+            columna:= $ID_CAMEL.pos-1       
+            $ex = expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)  
+
+        }
+    | DOBLE_DOSPUNTOS llamada_funcion
+        {
+            $ex = $llamada_funcion.ex
+        }
+;
+
 
 /* 
 acceso_atributo_struct returns[Ast.Expresion ex]

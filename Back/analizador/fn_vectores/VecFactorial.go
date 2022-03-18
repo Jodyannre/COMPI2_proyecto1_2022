@@ -76,7 +76,7 @@ func (v VecFactorial) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			tipoDelVector = Ast.TipoRetornado{Tipo: nElemento.Tipo, Valor: true}
 			if tipoDelVector.Tipo == Ast.STRUCT {
 				//Agregar el simbolo del struct
-				tipoDelVector.Valor = nElemento.Valor.(Ast.Structs).GetPlantilla()
+				tipoDelVector.Valor = nElemento.Valor.(Ast.Structs).GetPlantilla(scope)
 			}
 		}
 		elementos.Add(nElemento)

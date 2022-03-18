@@ -33,7 +33,7 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 
 	/*
 		1) Declarar el scope
-		2) Primera pasada para declarar todas las variables
+		2) Primera pasada para declarar todas los elementos y buscar el main o si hay más de 1 main
 		3) Correr todas las instrucciones
 	*/
 
@@ -42,72 +42,71 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 	EntornoGlobal.Global = true
 	//Variables para las declaraciones
 	var actual interface{}
-	var tipo, tipoGeneral interface{}
-	var respuesta interface{}
+	var tipoParticular, tipoGeneral Ast.TipoDato
+	var metodoMain interface{}
+	var mainEncontrado bool = false
+	var contadorMain int = 0
+	var posicionMain int = 0
 
-	//Primera pasada para agregar todas las declaraciones de las variables
+	//Primera pasada para agregar todas las declaraciones de las variables y los elemenos
+	//Buscar el main y verificar que solo exista uno o no ejecutar y error de que no hay main
+
+	//Pasada de declaraciones
 	for i := 0; i < instrucciones.Len(); i++ {
 		actual = instrucciones.GetValue(i)
 		if actual != nil {
-			tipoGeneral, tipo = actual.(Ast.Abstracto).GetTipo()
+			tipoGeneral, tipoParticular = actual.(Ast.Abstracto).GetTipo()
 		} else {
 			continue
 		}
-		if tipo.(Ast.TipoDato) == Ast.DECLARACION {
+		if tipoParticular == Ast.DECLARACION {
 			//Declarar variables globales
-			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
-				//Hay error pero ya esta agregado
-				continue
+			actual.(Ast.Instruccion).Run(&EntornoGlobal)
+		} else if tipoGeneral == Ast.EXPRESION {
+			//Verificar que sea el main
+			if tipoParticular == Ast.FUNCION_MAIN {
+				mainEncontrado = true
+				contadorMain++
+				posicionMain = i
 			}
 		}
 	}
 
-	//Ejecutar todas instrucciones siguientes
-	for i := 0; i < instrucciones.Len(); i++ {
-		actual = instrucciones.GetValue(i)
-		if actual != nil {
-			tipoGeneral, tipo = actual.(Ast.Abstracto).GetTipo()
-		} else {
-			continue
-		}
-		//Error, no puede haber expresiones sueltas
-		if tipoGeneral == Ast.EXPRESION && !EsFuncion(tipo) {
-			fila := actual.(Ast.Abstracto).GetFila()
-			columna := actual.(Ast.Abstracto).GetColumna()
-			msg := "Semantic error, an instruction was expected." +
-				" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
-			nError := errores.NewError(fila, columna, msg)
-			nError.Tipo = Ast.ERROR_SEMANTICO
-			EntornoGlobal.Errores.Add(nError)
-			EntornoGlobal.Consola += msg + "\n"
-			continue
-		} else if EsFuncion(tipo) {
-			//LLamandas a funciones y métodos de vectores o arrays o nativos
-			respuesta = actual.(Ast.Expresion).GetValue(&EntornoGlobal)
-		} else if tipo.(Ast.TipoDato) != Ast.DECLARACION {
-			//Declarar variables globales
-			respuesta = actual.(Ast.Instruccion).Run(&EntornoGlobal)
-			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
-				//Hay error, pero ya esta agregado
-				continue
-			}
-
-			if Ast.EsTransferencia(respuesta.(Ast.TipoRetornado).Tipo) {
-				//Error de break o return
-				valor := actual.(Ast.Abstracto)
-				fila := valor.GetFila()
-				columna := valor.GetColumna()
-				msg := "Semantic error," + Ast.ValorTipoDato[respuesta.(Ast.TipoRetornado).Tipo] +
-					" statement not allowed in main method." +
-					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
-				nError := errores.NewError(fila, columna, msg)
-				nError.Tipo = Ast.ERROR_SEMANTICO
-				EntornoGlobal.Errores.Add(nError)
-				EntornoGlobal.Consola += msg + "\n"
-			}
-		}
+	//Verificar que se haya encontrado el main y que no sea más de 1 main
+	if !mainEncontrado {
+		//Error no hay metodo main
+		fila := 0
+		columna := 0
+		msg := "Semantic error, MAIN method not found" +
+			". -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		EntornoGlobal.Errores.Add(nError)
+		EntornoGlobal.Consola += msg + "\n"
 	}
+
+	if contadorMain > 1 {
+		//Error hay varios metodos main
+		fila := 0
+		columna := 0
+		msg := "Semantic error, the program cannot have more than 1 MAIN method" +
+			". -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		EntornoGlobal.Errores.Add(nError)
+		EntornoGlobal.Consola += msg + "\n"
+	}
+	if mainEncontrado && contadorMain == 1 {
+		//Get el metodo main
+		metodoMain = instrucciones.GetValue(posicionMain)
+
+		//Ejetuar el método main
+		metodoMain.(Ast.Expresion).GetValue(&EntornoGlobal)
+
+	}
+
 	EntornoGlobal.UpdateScopeGlobal()
 	v.Consola += EntornoGlobal.Consola
 	for i := 0; i < EntornoGlobal.Errores.Len(); i++ {
@@ -122,20 +121,4 @@ func (v *Visitador) GetConsola() string {
 
 func (v *Visitador) UpdateConsola(entrada string) {
 	v.Consola += entrada + "\n"
-}
-
-func EsFuncion(tipo interface{}) bool {
-	validador := false
-
-	switch tipo {
-	case Ast.FUNCION, Ast.VEC_NEW, Ast.VEC_ACCESO,
-		Ast.VEC_LEN, Ast.VEC_CONTAINS,
-		Ast.VEC_CAPACITY, Ast.VEC_REMOVE, Ast.ARRAY_FAC, Ast.ARRAY_ELEMENTOS, Ast.ARRAY,
-		Ast.VEC_ELEMENTOS, Ast.VEC_FAC, Ast.VEC_WITH_CAPACITY, Ast.DIMENSION_ARRAY, Ast.LLAMADA_FUNCION:
-		validador = true
-	default:
-		validador = false
-	}
-
-	return validador
 }

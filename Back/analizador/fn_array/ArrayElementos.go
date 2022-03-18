@@ -183,10 +183,10 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 			}
 		} else if tipoParticular == Ast.STRUCT && tipoAnterior.Tipo != Ast.INDEFINIDO {
-			if valorElemento.Valor.(Ast.Structs).GetPlantilla() != tipoAnterior.Valor {
+			if valorElemento.Valor.(Ast.Structs).GetPlantilla(scope) != tipoAnterior.Valor {
 				fila := elemento.(Ast.Abstracto).GetFila()
 				columna := elemento.(Ast.Abstracto).GetColumna()
-				msg := "Semantic error, can't store" + valorElemento.Valor.(Ast.Structs).GetPlantilla() +
+				msg := "Semantic error, can't store" + valorElemento.Valor.(Ast.Structs).GetPlantilla(scope) +
 					"to an ARRAY[" + tipoAnterior.Valor.(string) + "]" +
 					". -- Line: " + strconv.Itoa(fila) +
 					" Column: " + strconv.Itoa(columna)
@@ -200,12 +200,12 @@ func (v ArrayElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 			}
 			tipoAnterior.Tipo = Ast.STRUCT
-			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla()
+			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla(scope)
 
 		}
 		if tipoParticular == Ast.STRUCT {
 			tipoAnterior.Tipo = Ast.STRUCT
-			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla()
+			tipoAnterior.Valor = valorElemento.Valor.(Ast.Structs).GetPlantilla(scope)
 		} else if tipoParticular != Ast.IDENTIFICADOR && !EsFuncion(tipoParticular) && tipoParticular != Ast.ARRAY {
 			tipoAnterior.Tipo = tipoParticular
 		} else if expresiones.EsArray(tipoParticular) == Ast.ARRAY {

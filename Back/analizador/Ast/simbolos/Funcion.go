@@ -18,12 +18,12 @@ type Funcion struct {
 	Instrucciones *arraylist.List
 	Publica       bool
 	Parametros    *arraylist.List
-	Retorno       Ast.TipoDato
+	Retorno       Ast.TipoRetornado
 	Entorno       *Ast.Scope
 }
 
 func NewFuncion(nombre string, tipo Ast.TipoDato, instrucciones *arraylist.List,
-	parametros *arraylist.List, retorno Ast.TipoDato, publica bool, fila, columna int) Funcion {
+	parametros *arraylist.List, retorno Ast.TipoRetornado, publica bool, fila, columna int) Funcion {
 	nF := Funcion{
 		Nombre:        nombre,
 		Tipo:          tipo,
@@ -86,7 +86,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 			}
-			if f.Retorno == Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
+			if f.Retorno.Tipo == Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
 				//Error de break, break_expresion
 				valor := actual.(Ast.Abstracto)
 				fila := valor.GetFila()
@@ -98,7 +98,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 			}
-			if f.Retorno != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN {
+			if f.Retorno.Tipo != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN {
 				//Error, la función espera retornar algo y no esta retornando nada
 				valor := actual.(Ast.Abstracto)
 				fila := valor.GetFila()
@@ -111,9 +111,9 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				scope.Consola += msg + "\n"
 			}
 
-			if f.Retorno != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
+			if f.Retorno.Tipo != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
 				//Verificar que los tipos sean correctos
-				if f.Retorno != respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado).Tipo {
+				if f.Retorno.Tipo != respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado).Tipo {
 					//Error, retorna un tipo diferente
 					valor := actual.(Ast.Abstracto)
 					fila := valor.GetFila()
@@ -132,12 +132,12 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 	}
 
 	//Verificar que la funcion no sea de return y no este retornando nada
-	if f.Retorno != Ast.VOID {
+	if f.Retorno.Tipo != Ast.VOID {
 		//Error la funcion debe retornar algo
 		valor := actual.(Ast.Abstracto)
 		fila := valor.GetFila()
 		columna := valor.GetColumna()
-		msg := "Semantic error, expected " + Ast.ValorTipoDato[f.Retorno] + " , found ()." +
+		msg := "Semantic error, expected " + Ast.ValorTipoDato[f.Retorno.Tipo] + " , found ()." +
 			" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
