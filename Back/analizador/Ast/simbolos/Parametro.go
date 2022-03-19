@@ -8,12 +8,12 @@ type Parametro struct {
 	Fila            int
 	Columna         int
 	Mutable         bool
-	TipoDeclaracion Ast.TipoDato
-	TipoArray       Ast.TipoDato
+	Referencia      bool
+	TipoDeclaracion Ast.TipoRetornado
 }
 
-func NewParametro(id string, tipo Ast.TipoDato, tipoD Ast.TipoDato, mutable bool,
-	tipoArray Ast.TipoDato, fila, columna int) Parametro {
+func NewParametro(id string, tipo Ast.TipoDato, tipoD Ast.TipoRetornado, mutable bool,
+	referencia bool, fila, columna int) Parametro {
 	nP := Parametro{
 		Identificador:   id,
 		Tipo:            tipo,
@@ -21,13 +21,14 @@ func NewParametro(id string, tipo Ast.TipoDato, tipoD Ast.TipoDato, mutable bool
 		Fila:            fila,
 		Columna:         columna,
 		TipoDeclaracion: tipoD,
+		Referencia:      referencia,
 	}
 	return nP
 }
 
 func (p Parametro) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	return Ast.TipoRetornado{
-		Tipo:  p.TipoDeclaracion,
+		Tipo:  p.TipoDeclaracion.Tipo,
 		Valor: p.Identificador,
 	}
 }
@@ -41,4 +42,13 @@ func (p Parametro) GetFila() int {
 }
 func (p Parametro) GetColumna() int {
 	return p.Columna
+}
+
+func (a Parametro) FormatearTipo(scope *Ast.Scope) Ast.TipoRetornado {
+	if EsPosibleReferencia(a.TipoDeclaracion.Tipo) {
+		nTipo := GetTipoEstructura(a.TipoDeclaracion, scope, a)
+		return nTipo
+	} else {
+		return a.TipoDeclaracion
+	}
 }

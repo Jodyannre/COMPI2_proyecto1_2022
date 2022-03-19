@@ -62,6 +62,10 @@ func (v Vector) GetSize() int {
 	return v.Size
 }
 
+func (v Vector) GetMutable() bool {
+	return v.Mutable
+}
+
 func (v Vector) CalcularCapacity(size int, capacity int) int {
 	if size == 1 && capacity == 0 {
 		return 4

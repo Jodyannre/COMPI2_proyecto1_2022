@@ -53,8 +53,8 @@ func (d DeclaracionFuncion) Run(scope *Ast.Scope) interface{} {
 	}
 	//Verificar el tipo del retorno
 	if d.Retorno.Tipo != Ast.VOID {
-		if !expresiones.EsTipoFinal(d.Retorno.Tipo) || d.Retorno.Tipo == Ast.STRUCT {
-			nTipo := GetTipoEstructura(d.Retorno, scope)
+		if !expresiones.EsTipoFinal(d.Retorno.Tipo) || d.Retorno.Tipo == Ast.ACCESO_MODULO {
+			nTipo := GetTipoEstructura(d.Retorno, scope, d)
 			errors := ErrorEnTipo(nTipo)
 			if errors.Tipo == Ast.ERROR {
 				msg := "Semantic error, type error." +

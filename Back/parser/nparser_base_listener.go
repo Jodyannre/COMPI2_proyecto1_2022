@@ -426,3 +426,15 @@ func (s *BaseNparserListener) EnterAcceso_modulo_elemento_final(ctx *Acceso_modu
 // ExitAcceso_modulo_elemento_final is called when production acceso_modulo_elemento_final is exited.
 func (s *BaseNparserListener) ExitAcceso_modulo_elemento_final(ctx *Acceso_modulo_elemento_finalContext) {
 }
+
+// EnterControl_for is called when production control_for is entered.
+func (s *BaseNparserListener) EnterControl_for(ctx *Control_forContext) {}
+
+// ExitControl_for is called when production control_for is exited.
+func (s *BaseNparserListener) ExitControl_for(ctx *Control_forContext) {}
+
+// EnterRango_for is called when production rango_for is entered.
+func (s *BaseNparserListener) EnterRango_for(ctx *Rango_forContext) {}
+
+// ExitRango_for is called when production rango_for is exited.
+func (s *BaseNparserListener) ExitRango_for(ctx *Rango_forContext) {}

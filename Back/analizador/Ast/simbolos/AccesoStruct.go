@@ -174,3 +174,7 @@ func (v AccesoStruct) GetFila() int {
 func (v AccesoStruct) GetColumna() int {
 	return v.Columna
 }
+
+func (a AccesoStruct) GetIdentificador() string {
+	return a.NombreStruct.(expresiones.Identificador).Valor
+}

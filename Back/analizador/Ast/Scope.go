@@ -35,6 +35,7 @@ func NewScope(name string, prev *Scope) Scope {
 func (scope *Scope) Add(simbolo Simbolo) {
 	var global *Scope = scope
 	id := strings.ToUpper(simbolo.Identificador)
+
 	//Agregar el símbolo al scope actual
 	scope.tablaSimbolos[id] = simbolo
 
@@ -151,34 +152,40 @@ func (scope *Scope) Exist_fms_declaracion(ident string) Simbolo {
 func (scope *Scope) Exist_fms_local(ident string) Simbolo {
 	//Buscar entodos los scopes desde un local
 	//Primero conseguir el scope global
+	scope_Actual := scope
 	scope_global := scope
 	var retorno TipoRetornado
 	var simboloRetorno Simbolo
 	id := strings.ToUpper(ident)
-	for scope_global = scope; scope_global.prev != nil; scope_global = scope_global.prev {
+	//Buscar el scope global
+	for scope_Actual = scope; scope_Actual != nil; scope_Actual = scope_Actual.prev {
+		scope_global = scope_Actual
+	}
+
+	for scope_Actual = scope; scope_Actual != nil; scope_Actual = scope_Actual.prev {
 
 		//Buscar el módulo en los entornos locales
 		//Verificar que la fms exista y si puede ser accedida
-		retorno = buscarMap(id, MODULO, scope_global, scope)
+		retorno = buscarMap(id, MODULO, scope_Actual, scope)
 		if retorno.Tipo != NULL {
 			simboloRetorno = retorno.Valor.(Simbolo)
-			if !simboloRetorno.Publico {
+			if !simboloRetorno.Publico && simboloRetorno.Entorno != scope_global {
 				return NewSimbolo("", nil, -1, -1, ERROR_ACCESO_PRIVADO, false, false)
 			}
 			return retorno.Valor.(Simbolo)
 		}
-		retorno = buscarMap(id, STRUCT, scope_global, scope)
+		retorno = buscarMap(id, STRUCT, scope_Actual, scope)
 		if retorno.Tipo != NULL {
 			simboloRetorno = retorno.Valor.(Simbolo)
-			if !simboloRetorno.Publico {
+			if !simboloRetorno.Publico && simboloRetorno.Entorno != scope_global {
 				return NewSimbolo("", nil, -1, -1, ERROR_ACCESO_PRIVADO, false, false)
 			}
 			return retorno.Valor.(Simbolo)
 		}
-		retorno = buscarMap(id, FUNCION, scope_global, scope)
+		retorno = buscarMap(id, FUNCION, scope_Actual, scope)
 		if retorno.Tipo != NULL {
 			simboloRetorno = retorno.Valor.(Simbolo)
-			if !simboloRetorno.Publico {
+			if !simboloRetorno.Publico && simboloRetorno.Entorno != scope_global {
 				return NewSimbolo("", nil, -1, -1, ERROR_ACCESO_PRIVADO, false, false)
 			}
 			return retorno.Valor.(Simbolo)
@@ -338,6 +345,7 @@ func (scope *Scope) GetSimbolo(ident string) Simbolo {
 		}
 	}
 	var simboloNull Simbolo
+	simboloNull.Tipo = NULL
 	return simboloNull
 }
 

@@ -71,6 +71,43 @@ func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	if dimension.Tipo == Ast.ERROR {
 		return dimension
 	}
+
+	//Verificar los tipos
+
+	//Verificar que el tipo del vector no sea un acceso a modulo
+
+	if d.TipoArray.Tipo == Ast.ACCESO_MODULO || EsTipoEspecial(d.TipoArray.Tipo) {
+		//Traer el tipo y cambiar el tipo de la declaración
+		nTipo := GetTipoEstructura(d.TipoArray, scope)
+		if nTipo.Tipo == Ast.ERROR {
+			return nTipo
+		}
+		if nTipo.Tipo == Ast.STRUCT_TEMPLATE {
+			nTipo.Tipo = Ast.STRUCT
+		}
+		d.TipoArray = nTipo
+	}
+
+	//Verificar que los tipos de los vectores sean correctos
+	if !expresiones.CompararTipos(d.TipoArray, expresiones.GetTipoFinal(valor.Valor.(expresiones.Array).TipoDelArray)) {
+
+		if valor.Valor.(expresiones.Array).TipoArray == Ast.INDEFINIDO {
+			//Es uno vacio y no hay error, modificar el tipo
+		} else {
+			msg := "Semantic error, can't initialize a Vec<" + expresiones.Tipo_String(d.TipoArray) +
+				"> with Vec<" + expresiones.Tipo_String(valor.Valor.(expresiones.Vector).TipoVector) + "> value." +
+				" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
+			nError := errores.NewError(d.Fila, d.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+	}
+
 	//Recuperar el tipo del array que se espera desde dimension
 	//d.TipoArray = d.Dimension.(expresiones.DimensionArray).TipoArray
 

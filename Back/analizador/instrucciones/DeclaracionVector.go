@@ -74,6 +74,19 @@ func (d DeclaracionVector) Run(scope *Ast.Scope) interface{} {
 			Valor: nError,
 		}
 	}
+	//Verificar que el tipo del vector no sea un acceso a modulo
+
+	if d.TipoVector.Tipo == Ast.ACCESO_MODULO || EsTipoEspecial(d.TipoVector.Tipo) {
+		//Traer el tipo y cambiar el tipo de la declaración
+		nTipo := GetTipoEstructura(d.TipoVector, scope)
+		if nTipo.Tipo == Ast.ERROR {
+			return nTipo
+		}
+		if nTipo.Tipo == Ast.STRUCT_TEMPLATE {
+			nTipo.Tipo = Ast.STRUCT
+		}
+		d.TipoVector = nTipo
+	}
 
 	//Verificar que los tipos de los vectores sean correctos
 	if !expresiones.CompararTipos(d.TipoVector, valor.Valor.(expresiones.Vector).TipoVector) {

@@ -38,6 +38,7 @@ FN              : 'fn';
 ABS             : 'abs';
 SQRT            : 'sqrt';
 CLONE           : 'clone';
+CHARS           : 'chars';
 NEW             : 'new';
 LEN             : 'len';
 PUSH            : 'push';

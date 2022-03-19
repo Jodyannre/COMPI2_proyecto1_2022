@@ -158,7 +158,7 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	//Verificar si los atributos existen y si son del mismo tipo
 	for i := 0; i < s.AtributosIn.Len(); i++ {
-		atributoActual := s.AtributosIn.GetValue(i).(Atributo)
+		atributoActual := s.AtributosIn.GetValue(i).(*Atributo)
 		_, ok := plantilla.Atributos[atributoActual.Nombre]
 		//Verificar que exista el atributo
 		if !ok {
@@ -186,17 +186,17 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		if valorAtt.Tipo == Ast.ERROR {
 			return valorAtt
 		}
-		attActual := valorAtt.Valor.(Atributo)
+		attActual := valorAtt.Valor.(*Atributo)
 		if valorAtt.Tipo == Ast.ERROR {
 			return valorAtt
 		}
 
 		attPlantilla := plantilla.Atributos[atributoActual.Nombre]
-		validadorTipo := CompararTipos(attActual.TipoAtributo.(Ast.TipoRetornado),
-			attPlantilla.TipoAtributo.(Ast.TipoRetornado))
+		validadorTipo := CompararTipos(attActual.TipoAtributo,
+			attPlantilla.TipoAtributo)
 		if !validadorTipo {
-			if attPlantilla.TipoAtributo.(Ast.TipoRetornado).Tipo == Ast.DIMENSION_ARRAY {
-				listaPrePlantilla := attPlantilla.TipoAtributo.(Ast.TipoRetornado).Valor.(expresiones.DimensionArray).GetValue(scope)
+			if attPlantilla.TipoAtributo.Tipo == Ast.DIMENSION_ARRAY {
+				listaPrePlantilla := attPlantilla.TipoAtributo.Valor.(expresiones.DimensionArray).GetValue(scope)
 				listaEntrante := fn_array.ConcordanciaArray(attActual.Valor.(Ast.TipoRetornado).Valor.(expresiones.Array))
 				arrayDimension := arraylist.New()
 				for i := 0; i < listaPrePlantilla.Valor.(*arraylist.List).Len(); i++ {
@@ -229,9 +229,9 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				//Recuperar el tipo de la plantilla
 				tipoArrayPlantilla := Ast.TipoRetornado{
 					Tipo:  Ast.ARRAY,
-					Valor: attPlantilla.TipoAtributo.(Ast.TipoRetornado).Valor.(expresiones.DimensionArray).TipoArray,
+					Valor: attPlantilla.TipoAtributo.Valor.(expresiones.DimensionArray).TipoArray,
 				}
-				validadorTipo := CompararTipos(attActual.TipoAtributo.(Ast.TipoRetornado),
+				validadorTipo := CompararTipos(attActual.TipoAtributo,
 					tipoArrayPlantilla)
 				if !validadorTipo {
 					return GetmsjError(validadorTipo, attActual, attPlantilla, scope)
@@ -243,24 +243,48 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 
 		//Todo bien ,entonces crear el struct
-		nuevoSimbolo := Ast.NewSimbolo(atributoActual.Nombre, attActual.Valor, atributoActual.Fila, atributoActual.Columna, attActual.TipoAtributo.(Ast.TipoRetornado).Tipo, atributoActual.Mutable, atributoActual.Publico)
+		nuevoSimbolo := Ast.NewSimbolo(atributoActual.Nombre, attActual.Valor,
+			atributoActual.Fila, atributoActual.Columna,
+			attActual.TipoAtributo.Tipo, atributoActual.Mutable, atributoActual.Publico)
 		nuevoSimbolo.Publico = attPlantilla.Publico
+		//Si el tipo es acceso modulo, modificarlo y dejarlo como un struct
+
 		newScope.Add(nuevoSimbolo)
 	}
 	//Agregar el scope al struct y finalizar retornando el scope
 	s.Entorno = &newScope
+	if s.Plantilla.Tipo == Ast.ACCESO_MODULO {
+		//Ejecutar el acceso y cambiar el tipo de la declaración
+		nTipo := GetTipoEstructura(s.Plantilla, scope, s)
+		errors := ErrorEnTipo(nTipo)
+		if errors.Tipo == Ast.ERROR {
+			msg := "Semantic error, type error." +
+				" -- Line:" + strconv.Itoa(s.Fila) + " Column: " + strconv.Itoa(s.Columna)
+			nError := errores.NewError(s.Fila, s.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+		//De lo contrario actualizar el tipo de la declaracion
+		s.Plantilla = nTipo
+	}
+
 	return Ast.TipoRetornado{
 		Tipo:  Ast.STRUCT,
 		Valor: s,
 	}
 }
 
-func GetmsjError(validadorTipo bool, atributo, template Atributo, scope *Ast.Scope) Ast.TipoRetornado {
+func GetmsjError(validadorTipo bool, atributo, template *Atributo, scope *Ast.Scope) Ast.TipoRetornado {
 	fila := atributo.Fila
 	columna := atributo.Columna
 	msg := ""
-	msg = "Semantic error,  can't assign " + Tipo_String(atributo.TipoAtributo.(Ast.TipoRetornado)) +
-		" to field named \"" + template.Nombre + "\" (" + Tipo_String(template.TipoAtributo.(Ast.TipoRetornado)) +
+	msg = "Semantic error,  can't assign " + Tipo_String(atributo.TipoAtributo) +
+		" to field named \"" + template.Nombre + "\" (" + Tipo_String(template.TipoAtributo) +
 		") -- Line: " + strconv.Itoa(fila) +
 		" Column: " + strconv.Itoa(columna)
 	nError := errores.NewError(fila, columna, msg)
@@ -295,4 +319,8 @@ func (s StructInstancia) GetPlantilla(scope *Ast.Scope) string {
 		}
 	}
 	return s.Plantilla.Valor.(string)
+}
+
+func (s StructInstancia) SetMutabilidad(mutable bool) {
+	s.Mutable = mutable
 }

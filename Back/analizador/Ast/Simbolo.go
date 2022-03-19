@@ -1,5 +1,7 @@
 package Ast
 
+import "reflect"
+
 type Simbolo struct {
 	Identificador      string
 	Valor              interface{}
@@ -57,13 +59,24 @@ func (s Simbolo) NewSimboloReporte(scope *Scope) SimboloReporte {
 	} else {
 		nombreScope = "Local"
 	}
-
-	return SimboloReporte{
-		Identificador: s.Identificador,
-		TipoSimbolo:   tipo,
-		TipoDato:      ValorTipoDato[s.Valor.(TipoRetornado).Tipo],
-		Scope:         nombreScope,
-		Fila:          s.Fila,
-		Columna:       s.Columna,
+	if reflect.TypeOf(s.Valor) == reflect.TypeOf(TipoRetornado{}) {
+		return SimboloReporte{
+			Identificador: s.Identificador,
+			TipoSimbolo:   tipo,
+			TipoDato:      ValorTipoDato[s.Valor.(TipoRetornado).Tipo],
+			Scope:         nombreScope,
+			Fila:          s.Fila,
+			Columna:       s.Columna,
+		}
+	} else {
+		return SimboloReporte{
+			Identificador: s.Identificador,
+			TipoSimbolo:   tipo,
+			TipoDato:      ValorTipoDato[s.Valor.(*TipoRetornado).Tipo],
+			Scope:         nombreScope,
+			Fila:          s.Fila,
+			Columna:       s.Columna,
+		}
 	}
+
 }

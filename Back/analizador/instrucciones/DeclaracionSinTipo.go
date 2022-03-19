@@ -50,8 +50,8 @@ func (d DeclaracionSinTipo) Run(scope *Ast.Scope) interface{} {
 	} else {
 		preValor = d.Valor.(Ast.Expresion).GetValue(scope)
 	}
-	valor := preValor.(Ast.TipoRetornado)
-
+	nuevoValor := preValor.(Ast.TipoRetornado)
+	valor := nuevoValor
 	//Revisar si el retorno es un error
 	if valor.Tipo == Ast.ERROR {
 		return valor
@@ -59,6 +59,19 @@ func (d DeclaracionSinTipo) Run(scope *Ast.Scope) interface{} {
 
 	if !existe {
 		//No existe, entonces agregarla
+		//Verificar la mutabilidad para cambiarla si es un vector o un array o un struct
+		//Agregar el tipo al simbolo en el apartado de tipo especial para despues
+		if valor.Tipo == Ast.VECTOR {
+			elemento := valor.Valor.(expresiones.Vector)
+			elemento.Mutable = d.Mutable
+			valor.Valor = elemento
+		} else if valor.Tipo == Ast.ARRAY {
+			elemento := valor.Valor.(expresiones.Array)
+			elemento.Mutable = d.Mutable
+			valor.Valor = elemento
+		} else if valor.Tipo == Ast.STRUCT {
+			valor.Valor.(Ast.Structs).SetMutabilidad(d.Mutable)
+		}
 		//Crear símbolo y agregarlo a la tabla del entorno actual
 		nSimbolo = Ast.Simbolo{
 			Identificador: d.Id,

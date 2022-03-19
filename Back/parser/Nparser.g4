@@ -133,6 +133,7 @@ instruccion returns[interface{} ex]
             |control_match              {$ex = $control_match.ex}   
             |control_loop               {$ex = $control_loop.ex}
             |control_while              {$ex = $control_while.ex}
+            |control_for                {$ex = $control_for.ex}
             |ibreak PUNTOCOMA           {$ex = $ibreak.ex}             
             |icontinue PUNTOCOMA        {$ex = $icontinue.ex} 
             |ireturn PUNTOCOMA          {$ex = $ireturn.ex} 
@@ -156,6 +157,7 @@ instruccionControl returns[interface{} ex]
             |control_match              {$ex = $control_match.ex}   
             |control_loop               {$ex = $control_loop.ex}
             |control_while              {$ex = $control_while.ex}
+            |control_for                {$ex = $control_for.ex}
             |ibreak PUNTOCOMA           {$ex = $ibreak.ex}             
             |icontinue PUNTOCOMA        {$ex = $icontinue.ex} 
             |ireturn PUNTOCOMA          {$ex = $ireturn.ex} 
@@ -193,6 +195,34 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
             false,false,fila,columna)
         }
+    | LET ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            tipoVector := $tipo.ex
+            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,false,false,fila,columna)    
+    
+        }
+    | LET MUT ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            tipoVector := $tipo.ex
+            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,true,false,fila,columna)            
+        }
+    | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,false,false,$expresion.ex,fila,columna)            
+        }
+    | LET MUT ID DOSPUNTOS dimension=dimension_array IGUAL expresion
+        {
+            fila := $LET.line
+            columna := $LET.pos 
+            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,true,false,$expresion.ex,fila,columna)            
+        }
+        
     | LET ID IGUAL control_expresion
         {
             fila := $LET.line
@@ -276,36 +306,7 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
             true,false,fila,columna)
         }
-
-    | LET ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
-        {
-            fila := $LET.line
-            columna := $LET.pos 
-            tipoVector := $tipo.ex
-            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,false,false,fila,columna)    
-    
-        }
-    | LET MUT ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
-        {
-            fila := $LET.line
-            columna := $LET.pos 
-            tipoVector := $tipo.ex
-            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,true,false,fila,columna)            
-        }
-    | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion
-        {
-            fila := $LET.line
-            columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,false,false,$expresion.ex,fila,columna)            
-        }
-    | LET MUT ID DOSPUNTOS dimension=dimension_array IGUAL expresion
-        {
-            fila := $LET.line
-            columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,true,false,$expresion.ex,fila,columna)            
-        }
    
-
 
 
 ;
@@ -543,7 +544,14 @@ asignacion returns[Ast.Instruccion ex]
     {
         fila := $IGUAL.line
         columna := $IGUAL.pos-1
-        $ex = instrucciones.NewAsignacion($idExp.ex,$valor.ex,fila,columna)           
+        elemento := localctx.(*AsignacionContext).GetIdExp().GetEx()
+        _,tipoParticular := elemento.(Ast.Abstracto).GetTipo()
+        if tipoParticular == Ast.ACCESO_STRUCT{
+            $ex = simbolos.NewAsignacionAccesoStruct(elemento,$valor.ex,fila,columna)  
+        }else{
+            $ex = instrucciones.NewAsignacion($idExp.ex,$valor.ex,fila,columna)  
+        }
+             
     }
 
     | ex1=expresion PUNTO atributo=ID IGUAL ex2=expresion
@@ -697,9 +705,15 @@ expresion returns[Ast.Expresion ex]
         {
             $ex = $struct_instancia.ex   
         }
-    |   acceso_modulo
+    |   acceso_modulo LLAVE_IZQ att=atributos_struct_instancia LLAVE_DER
         {
-            $ex = $acceso_modulo.ex   
+            fila := $LLAVE_IZQ.line
+            columna := $LLAVE_IZQ.pos -1   
+            acceso:= Ast.TipoRetornado{
+                Valor: $acceso_modulo.ex,
+                Tipo: Ast.ACCESO_MODULO,
+            }
+            $ex = simbolos.NewStructInstancia(acceso,$att.list,false,fila,columna)
         }
     |   obj=expresion PUNTO atributo=ID 
     {
@@ -753,6 +767,14 @@ expresion returns[Ast.Expresion ex]
             columna := $PUNTO.pos
             $ex = fn_vectores.NewRemoveVec($id.ex,$index.ex,Ast.VEC_REMOVE,fila,columna)
 
+        }
+        //Funcion to chars
+    |   ex1=expresion PUNTO CHARS PAR_IZQ PAR_DER
+        {
+            elemento := localctx.(*ExpresionContext).GetEx1().GetEx()
+            fila := elemento.(Ast.Abstracto).GetFila()
+            columna := elemento.(Ast.Abstracto).GetColumna()
+            $ex = fn_primitivas.NewToChars($ex1.ex,fila,columna)
         }
     |   ID		
         {
@@ -1213,31 +1235,54 @@ parametros_funcion returns [*arraylist.List list]
 ;
 
 parametro returns [Ast.Expresion ex]
-    : MUT ID DOSPUNTOS tipo_dato
+    : MUT ID DOSPUNTOS tipo_dato_tipo
         {
             fila := $MUT.line
             columna := $MUT.pos
-            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,true,Ast.NULL,fila,columna)
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,true,false,fila,columna)
 
         }
-    | ID DOSPUNTOS tipo_dato
+    | ID DOSPUNTOS tipo_dato_tipo
         {
             fila := $ID.line
             columna := $ID.pos
-            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato.ex,false,Ast.NULL,fila,columna)
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,false,false,fila,columna)
             
         }
-    | ID DOSPUNTOS AMPERSAND MUT CORCHETE_IZQ tipo_dato CORCHETE_DER
+    | ID DOSPUNTOS AMPERSAND tipo_dato_tipo
+        {
+            fila := $ID.line
+            columna := $ID.pos
+            $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,false,true,fila,columna)
+            
+        }
+    /*
+    | ID DOSPUNTOS AMPERSAND MUT CORCHETE_IZQ tipo_dato_tipo CORCHETE_DER
     {
         fila := $ID.line
         columna := $ID.pos
-        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,Ast.ARRAY,true,$tipo_dato.ex,fila,columna)
+        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,true,true,fila,columna)
     }
-    | ID DOSPUNTOS AMPERSAND MUT VEC MENOR tipo_dato MAYOR
+   
+    | ID DOSPUNTOS AMPERSAND MUT VEC MENOR tipo_dato_tipo MAYOR
     {
         fila := $ID.line
         columna := $ID.pos
-        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,Ast.VECTOR,true,$tipo_dato.ex,fila,columna)
+        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,true,true,fila,columna)
+    }
+    
+    | ID DOSPUNTOS VEC MENOR tipo_dato_tipo MAYOR
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,false,false,fila,columna)
+    }
+    */
+    | ID DOSPUNTOS AMPERSAND MUT tipo_dato_tipo
+    {
+        fila := $ID.line
+        columna := $ID.pos
+        $ex = simbolos.NewParametro($ID.text,Ast.PARAMETRO,$tipo_dato_tipo.ex,true,true,fila,columna)
     }
 ;
 
@@ -1280,20 +1325,22 @@ parametro_llamada_referencia returns [Ast.Expresion ex]
         columna := temp.(Ast.Abstracto).GetColumna()
         $ex = simbolos.NewValor($e.ex, Ast.VALOR , false, false, fila, columna)
     }
-    |   AMPERSAND MUT ID
+    |   AMPERSAND MUT id=expresion
     {
         fila := $AMPERSAND.line
         columna := $AMPERSAND.pos
-        id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
-        $ex = simbolos.NewValor(id, Ast.VALOR , true, true, fila, columna)
+        
+        $ex = simbolos.NewValor($id.ex, Ast.VALOR , true, true, fila, columna)
     }
-    |   AMPERSAND ID
+    //id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
+    |   AMPERSAND id=expresion
     {
         fila := $AMPERSAND.line
         columna := $AMPERSAND.pos
-        id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
-        $ex = simbolos.NewValor(id, Ast.VALOR , true, false, fila, columna)        
+        
+        $ex = simbolos.NewValor($id.ex, Ast.VALOR , true, false, fila, columna)        
     }
+    //id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
 ;
 
 
@@ -1507,7 +1554,59 @@ acceso_modulo_elemento_final returns [Ast.Expresion ex]
 ;
 
 
+control_for returns [Ast.Instruccion ex]
+    :   FOR ID IN rango_for bloque
+        {
+            fila:= $FOR.line
+            columna:= $FOR.pos -1 
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
+            $ex = bucles.NewFor(id,$rango_for.ex,$bloque.list,fila,columna)      
+        }
+        //Los fors vacios sin instrucciones
+    |   FOR ID IN rango_for LLAVE_IZQ LLAVE_DER
+        {
+            fila:= $FOR.line
+            columna:= $FOR.pos -1 
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)  
+            listaVacia := arraylist.New()
+            $ex = bucles.NewFor(id,$rango_for.ex,listaVacia,fila,columna) 
+        }
+;
+
+
+
+rango_for returns [Ast.Expresion ex]
+    :   ex1=expresion RANGO ex2=expresion
+        {
+            elemento := localctx.(*Rango_forContext).GetEx1().GetEx()
+            fila:= elemento.(Ast.Abstracto).GetFila()
+            columna:= elemento.(Ast.Abstracto).GetColumna()  
+            $ex = bucles.NewRange(Ast.RANGE_RANGO,$ex1.ex,$ex2.ex,fila,columna)       
+        }
+    |   ex3=expresion
+    {
+            elemento := localctx.(*Rango_forContext).GetEx3().GetEx()
+            fila:= elemento.(Ast.Abstracto).GetFila()
+            columna:= elemento.(Ast.Abstracto).GetColumna()    
+            expresionVacia := expresiones.NewPrimitivo(nil,Ast.NULL,fila,columna) 
+            $ex = bucles.NewRange(Ast.RANGE_EXPRESION,$expresion.ex,expresionVacia,fila,columna)      
+    }
+;
+
+
+
 /* 
+fn_chars returns [Ast.Expresion ex]
+    :   expresion PUNTO CHARS PAR_IZQ PAR_DER
+    {
+            elemento := localctx.(*Fn_charsContext).GetExpresion().GetEx()
+            fila := elemento.(Ast.Abstracto).GetFila()
+            columna := elemento.(Ast.Abstracto).GetColumna()
+            $ex = fn_primitivas.NewToChars($expresion.ex,fila,columna)
+    }
+;
+
+
 acceso_atributo_struct returns[Ast.Expresion ex]
     :
      

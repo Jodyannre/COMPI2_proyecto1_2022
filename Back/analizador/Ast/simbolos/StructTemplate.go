@@ -11,7 +11,7 @@ import (
 type StructTemplate struct {
 	Tipo        Ast.TipoDato
 	Nombre      string
-	Atributos   map[string]Atributo
+	Atributos   map[string]*Atributo
 	AtributosIn *arraylist.List
 	Publico     bool
 	Fila        int
@@ -19,7 +19,7 @@ type StructTemplate struct {
 }
 
 func NewStructTemplate(nombre string, atributos *arraylist.List, publico bool, fila, columna int) StructTemplate {
-	att := make(map[string]Atributo)
+	att := make(map[string]*Atributo)
 	//Agregar los elementos al nuevo struct template
 	nuevo := StructTemplate{
 		Tipo:        Ast.STRUCT_TEMPLATE,
@@ -35,13 +35,14 @@ func NewStructTemplate(nombre string, atributos *arraylist.List, publico bool, f
 
 func (s StructTemplate) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	sinAtributos := false
+	var resultadoFormatoTipo Ast.TipoRetornado
 	if s.AtributosIn.Len() == 0 {
 		//No tiene atributos, pero no es error
 		sinAtributos = true
 	}
 	if !sinAtributos {
 		for i := 0; i < s.AtributosIn.Len(); i++ {
-			att_val := s.AtributosIn.GetValue(i).(Atributo)
+			att_val := s.AtributosIn.GetValue(i).(*Atributo)
 			//atributo := att_val.GetValue(scope)
 			for key, _ := range s.Atributos {
 				if key == att_val.Nombre {
@@ -57,6 +58,10 @@ func (s StructTemplate) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 						Valor: nError,
 					}
 				}
+			}
+			resultadoFormatoTipo = att_val.FormatearTipo(scope)
+			if resultadoFormatoTipo.Tipo == Ast.ERROR {
+				return resultadoFormatoTipo
 			}
 			s.Atributos[att_val.Nombre] = att_val
 		}

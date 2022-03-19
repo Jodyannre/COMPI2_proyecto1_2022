@@ -17,87 +17,50 @@ type Key struct {
 }
 
 func main() {
-	/*
-		match, _ := regexp.MatchString("[{ *}|{:?}]", "peach {   } hola mundo {:?}")
-		fmt.Println(match)
-		formato1, _ := regexp.Compile("{ *}|{:[\x3F]}")
-		formato2, _ := regexp.Compile("lala")
-		cadena := "El resultado de {:?} se obtiene por sumar {   }{}, pero el {} me gusta más."
-
-		fmt.Println(formato1.MatchString(cadena))
-		fmt.Println(formato2.MatchString(cadena))
-
-		nuevo := formato1.Split(cadena, -1)
-		array := arraylist.New()
-		array2 := formato1.FindAllStringIndex(cadena, -1)
-		subString := cadena[42:47]
-		subString = strings.Replace(subString, " ", "", -1)
-		fmt.Println(subString)
-		fmt.Println(array2)
-		var salida string
-		array.Add("5")
-		array.Add("2")
-		array.Add("3")
-		array.Add("6")
-		for i := range nuevo {
-			if nuevo[i] == "" && i < 1 {
-				//En el primero agrego el primer elemento
-				salida += array.GetValue(i).(string)
-			} else if nuevo[i] == "" && i == len(nuevo)-1 {
-				//En el último no hago nada
-			} else {
-				if i >= array.Len() {
-					salida += nuevo[i]
-				} else {
-					salida += nuevo[i] + array.GetValue(i).(string)
-				}
-			}
-		}
-
-		fmt.Println(salida)
-	*/
 	var input string = `
 
-	struct Carro{
-		modelo: String,
-		color: String,
-		anio: i64
+	struct Prueba{
+		nombre: String,
+		edad: i64
 	}
-	mod Inventario{
-		pub struct Caja{
-			total: f64,
-			actual: f64
+/*
+	mod Persona{
+		pub mod Empleado{
+			pub struct Cuerpo{
+				brazos: i64,
+				piernas: i64
+			}
 		}
-		pub fn saludar(){
-			println!("Hola buenos días.");
-		}
+	}
+*/
+	fn main(){
+		let mut instancia = Prueba{nombre:"Jose".to_string(),edad:34};
+		//instancia.nombre = "Mariano".to_string();
+		let mut vector = vec![instancia];
+		let vector2 = vector[0];
+		vector2.nombre = "Mariano".to_string();
+		println!("{}",instancia.nombre);
 	}
 
+	/*
 	fn main (){
-		let mut nuevoCarro = Carro{
-			modelo:"Toyota Yaris".to_string(),
-			color: "rojo".to_string(),
-			anio: 2011
+		let mut nuevoVector = vec![5,4,3,2,1];
+		let nuevaPersona = Persona::Empleado::Cuerpo{
+			brazos:2,
+			piernas:2
 		};
-		Inventario::saludar();
-		let variable1 = Inventario::Caja{
-			total: 2.25,
-			actual: 5.75
-		};
-		let mut variable2: Inventario::Caja;
-		let variable3: Inventario::Caja = Inventario::Caja{
-			total: 2.25,
-			actual: 5.75			
-		};
+		imprimir(nuevoVector,&mut nuevoVector,nuevaPersona);
+		println!("{}",nuevaPersona.brazos);
+	}
 
-		println!("{} {}",variable3.total,variable3.actual);
+	fn imprimir(valor:Vec<i64>,valor2: &mut Vec<i64>, cuerpo: Persona::Empleado::Cuerpo){
+
+		println!("La cantidad de brazos es: {}",cuerpo.brazos);
+		cuerpo.brazos = 4;
+		println!("{:?}",valor);
 	}
-	fn imprimirAlgo() -> Carro{
-		println!("Todavia sin funcionalidad");
-	}
-	fn funcion2() -> Inventario::Caja{
-		println!("Todavia sin funcionalidad 2");
-	}
+*/
+
 
 	`
 

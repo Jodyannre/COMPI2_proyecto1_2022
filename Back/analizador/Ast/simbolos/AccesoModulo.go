@@ -109,7 +109,7 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	}
 
 	//Iterar los elementos para buscar el acceso
-	for i := 1; i < a.Elementos.Len(); i-- {
+	for i := 1; i < a.Elementos.Len(); i++ {
 		elementoActual := a.Elementos.GetValue(i)
 		_, tipoParticular = elementoActual.(Ast.Abstracto).GetTipo()
 		if tipoParticular == Ast.IDENTIFICADOR {
@@ -118,9 +118,9 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			//Verificar que exista el elemento
 			simboloElementoActual = scopeValido.Exist_fms_local(idElementString)
 			if simboloElementoActual.Tipo == Ast.ERROR_ACCESO_PRIVADO {
-				fila := idElementoActual.(Ast.Abstracto).GetFila()
-				columna := idElementoActual.(Ast.Abstracto).GetColumna()
-				msg := "Semantic error, the elemento \"" + simboloElementoActual.Identificador + "\", is private." +
+				fila := elementoActual.(Ast.Abstracto).GetFila()
+				columna := elementoActual.(Ast.Abstracto).GetColumna()
+				msg := "Semantic error, the elemento \"" + idElementString + "\", is private." +
 					" -- Line: " + strconv.Itoa(fila) +
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)

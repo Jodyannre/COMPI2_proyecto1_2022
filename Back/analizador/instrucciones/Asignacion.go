@@ -39,7 +39,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 	_, tipoParticular := a.Id.(Ast.Abstracto).GetTipo()
 	//Verificar que sea un identificador
 	if tipoParticular != Ast.IDENTIFICADOR && tipoParticular != Ast.VEC_ACCESO &&
-		tipoParticular != Ast.ACCESO_ARRAY {
+		tipoParticular != Ast.ACCESO_ARRAY && tipoParticular != Ast.ACCESO_STRUCT {
 		//Error, se espera un identificador. un acceso a vector o un acceso a un array
 		msg := "Semantic error, expected IDENTIFICADOR, found " + Ast.ValorTipoDato[tipoParticular] +
 			". -- Line: " + strconv.Itoa(a.Id.(Ast.Abstracto).GetFila()) +
@@ -76,7 +76,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			resultado = a.AsignarAccesoVector(id, scope)
 		}
 
-	} else {
+	} else if tipoParticular == Ast.ACCESO_ARRAY {
 		_, tipoParticular := a.Id.(fn_array.AccesoArray).Identificador.(Ast.Abstracto).GetTipo()
 		if tipoParticular != Ast.IDENTIFICADOR {
 			msg := "Semantic error, expected IDENTIFICADOR, found " + Ast.ValorTipoDato[tipoParticular] +
@@ -403,7 +403,9 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 				}
 
 				//Buscar la posición
-				resultadoAsignacion = fn_vectores.UpdateElemento(array.(expresiones.Vector), prePos, posiciones, scope, valor)
+				//Crear un nuevo valor
+				nuevoValor := valor
+				resultadoAsignacion = fn_vectores.UpdateElemento(array.(expresiones.Vector), prePos, posiciones, scope, nuevoValor)
 				if resultadoAsignacion.Tipo == Ast.ERROR {
 					return resultadoAsignacion
 				}
@@ -592,8 +594,9 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 					}
 				}
 			}
-
-			simbolo_id.Valor = valor
+			//Copiar valor
+			nuevoValor := valor
+			simbolo_id.Valor = nuevoValor
 			scope.UpdateSimbolo(id, simbolo_id)
 		} else {
 			//Revisar si el retorno es un error
@@ -790,8 +793,9 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 			}
 
 			if agregarElemento {
-
-				expresiones.UpdatePosition(&vector, posicionNum, a.Valor, scope)
+				//Copiar valor
+				nuevoValor := a.Valor
+				expresiones.UpdatePosition(&vector, posicionNum, nuevoValor, scope)
 				simbolo_id.Valor = Ast.TipoRetornado{
 					Tipo:  Ast.VECTOR,
 					Valor: vector,

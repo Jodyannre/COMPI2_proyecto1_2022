@@ -12,7 +12,7 @@ var ValorTipoDato = [100]string{
 	"USIZE",
 	"CHAR",
 	"ARRAY",
-	"VECTOR",
+	"Vec<>",
 	"STRUCT",
 	"IDENTIFICADOR",
 	"LOOP_EXPRESION",
@@ -190,6 +190,9 @@ const (
 	ACCESO_STRUCT
 	ASIGNACION_STRUCT
 	FUNCION_MAIN
+	TO_CHARS
+	RANGE_EXPRESION
+	RANGE_RANGO
 )
 
 type TipoRetornado struct {

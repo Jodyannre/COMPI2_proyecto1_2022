@@ -85,7 +85,7 @@ func (d DeclaracionModulo) Run(scope *Ast.Scope) interface{} {
 		Columna:       d.Columna,
 		Tipo:          modulo.Tipo,
 		Mutable:       false,
-		Publico:       d.Publico,
+		Publico:       modulo.Valor.(Modulo).Publico,
 		Entorno:       scope,
 	}
 	//Agregar el nuevo símbolo

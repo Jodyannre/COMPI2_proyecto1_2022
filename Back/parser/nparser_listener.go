@@ -206,6 +206,12 @@ type NparserListener interface {
 	// EnterAcceso_modulo_elemento_final is called when entering the acceso_modulo_elemento_final production.
 	EnterAcceso_modulo_elemento_final(c *Acceso_modulo_elemento_finalContext)
 
+	// EnterControl_for is called when entering the control_for production.
+	EnterControl_for(c *Control_forContext)
+
+	// EnterRango_for is called when entering the rango_for production.
+	EnterRango_for(c *Rango_forContext)
+
 	// ExitInicio is called when exiting the inicio production.
 	ExitInicio(c *InicioContext)
 
@@ -403,4 +409,10 @@ type NparserListener interface {
 
 	// ExitAcceso_modulo_elemento_final is called when exiting the acceso_modulo_elemento_final production.
 	ExitAcceso_modulo_elemento_final(c *Acceso_modulo_elemento_finalContext)
+
+	// ExitControl_for is called when exiting the control_for production.
+	ExitControl_for(c *Control_forContext)
+
+	// ExitRango_for is called when exiting the rango_for production.
+	ExitRango_for(c *Rango_forContext)
 }
