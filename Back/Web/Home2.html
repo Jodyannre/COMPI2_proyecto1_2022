@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--<link rel="stylesheet" href="../css/homepage.css">
+    <script src="../js/homepage.js" defer></script>-->
+    <meta charset="UTF-8">
+    <title>Medium sample page</title>
+    <!-- Create a simple CodeMirror instance -->
+    <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+    
+</head>
+<body>
+    <textarea class="codemirror-textarea"></textarea>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script src="codemirror/lib/codemirror.js"></script>
+    <script src="js/default.js"></script>
+    <script>
+        var textArea = document.getElementById('codemirror-textarea');
+        var editor = CodeMirror.fromTextArea(textArea);
+        editor.getDoc().setValue('var msg = "Hi";');
+        console.log("culos");
+    </script>
+<button id="test-button">Ejecutar</button>
+</body>
+</html>

@@ -1,4 +1,4 @@
-package main
+package principal
 
 import (
 	"Back/analizador/Ast"
@@ -11,12 +11,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
-type Key struct {
-	Nombre string
-	Padre  string
-}
-
-func main() {
+func EjecutarPrograma(codigo string) string {
 	var input string = `
 
 	struct Prueba{
@@ -60,9 +55,8 @@ func main() {
 		println!("{:?}",valor);
 	}
 */
-
-
 	`
+	input = codigo
 
 	//Obteniendo el input
 	cadena_entrada := antlr.NewInputStream(input)
@@ -125,5 +119,5 @@ func main() {
 
 	antlr.ParseTreeWalkerDefault.Walk(nvisitor, tree)
 	fmt.Println(nvisitor.GetConsola())
-
+	return nvisitor.GetConsola()
 }

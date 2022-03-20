@@ -324,3 +324,13 @@ func (s StructInstancia) GetPlantilla(scope *Ast.Scope) string {
 func (s StructInstancia) SetMutabilidad(mutable bool) {
 	s.Mutable = mutable
 }
+
+func (s StructInstancia) Clonar(scope *Ast.Scope) StructInstancia {
+	var nombreScope string = s.Plantilla.Valor.(string)
+	newScope := Ast.NewScope(nombreScope, scope)
+	nS := StructInstancia{
+		Plantilla: s.Plantilla,
+		Entorno:   &newScope,
+	}
+	return nS
+}
