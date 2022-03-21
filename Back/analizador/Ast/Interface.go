@@ -16,7 +16,7 @@ type Abstracto interface {
 
 type Structs interface {
 	GetPlantilla(scope *Scope) string
-	SetMutabilidad(mutable bool)
+	SetMutabilidad(mutable bool) interface{}
 }
 
 type AccesosM interface {
@@ -30,4 +30,8 @@ type AbstractoM interface {
 
 type AccesoVectorAbstracto interface {
 	GetIdentificador() string
+}
+
+type Clones interface {
+	Clonar(scope *Scope) interface{}
 }

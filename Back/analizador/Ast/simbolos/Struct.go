@@ -321,16 +321,41 @@ func (s StructInstancia) GetPlantilla(scope *Ast.Scope) string {
 	return s.Plantilla.Valor.(string)
 }
 
-func (s StructInstancia) SetMutabilidad(mutable bool) {
+func (s StructInstancia) SetMutabilidad(mutable bool) interface{} {
 	s.Mutable = mutable
+	return s
 }
 
-func (s StructInstancia) Clonar(scope *Ast.Scope) StructInstancia {
-	var nombreScope string = s.Plantilla.Valor.(string)
-	newScope := Ast.NewScope(nombreScope, scope)
+func (s StructInstancia) GetMutable() bool {
+	return s.Mutable
+}
+
+func (s StructInstancia) Clonar(scope *Ast.Scope) interface{} {
+	nAtributosIn := arraylist.New()
+	var nElemento *Atributo
+
 	nS := StructInstancia{
 		Plantilla: s.Plantilla,
-		Entorno:   &newScope,
+		Entorno:   s.Entorno.Clonar(scope).(*Ast.Scope),
+		Fila:      s.Fila,
+		Columna:   s.Columna,
+		Mutable:   s.Mutable,
+		Tipo:      s.Tipo,
 	}
+	//Copiar la lista de atributos
+	for i := 0; i < s.AtributosIn.Len(); i++ {
+		elemento := s.AtributosIn.GetValue(i).(*Atributo)
+		tipoElemento := elemento.Tipo
+		if expresiones.EsVAS(tipoElemento) {
+			preElemento := elemento.Valor.(Ast.Clones).Clonar(scope)
+			valor := preElemento
+			nElemento = valor.(*Atributo)
+		} else {
+			nElemento = elemento
+		}
+		nAtributosIn.Add(nElemento)
+	}
+	nS.AtributosIn = nAtributosIn
+
 	return nS
 }

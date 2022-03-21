@@ -66,6 +66,43 @@ func (v Vector) GetMutable() bool {
 	return v.Mutable
 }
 
+func (v Vector) Clonar(scope *Ast.Scope) interface{} {
+	var nElemento interface{}
+	nLista := arraylist.New()
+	nV := Vector{
+		Fila:       v.Fila,
+		Columna:    v.Columna,
+		Capacity:   v.Capacity,
+		Size:       v.Size,
+		Vacio:      v.Vacio,
+		Mutable:    v.Mutable,
+		Tipo:       v.Tipo,
+		TipoVector: v.TipoVector,
+	}
+	for i := 0; i < v.Valor.Len(); i++ {
+		elemento := v.Valor.GetValue(i).(Ast.TipoRetornado)
+		if EsVAS(elemento.Tipo) {
+			preElemento := elemento.Valor.(Ast.Clones).Clonar(scope)
+			_, tipoParticular := preElemento.(Ast.Abstracto).GetTipo()
+			valor := Ast.TipoRetornado{Valor: preElemento}
+			switch tipoParticular {
+			case Ast.ARRAY:
+				valor.Tipo = Ast.ARRAY
+			case Ast.VECTOR:
+				valor.Tipo = Ast.VECTOR
+			case Ast.STRUCT:
+				valor.Tipo = Ast.STRUCT
+			}
+			nElemento = valor
+		} else {
+			nElemento = elemento
+		}
+		nLista.Add(nElemento)
+	}
+	nV.Valor = nLista
+	return nV
+}
+
 func (v Vector) CalcularCapacity(size int, capacity int) int {
 	if size == 1 && capacity == 0 {
 		return 4

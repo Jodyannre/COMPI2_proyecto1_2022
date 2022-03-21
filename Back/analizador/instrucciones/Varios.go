@@ -34,7 +34,10 @@ func GetTipoEspecial(tipo Ast.TipoDato, elemento interface{}, scope *Ast.Scope) 
 		if errores.Tipo == Ast.ERROR {
 			return errores
 		} else {
-			return tipoN
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ARRAY,
+				Valor: tipoN,
+			}
 		}
 	case Ast.STRUCT:
 		plantilla := elemento.(Ast.Structs).GetPlantilla(scope)
@@ -116,4 +119,14 @@ func ErrorEnTipo(tipo Ast.TipoRetornado) Ast.TipoRetornado {
 		}
 	}
 	return ErrorEnTipo(tipo.Valor.(Ast.TipoRetornado))
+}
+
+func EsAVelementos(tipo Ast.TipoDato) bool {
+	switch tipo {
+	case Ast.ARRAY_ELEMENTOS, Ast.ARRAY_FAC, Ast.VEC_ELEMENTOS,
+		Ast.VEC_FAC:
+		return true
+	default:
+		return false
+	}
 }

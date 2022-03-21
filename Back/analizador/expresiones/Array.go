@@ -88,3 +88,45 @@ func EsArray(tipo Ast.TipoDato) Ast.TipoDato {
 		return tipo
 	}
 }
+
+func (a Array) Clonar(scope *Ast.Scope) interface{} {
+	var nElemento interface{}
+	nElementos := arraylist.New()
+	nV := Array{
+		Fila:          a.Fila,
+		Columna:       a.Columna,
+		Size:          a.Size,
+		Mutable:       a.Mutable,
+		Tipo:          a.Tipo,
+		TipoArray:     a.TipoArray,
+		TipoDelArray:  a.TipoDelArray,
+		TipoDelVector: a.TipoDelVector,
+		TipoDelStruct: a.TipoDelStruct,
+	}
+	for i := 0; i < a.Elementos.Len(); i++ {
+		elemento := a.Elementos.GetValue(i).(Ast.TipoRetornado)
+		if EsVAS(elemento.Tipo) {
+			preElemento := elemento.Valor.(Ast.Clones).Clonar(scope)
+			_, tipoParticular := preElemento.(Ast.Abstracto).GetTipo()
+			valor := Ast.TipoRetornado{Valor: preElemento}
+			switch tipoParticular {
+			case Ast.ARRAY:
+				valor.Tipo = Ast.ARRAY
+			case Ast.VECTOR:
+				valor.Tipo = Ast.VECTOR
+			case Ast.STRUCT:
+				valor.Tipo = Ast.STRUCT
+			}
+			nElemento = valor
+		} else {
+			nElemento = elemento
+		}
+		nElementos.Add(nElemento)
+	}
+	nV.Elementos = nElementos
+	return nV
+}
+
+func (v Array) GetMutable() bool {
+	return v.Mutable
+}

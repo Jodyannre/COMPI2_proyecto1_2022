@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-type DeclaracionTotal struct {
+type DeclaracionNoRef struct {
 	Id      string
 	Mutable bool
 	Publico bool
@@ -17,9 +17,9 @@ type DeclaracionTotal struct {
 	Columna int
 }
 
-func NewDeclaracionTotal(id string, valor interface{}, tipo Ast.TipoRetornado, mutable, publico bool,
-	fila int, columna int) DeclaracionTotal {
-	nd := DeclaracionTotal{
+func NewDeclaracionNoRef(id string, valor interface{}, tipo Ast.TipoRetornado, mutable, publico bool,
+	fila int, columna int) DeclaracionNoRef {
+	nd := DeclaracionNoRef{
 		Id:      id,
 		Mutable: mutable,
 		Publico: publico,
@@ -31,7 +31,7 @@ func NewDeclaracionTotal(id string, valor interface{}, tipo Ast.TipoRetornado, m
 	return nd
 }
 
-func (d DeclaracionTotal) Run(scope *Ast.Scope) interface{} {
+func (d DeclaracionNoRef) Run(scope *Ast.Scope) interface{} {
 	//Verificar si es un tipo especial
 	var esEspecial bool = false
 	//Verificar que el id no exista
@@ -133,14 +133,6 @@ func (d DeclaracionTotal) Run(scope *Ast.Scope) interface{} {
 			}
 		}
 
-		//Ejecutare el arrayelementos
-		/*
-			if EsAVelementos(d.Tipo.Tipo) {
-				temp := d.Tipo.Valor.(Ast.Expresion).GetValue(scope)
-				d.Tipo = temp
-			}
-		*/
-
 		if !expresiones.CompararTipos(d.Tipo, tipoEspecial) {
 			//Error, los tipos no son correctos
 			msg := "Semantic error, type error." +
@@ -158,6 +150,12 @@ func (d DeclaracionTotal) Run(scope *Ast.Scope) interface{} {
 	}
 
 	//Todo bien crear y agregar el símbolo
+	//Clonar el valor
+	valorRef := valor.Valor.(Ast.Clones).Clonar(scope)
+	valor = Ast.TipoRetornado{
+		Tipo:  valor.Tipo,
+		Valor: valorRef,
+	}
 
 	nSimbolo := Ast.Simbolo{
 		Identificador: d.Id,
@@ -185,13 +183,13 @@ func (d DeclaracionTotal) Run(scope *Ast.Scope) interface{} {
 
 }
 
-func (op DeclaracionTotal) GetFila() int {
+func (op DeclaracionNoRef) GetFila() int {
 	return op.Fila
 }
-func (op DeclaracionTotal) GetColumna() int {
+func (op DeclaracionNoRef) GetColumna() int {
 	return op.Columna
 }
 
-func (d DeclaracionTotal) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
+func (d DeclaracionNoRef) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.INSTRUCCION, Ast.DECLARACION
 }

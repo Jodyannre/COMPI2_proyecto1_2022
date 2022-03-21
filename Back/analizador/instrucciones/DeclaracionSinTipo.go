@@ -70,7 +70,8 @@ func (d DeclaracionSinTipo) Run(scope *Ast.Scope) interface{} {
 			elemento.Mutable = d.Mutable
 			valor.Valor = elemento
 		} else if valor.Tipo == Ast.STRUCT {
-			valor.Valor.(Ast.Structs).SetMutabilidad(d.Mutable)
+			nValor := valor.Valor.(Ast.Structs).SetMutabilidad(d.Mutable)
+			valor.Valor = nValor
 		}
 		//Crear símbolo y agregarlo a la tabla del entorno actual
 		nSimbolo = Ast.Simbolo{

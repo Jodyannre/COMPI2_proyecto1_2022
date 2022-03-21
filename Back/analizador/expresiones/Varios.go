@@ -164,3 +164,13 @@ func ErrorEnTipo(tipo Ast.TipoRetornado) Ast.TipoRetornado {
 	}
 	return ErrorEnTipo(tipo.Valor.(Ast.TipoRetornado))
 }
+
+func EsVAS(tipo Ast.TipoDato) bool {
+	switch tipo {
+	case Ast.VECTOR, Ast.ARRAY, Ast.STRUCT:
+		return true
+	default:
+		return false
+
+	}
+}

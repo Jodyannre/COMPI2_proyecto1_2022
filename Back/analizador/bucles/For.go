@@ -39,13 +39,13 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 	var rango Ast.TipoRetornado
 	var nSimbolo Ast.Simbolo
 	var vector expresiones.Vector
-	var simboloTemp Ast.Simbolo
-	var variableTemp Ast.TipoRetornado
+	//var simboloTemp Ast.Simbolo
+	//var variableTemp Ast.TipoRetornado
 	var valorActual Ast.TipoRetornado
 	var instruccion interface{}
 	var tipoParticular Ast.TipoDato
 	var resultadoInstruccion Ast.TipoRetornado
-	var primeraIteracion bool
+	//var primeraIteracion bool
 	newScope := Ast.NewScope("For", scope)
 
 	//Verificar que la expresión sea un identificador o error
@@ -98,7 +98,7 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 	}
 	//Agregar el nuevo simbolo al scope del for
 	newScope.Add(nSimbolo)
-	primeraIteracion = true
+	//primeraIteracion = true
 	for i := 0; i < vector.Valor.Len(); i++ {
 		//Hasta que sea verdadero y termine de iterar toda la lista
 		//Actualizar el valor de la variable al siguiente elemento
@@ -106,28 +106,12 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 
 		//Recupero la variable tal como esta luego de la iteracion
 		valorActual = vector.Valor.GetValue(i).(Ast.TipoRetornado)
-		simboloTemp = newScope.GetSimbolo(nombreVariable)
-		variableTemp = simboloTemp.Valor.(Ast.TipoRetornado)
+		//simboloTemp = newScope.GetSimbolo(nombreVariable)
+		//variableTemp = simboloTemp.Valor.(Ast.TipoRetornado)
 		nSimbolo.Valor = vector.Valor.GetValue(i)
 		//Verifico el valor antes de actualizar
-		if variableTemp.Valor.(int)+1 != valorActual.Valor.(int) && !primeraIteracion {
-			//Conseguir el nuevo valor de la iteracion
-			valTemp := variableTemp.Valor.(int) - valorActual.Valor.(int)
-			i = i + valTemp + 1
-			valorActual.Valor = i
-			//Verificar que sea posible seguir con las iteraciones
-			if i < 0 || i >= vector.Valor.Len() {
-				return Ast.TipoRetornado{
-					Valor: true,
-					Tipo:  Ast.EJECUTADO,
-				}
-			}
-			nSimbolo.Valor = valorActual
-			newScope.UpdateSimbolo(nombreVariable, nSimbolo)
-		} else {
-			nSimbolo.Valor = valorActual
-			newScope.UpdateSimbolo(nombreVariable, nSimbolo)
-		}
+		nSimbolo.Valor = valorActual
+		newScope.UpdateSimbolo(nombreVariable, nSimbolo)
 
 		//Ejectuar todas las instrucciones dentro del for en la n iteración
 		for j := 0; j < f.Instrucciones.Len(); j++ {
@@ -166,8 +150,9 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 			}
 
 		}
-		primeraIteracion = false
+		//primeraIteracion = false
 	}
+	newScope.UpdateScopeGlobal()
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
 		Valor: true,

@@ -402,3 +402,47 @@ func (s *Scope) UpdateScopeGlobal() {
 		}
 	}
 }
+
+func (entorno *Scope) Clonar(scope *Scope) interface{} {
+	nTablaFunciones := make(map[string]interface{})
+	nTablaSimbolos := make(map[string]interface{})
+	nTablaStructs := make(map[string]interface{})
+	nTablaModulos := make(map[string]interface{})
+	nTablaSimbolosReporte := arraylist.New()
+	nPrev := entorno.prev
+	nErrores := arraylist.New()
+	nGlobal := entorno.Global
+	nConsola := entorno.Consola
+	nNombre := entorno.Nombre
+	nEntorno := NewScope(nNombre, nPrev)
+	//Copiar las listas
+	for key, value := range entorno.tablaFunciones {
+		nTablaFunciones[key] = value
+	}
+	for key, value := range entorno.tablaSimbolos {
+		nTablaSimbolos[key] = value
+	}
+	for key, value := range entorno.tablaStructs {
+		nTablaStructs[key] = value
+	}
+	for key, value := range entorno.tablaModulos {
+		nTablaModulos[key] = value
+	}
+	for i := 0; i < entorno.Errores.Len()-1; i++ {
+		nErrores.Add(entorno.Errores.GetValue(i))
+	}
+	for i := 0; i < entorno.tablaSimbolosReporte.Len()-1; i++ {
+		nTablaSimbolosReporte.Add(entorno.tablaSimbolosReporte.GetValue(i))
+	}
+	nEntorno.Global = nGlobal
+	nEntorno.Consola = nConsola
+	nEntorno.Nombre = nNombre
+	nEntorno.tablaFunciones = nTablaFunciones
+	nEntorno.tablaSimbolos = nTablaSimbolos
+	nEntorno.tablaModulos = nTablaModulos
+	nEntorno.tablaStructs = nTablaStructs
+	nEntorno.tablaSimbolosReporte = nTablaSimbolosReporte
+	nEntorno.Errores = nErrores
+	nEntorno.prev = nPrev
+	return &nEntorno
+}

@@ -1,6 +1,8 @@
 package Ast
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type Simbolo struct {
 	Identificador      string
@@ -69,10 +71,12 @@ func (s Simbolo) NewSimboloReporte(scope *Scope) SimboloReporte {
 			Columna:       s.Columna,
 		}
 	} else {
+		_, tipoElemento := s.Valor.(Abstracto).GetTipo()
+
 		return SimboloReporte{
 			Identificador: s.Identificador,
 			TipoSimbolo:   tipo,
-			TipoDato:      ValorTipoDato[s.Valor.(*TipoRetornado).Tipo],
+			TipoDato:      ValorTipoDato[tipoElemento],
 			Scope:         nombreScope,
 			Fila:          s.Fila,
 			Columna:       s.Columna,

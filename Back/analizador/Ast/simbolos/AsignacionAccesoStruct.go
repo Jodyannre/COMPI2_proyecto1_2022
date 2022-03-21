@@ -207,6 +207,23 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 			}
 		}
 
+		//Verificar mutabilidad del struct
+		if !simboloStruct.Mutable {
+			fila := a.Valor.(Ast.Abstracto).GetFila()
+			columna := a.Valor.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, can't modify a non-mutable STRUCT." +
+				" -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+
 		//Get el struc
 		structInstancia := simboloStruct.Valor.(Ast.TipoRetornado).Valor.(StructInstancia)
 

@@ -192,3 +192,92 @@ func EsPosibleReferencia(tipo Ast.TipoDato) bool {
 		return false
 	}
 }
+
+func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope) Ast.TipoRetornado {
+	parametro := param.(Parametro)
+	valor := value.(Valor)
+	respuestaValor := valor.GetValue(scope)
+	tipoParametro := parametro.FormatearTipo(scope)
+	if parametro.Referencia {
+		if !valor.Referencia {
+			//Error, se espera una referencia
+			fila := value.(Ast.Abstracto).GetFila()
+			columna := value.(Ast.Abstracto).GetColumna()
+			msg := "Semantic error, expected a &" + Tipo_String(tipoParametro) +
+				" found " + Ast.ValorTipoDato[tipoParametro.Tipo] +
+				". -- Line: " + strconv.Itoa(fila) +
+				" Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		} else {
+			//Si si es, ahora hay que verificar que sea mutable o no
+			if parametro.Mutable {
+				if !valor.Mutable {
+					//Error, se esperaba que fuera mutable
+					fila := value.(Ast.Abstracto).GetFila()
+					columna := value.(Ast.Abstracto).GetColumna()
+					msg := "Semantic error, expected a MUT " + Tipo_String(tipoParametro) +
+						" found " + Ast.ValorTipoDato[respuestaValor.Tipo] +
+						" -- Line: " + strconv.Itoa(fila) +
+						" Column: " + strconv.Itoa(columna)
+					nError := errores.NewError(fila, columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+				//Tambien hay que verificar que en la definición es mutable
+				if !respuestaValor.Valor.(Ast.AbstractoM).GetMutable() {
+					//Error, se esperaba que fuera mutable
+					_, tipoParticular := respuestaValor.Valor.(Ast.Abstracto).GetTipo()
+					fila := value.(Ast.Abstracto).GetFila()
+					columna := value.(Ast.Abstracto).GetColumna()
+					msg := "Semantic error, expected a MUT " + Tipo_String(tipoParametro) +
+						" found " + Ast.ValorTipoDato[tipoParticular] +
+						" -- Line: " + strconv.Itoa(fila) +
+						" Column: " + strconv.Itoa(columna)
+					nError := errores.NewError(fila, columna, msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					scope.Errores.Add(nError)
+					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
+				}
+			}
+		}
+
+	}
+	if valor.Referencia && !parametro.Referencia {
+		//Error, se esperaba que fuera mutable
+		fila := value.(Ast.Abstracto).GetFila()
+		columna := value.(Ast.Abstracto).GetColumna()
+		msg := "Semantic error, expected " + Tipo_String(tipoParametro) +
+			" found &" + Ast.ValorTipoDato[respuestaValor.Tipo] +
+			" -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
+	return Ast.TipoRetornado{
+		Tipo:  Ast.BOOLEAN,
+		Valor: true,
+	}
+}

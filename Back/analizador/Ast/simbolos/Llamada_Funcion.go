@@ -147,17 +147,18 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	//Ejecutar la función
 	resultadoFuncion = funcion.Run(&newScope).(Ast.TipoRetornado)
 	newScope.UpdateScopeGlobal()
-	if newScope.Errores.Len() > 0 {
-		msg := "Semantic error, " + l.Identificador.(expresiones.Identificador).Valor + " function expects parameters." +
-			" -- Line: " + strconv.Itoa(l.Fila) +
-			" Column: " + strconv.Itoa(l.Columna)
-		nError := errores.NewError(l.Fila, l.Columna, msg)
-		nError.Tipo = Ast.ERROR_SEMANTICO
-		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
-			Valor: nError,
-		}
-	}
+	/*
+		if newScope.Errores.Len() > 0 {
+			msg := "Semantic error, " + l.Identificador.(expresiones.Identificador).Valor + " function expects parameters." +
+				" -- Line: " + strconv.Itoa(l.Fila) +
+				" Column: " + strconv.Itoa(l.Columna)
+			nError := errores.NewError(l.Fila, l.Columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}*/
 	return resultadoFuncion
 	/*
 		return Ast.TipoRetornado{

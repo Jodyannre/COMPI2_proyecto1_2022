@@ -51,25 +51,20 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 		} else {
 			continue
 		}
-		//Error, no puede haber expresiones sueltas
-		if tipoGeneral == Ast.EXPRESION {
-			fila := respuesta.(Ast.Abstracto).GetFila()
-			columna := respuesta.(Ast.Abstracto).GetColumna()
-			msg := "Semantic error, an instruction was expected." +
-				" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
-			nError := errores.NewError(fila, columna, msg)
-			nError.Tipo = Ast.ERROR_SEMANTICO
-			scope.Errores.Add(nError)
-			scope.Consola += msg + "\n"
-			continue
-		}
 
-		respuesta = actual.(Ast.Instruccion).Run(scope)
-		if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
-			//Hay error, pero ya esta agregado
-			continue
+		if tipoGeneral == Ast.INSTRUCCION {
+			//Declarar variables globales
+			respuesta = actual.(Ast.Instruccion).Run(scope)
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+				return respuesta
+			}
+		} else if tipoGeneral == Ast.EXPRESION {
+			respuesta = actual.(Ast.Expresion).GetValue(scope)
+			if respuesta.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+				return respuesta
+			}
 		}
-		scope.UpdateReferencias()
+		//scope.UpdateReferencias()
 
 		if Ast.EsTransferencia(respuesta.(Ast.TipoRetornado).Tipo) {
 			if respuesta.(Ast.TipoRetornado).Tipo == Ast.BREAK ||
@@ -114,7 +109,15 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 
 			if f.Retorno.Tipo != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
 				//Verificar que los tipos sean correctos
-				if !CompararTipos(f.Retorno, respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado)) {
+				var tipoEntrante Ast.TipoRetornado
+				var valorRespueta Ast.TipoRetornado = respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado)
+				if valorRespueta.Tipo == Ast.STRUCT {
+					tipoEntrante.Tipo = Ast.STRUCT
+					tipoEntrante.Valor = valorRespueta.Valor.(StructInstancia).GetPlantilla(scope)
+				} else {
+					tipoEntrante = valorRespueta
+				}
+				if !CompararTipos(f.Retorno, tipoEntrante) {
 					//Error, retorna un tipo diferente
 					valor := actual.(Ast.Abstracto)
 					fila := valor.GetFila()
@@ -341,7 +344,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 
 func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) Ast.TipoRetornado {
 	var iterador int
-	var resultadoParametro, tipoParametro Ast.TipoRetornado
+	var resultadoParametro, tipoParametro, tipoParametroIN Ast.TipoRetornado
 	var parametroIN, parametro, resultadoDeclaracion interface{}
 	var paramTemp Parametro
 	var verificacionDeReferencia Ast.TipoRetornado
@@ -352,7 +355,14 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 		paramTemp.TipoDeclaracion = tipoParametro
 		parametro = paramTemp
 		parametroIN = parametrosIN.GetValue(iterador)
+		tipoParametroIN = parametroIN.(Ast.Expresion).GetValue(scope) //**************
 		resultadoParametro = parametro.(Ast.Expresion).GetValue(scope)
+		if resultadoParametro.Tipo == Ast.ERROR {
+			return resultadoParametro
+		}
+		if tipoParametroIN.Tipo == Ast.ERROR {
+			return tipoParametroIN
+		}
 		//Crear un objeto declaración
 		//Obtener el tipo del parámetro
 		/*
@@ -366,12 +376,43 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 		if verificacionDeReferencia.Tipo == Ast.ERROR {
 			return verificacionDeReferencia
 		}
-		nuevaDeclaracion := instrucciones.NewDeclaracionTotal(resultadoParametro.Valor.(string), parametroIN, tipoParametro,
-			parametro.(Parametro).Mutable, false, parametro.(Ast.Abstracto).GetFila(),
-			parametro.(Ast.Abstracto).GetColumna())
 
-		//Ejecutar declaración
-		resultadoDeclaracion = nuevaDeclaracion.Run(scope)
+		if parametroIN.(Valor).Referencia || !expresiones.EsVAS(tipoParametroIN.Tipo) {
+			if tipoParametro.Tipo == Ast.DIMENSION_ARRAY {
+				nuevaDeclaracion := instrucciones.NewDeclaracionArray(
+					resultadoParametro.Valor.(string), tipoParametro.Valor, parametro.(Parametro).Mutable,
+					false, tipoParametroIN.Valor, parametro.(Ast.Abstracto).GetFila(),
+					parametro.(Ast.Abstracto).GetColumna())
+				//Ejecutar declaración
+				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
+			} else {
+				nuevaDeclaracion := instrucciones.NewDeclaracionTotal(resultadoParametro.Valor.(string), parametroIN, tipoParametro,
+					parametro.(Parametro).Mutable, false, parametro.(Ast.Abstracto).GetFila(),
+					parametro.(Ast.Abstracto).GetColumna())
+				//Ejecutar declaración
+				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
+
+			}
+
+		} else if expresiones.EsVAS(tipoParametroIN.Tipo) {
+
+			if tipoParametro.Tipo == Ast.DIMENSION_ARRAY {
+				nuevaDeclaracion := instrucciones.NewDeclaracionArrayNoRef(
+					resultadoParametro.Valor.(string), tipoParametro.Valor, parametro.(Parametro).Mutable,
+					false, tipoParametroIN.Valor, parametro.(Ast.Abstracto).GetFila(),
+					parametro.(Ast.Abstracto).GetColumna())
+				//Ejecutar declaración
+				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
+
+			} else {
+				nuevaDeclaracion := instrucciones.NewDeclaracionNoRef(resultadoParametro.Valor.(string), parametroIN, tipoParametro,
+					parametro.(Parametro).Mutable, false, parametro.(Ast.Abstracto).GetFila(),
+					parametro.(Ast.Abstracto).GetColumna())
+				//Ejecutar declaración
+				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
+			}
+
+		}
 
 		if resultadoDeclaracion.(Ast.TipoRetornado).Tipo == Ast.ERROR {
 			return resultadoDeclaracion.(Ast.TipoRetornado)
@@ -404,91 +445,11 @@ func (f Funcion) GetColumna() int {
 	return f.Columna
 }
 
-func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope) Ast.TipoRetornado {
-	parametro := param.(Parametro)
-	valor := value.(Valor)
-	respuestaValor := valor.GetValue(scope)
-	tipoParametro := parametro.FormatearTipo(scope)
-	if parametro.Referencia {
-		if !valor.Referencia {
-			//Error, se espera una referencia
-			fila := value.(Ast.Abstracto).GetFila()
-			columna := value.(Ast.Abstracto).GetColumna()
-			msg := "Semantic error, expected a &" + Tipo_String(tipoParametro) +
-				" found " + Ast.ValorTipoDato[tipoParametro.Tipo] +
-				". -- Line: " + strconv.Itoa(fila) +
-				" Column: " + strconv.Itoa(columna)
-			nError := errores.NewError(fila, columna, msg)
-			nError.Tipo = Ast.ERROR_SEMANTICO
-			scope.Errores.Add(nError)
-			scope.Consola += msg + "\n"
-			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
-				Valor: nError,
-			}
-		} else {
-			//Si si es, ahora hay que verificar que sea mutable o no
-			if parametro.Mutable {
-				if !valor.Mutable {
-					//Error, se esperaba que fuera mutable
-					fila := value.(Ast.Abstracto).GetFila()
-					columna := value.(Ast.Abstracto).GetColumna()
-					msg := "Semantic error, expected a MUT " + Tipo_String(tipoParametro) +
-						" found " + Ast.ValorTipoDato[respuestaValor.Tipo] +
-						" -- Line: " + strconv.Itoa(fila) +
-						" Column: " + strconv.Itoa(columna)
-					nError := errores.NewError(fila, columna, msg)
-					nError.Tipo = Ast.ERROR_SEMANTICO
-					scope.Errores.Add(nError)
-					scope.Consola += msg + "\n"
-					return Ast.TipoRetornado{
-						Tipo:  Ast.ERROR,
-						Valor: nError,
-					}
-				}
-				//Tambien hay que verificar que en la definición es mutable
-				if !respuestaValor.Valor.(Ast.AbstractoM).GetMutable() {
-					//Error, se esperaba que fuera mutable
-					_, tipoParticular := respuestaValor.Valor.(Ast.Abstracto).GetTipo()
-					fila := value.(Ast.Abstracto).GetFila()
-					columna := value.(Ast.Abstracto).GetColumna()
-					msg := "Semantic error, expected a MUT " + Tipo_String(tipoParametro) +
-						" found " + Ast.ValorTipoDato[tipoParticular] +
-						" -- Line: " + strconv.Itoa(fila) +
-						" Column: " + strconv.Itoa(columna)
-					nError := errores.NewError(fila, columna, msg)
-					nError.Tipo = Ast.ERROR_SEMANTICO
-					scope.Errores.Add(nError)
-					scope.Consola += msg + "\n"
-					return Ast.TipoRetornado{
-						Tipo:  Ast.ERROR,
-						Valor: nError,
-					}
-				}
-			}
-		}
-
-	}
-	if valor.Referencia && !parametro.Referencia {
-		//Error, se esperaba que fuera mutable
-		fila := value.(Ast.Abstracto).GetFila()
-		columna := value.(Ast.Abstracto).GetColumna()
-		msg := "Semantic error, expected " + Tipo_String(tipoParametro) +
-			" found &" + Ast.ValorTipoDato[respuestaValor.Tipo] +
-			" -- Line: " + strconv.Itoa(fila) +
-			" Column: " + strconv.Itoa(columna)
-		nError := errores.NewError(fila, columna, msg)
-		nError.Tipo = Ast.ERROR_SEMANTICO
-		scope.Errores.Add(nError)
-		scope.Consola += msg + "\n"
-		return Ast.TipoRetornado{
-			Tipo:  Ast.ERROR,
-			Valor: nError,
-		}
-	}
-
-	return Ast.TipoRetornado{
-		Tipo:  Ast.BOOLEAN,
-		Valor: true,
+func EsAVelementos(tipo Ast.TipoDato) bool {
+	switch tipo {
+	case Ast.DIMENSION_ARRAY:
+		return true
+	default:
+		return false
 	}
 }

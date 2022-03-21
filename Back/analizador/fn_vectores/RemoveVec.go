@@ -155,6 +155,14 @@ func (p RemoveVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			nLista.Add(vector.Valor.GetValue(i))
 		}
 	}
+	//Limpiar la lista
+	vector.Valor.Clear()
+
+	//Regresar los valores a la lista
+	for i := 0; i <= nLista.Len(); i++ {
+		vector.Valor.Add(nLista.GetValue(i))
+	}
+
 	//Agregar la nueva lista
 	vector.Valor = nil
 	vector.Valor = nLista

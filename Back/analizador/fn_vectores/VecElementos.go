@@ -53,6 +53,12 @@ func (v VecElementos) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		//Calcular los tipos del elemento
 		tipoGeneral, tipoParticular := elemento.(Ast.Abstracto).GetTipo()
 		tipoParticular = expresiones.EsVector(tipoParticular)
+
+		//Verificar si la variable proviene de un identificador y cambiar los tipos
+		if tipoParticular == Ast.IDENTIFICADOR {
+			tipoParticular = valorElemento.Tipo
+		}
+
 		if tipoGeneral != Ast.EXPRESION {
 			//Error, no se puede guardar algo que no sea una expresión en el vector
 			fila := elemento.(Ast.Abstracto).GetFila()
