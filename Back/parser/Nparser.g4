@@ -128,7 +128,7 @@ instruccion returns[interface{} ex]
             |expresion PUNTOCOMA   	    {$ex = $expresion.ex}	
             //|expresion                  {$ex = $expresion.ex}
             |declaracion PUNTOCOMA      {$ex = $declaracion.ex}	
-            //|declaracion_funcion        {$ex = $declaracion_funcion.ex}      
+            //|declaracion_funcion        {$ex = $declaracion_funcion.ex}    
             |control_if                 {$ex = $control_if.ex}	 
             |control_match              {$ex = $control_match.ex}   
             |control_loop               {$ex = $control_loop.ex}
@@ -714,6 +714,10 @@ expresion returns[Ast.Expresion ex]
                 Tipo: Ast.ACCESO_MODULO,
             }
             $ex = simbolos.NewStructInstancia(acceso,$att.list,false,fila,columna)
+        }
+    |   acceso_modulo
+        {
+            $ex = $acceso_modulo.ex
         }
     |   obj=expresion PUNTO atributo=ID 
     {

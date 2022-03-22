@@ -3,7 +3,6 @@ package exp_ins
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/errores"
-	"fmt"
 	"strconv"
 
 	"github.com/colegno/arraylist"
@@ -92,7 +91,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 				}
 
 				elemento2 := i.Instrucciones.GetValue(n).(Ast.Abstracto)
-				tipo_abstracto, tipoParticular := elemento2.GetTipo()
+				tipo_abstracto, _ := elemento2.GetTipo()
 				if tipo_abstracto == Ast.EXPRESION && (i.Tipo == Ast.IF_EXPRESION ||
 					i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION) {
 					//Si es un if expresión, tiene que retornar algo
@@ -120,31 +119,32 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 				} else if tipo_abstracto == Ast.INSTRUCCION {
 					instruccion := i.Instrucciones.GetValue(n).(Ast.Instruccion)
 					//Es transferencia pero if es normal, solo retornar
-
-					if Ast.EsTransferencia(tipoParticular) &&
-						(i.Tipo == Ast.IF_EXPRESION ||
-							i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION) {
-						msg := "Semantic error," + Ast.ValorTipoDato[tipoParticular] + " statement not allowed inside this kind of IF." +
-							" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
-							strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
-						nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
-							instruccion.(Ast.Abstracto).GetColumna(), msg)
-						nError.Tipo = Ast.ERROR_SEMANTICO
-						scope.Errores.Add(nError)
-						scope.Consola += msg + "\n"
-						return Ast.TipoRetornado{
-							Valor: nError,
-							Tipo:  Ast.ERROR,
+					/*
+						if Ast.EsTransferencia(tipoParticular) &&
+							(i.Tipo == Ast.IF_EXPRESION ||
+								i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION) {
+							msg := "Semantic error," + Ast.ValorTipoDato[tipoParticular] + " statement not allowed inside this kind of IF." +
+								" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
+								strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
+							nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
+								instruccion.(Ast.Abstracto).GetColumna(), msg)
+							nError.Tipo = Ast.ERROR_SEMANTICO
+							scope.Errores.Add(nError)
+							scope.Consola += msg + "\n"
+							return Ast.TipoRetornado{
+								Valor: nError,
+								Tipo:  Ast.ERROR,
+							}
 						}
-					}
-
+					*/
 					resultado := instruccion.Run(scope)
-
-					if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
-						resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
-						//Continuar a la siguiente instruccion
-						fmt.Println(resultado)
-					}
+					/*
+						if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
+							resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
+							//Continuar a la siguiente instruccion
+							//fmt.Println(resultado)
+						}
+					*/
 
 					if Ast.EsTransferencia(resultado.(Ast.TipoRetornado).Tipo) {
 						//Si es transferencia, terminar con el if y retornarlo

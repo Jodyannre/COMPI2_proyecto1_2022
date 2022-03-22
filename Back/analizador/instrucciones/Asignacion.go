@@ -566,8 +566,8 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 					//Y la otra es que si traiga un tipo diferente
 					if arrayEntrante.TipoArray != Ast.INDEFINIDO {
 						//Generar el Error, de lo contrario todo bien
-						msg := "Semantic error, can't assign Vector<" + Ast.ValorTipoDato[arrayEntrante.TipoArray] + ">" +
-							" to Vector<" + Ast.ValorTipoDato[arrayGuardado.TipoArray] + ">" +
+						msg := "Semantic error, can't assign ARRAY[" + Ast.ValorTipoDato[arrayEntrante.TipoArray] + "]" +
+							" to ARRAY[" + Ast.ValorTipoDato[arrayGuardado.TipoArray] + "]" +
 							" type. -- Line: " + strconv.Itoa(a.Fila) +
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
@@ -582,14 +582,30 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 						//Copiar los valores del vector guardado al nuevo vector entrante
 						CopiarArray(arrayGuardado, arrayEntrante, simbolo_id)
 						valor = Ast.TipoRetornado{
-							Tipo:  Ast.VECTOR,
+							Tipo:  Ast.ARRAY,
 							Valor: arrayEntrante,
 						}
 					}
 				} else {
+					//Comparar las dimensiones del array
+					verificarArray := CompararArrays(arrayGuardado, arrayEntrante, scope)
+					if !verificarArray {
+						msg := "Semantic error, ARRAY dimensions don't match." +
+							" -- Line: " + strconv.Itoa(a.Fila) +
+							" Column: " + strconv.Itoa(a.Columna)
+						nError := errores.NewError(a.Fila, a.Columna, msg)
+						nError.Tipo = Ast.ERROR_SEMANTICO
+						scope.Errores.Add(nError)
+						scope.Consola += msg + "\n"
+						return Ast.TipoRetornado{
+							Tipo:  Ast.ERROR,
+							Valor: nError,
+						}
+					}
+
 					CopiarArray(arrayGuardado, arrayEntrante, simbolo_id)
 					valor = Ast.TipoRetornado{
-						Tipo:  Ast.VECTOR,
+						Tipo:  Ast.ARRAY,
 						Valor: arrayEntrante,
 					}
 				}

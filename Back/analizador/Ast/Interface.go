@@ -1,5 +1,7 @@
 package Ast
 
+import "github.com/colegno/arraylist"
+
 type Expresion interface {
 	GetValue(entorno *Scope) TipoRetornado
 }
@@ -34,4 +36,8 @@ type AccesoVectorAbstracto interface {
 
 type Clones interface {
 	Clonar(scope *Scope) interface{}
+}
+
+type CrearStruct interface {
+	CrearStructInstancia(plantilla TipoRetornado, atributos *arraylist.List, mutable bool, fila, columna int) interface{}
 }

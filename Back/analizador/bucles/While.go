@@ -87,42 +87,68 @@ func (w While) Run(scope *Ast.Scope) interface{} {
 			//Recuperar el tipo de la instrucción
 			tipoGeneral, _ = instruccion.(Ast.Abstracto).GetTipo()
 			//Verificar tipos
-			if tipoGeneral == Ast.EXPRESION {
-				//Error, no pueden existir expresiones aisladas
-				msg := "Semantic error, an instruction was expected." +
-					" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
-					strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
-				nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
-					instruccion.(Ast.Abstracto).GetColumna(), msg)
-				nError.Tipo = Ast.ERROR_SEMANTICO
-				newScope.Errores.Add(nError)
-				newScope.Consola += msg + "\n"
-				newScope.UpdateScopeGlobal()
-				return Ast.TipoRetornado{
-					Valor: nError,
-					Tipo:  Ast.ERROR,
+
+			/*
+				if tipoGeneral == Ast.EXPRESION {
+					//Error, no pueden existir expresiones aisladas
+					msg := "Semantic error, an instruction was expected." +
+						" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
+						strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
+					nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
+						instruccion.(Ast.Abstracto).GetColumna(), msg)
+					nError.Tipo = Ast.ERROR_SEMANTICO
+					newScope.Errores.Add(nError)
+					newScope.Consola += msg + "\n"
+					newScope.UpdateScopeGlobal()
+					return Ast.TipoRetornado{
+						Valor: nError,
+						Tipo:  Ast.ERROR,
+					}
 				}
-			}
+			*/
+			/*
+				if tipoGeneral == Ast.INSTRUCCION {
+
+					//Ejecutar la instrucción
+					resultado = instruccion.(Ast.Instruccion).Run(scope)
+
+				}
+			*/
 			if tipoGeneral == Ast.INSTRUCCION {
-
-				//Ejecutar la instrucción
-				resultado = instruccion.(Ast.Instruccion).Run(scope)
-
+				//Declarar variables globales
+				resultado = instruccion.(Ast.Instruccion).Run(&newScope)
+				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+					return resultado
+				}
+			} else if tipoGeneral == Ast.EXPRESION {
+				resultado = instruccion.(Ast.Expresion).GetValue(&newScope)
+				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR {
+					return resultado
+				}
 			}
 
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
 				resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
 				//Siguiente instrucción
+				newScope.UpdateScopeGlobal()
+				newScope.Errores.Clear()
+				newScope.Consola = ""
 				continue
 			}
 
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.CONTINUE {
 				//Siguiente iteración
+				newScope.UpdateScopeGlobal()
+				newScope.Errores.Clear()
+				newScope.Consola = ""
 				break
 			}
 
 			if Ast.EsTransferencia(resultado.(Ast.TipoRetornado).Tipo) {
 				if resultado.(Ast.TipoRetornado).Tipo == Ast.CONTINUE {
+					newScope.UpdateScopeGlobal()
+					newScope.Errores.Clear()
+					newScope.Consola = ""
 					break
 				}
 				if resultado.(Ast.TipoRetornado).Tipo == Ast.BREAK {
@@ -133,12 +159,14 @@ func (w While) Run(scope *Ast.Scope) interface{} {
 					}
 				}
 				//Terminar el loop
-				newScope.UpdateScopeGlobal()
 				return resultado
 			}
 
 		}
 		contadorSeguridad++
+		newScope.UpdateScopeGlobal()
+		newScope.Errores.Clear()
+		newScope.Consola = ""
 		condicionResultado = w.Condicion.GetValue(&newScope)
 
 		if condicionResultado.Tipo == Ast.ERROR {

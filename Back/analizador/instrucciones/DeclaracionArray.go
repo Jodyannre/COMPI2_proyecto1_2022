@@ -254,3 +254,82 @@ func EsArray(tipo Ast.TipoDato) bool {
 		return false
 	}
 }
+
+func CompararDimensiones(dim expresiones.DimensionArray, array expresiones.Array, scope *Ast.Scope) Ast.TipoRetornado {
+	dimension := dim.GetValue(scope)
+	//Comparar los tipos, error si no son del mismo tipo final
+	if !expresiones.CompararTipos(dim.TipoArray, expresiones.GetTipoFinal(array.TipoDelArray)) {
+		fila := array.Fila
+		columna := array.Columna
+		msg := "Semantic error, expected  ARRAY[" + expresiones.Tipo_String(dim.TipoArray) + "] " +
+			" found ARRAY[" + Ast.ValorTipoDato[array.TipoArray] + "]." +
+			" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
+	//Verificar que las dimensiones concuerda con la lista de arrays
+	validacionDimensiones := fn_array.ConcordanciaArray(array)
+	//Conseguir la lista
+	split := strings.Split(validacionDimensiones, ",")
+	//Crear la lista con las posiciones
+	listaDimensiones := arraylist.New()
+	for _, num := range split {
+		numero, _ := strconv.Atoi(num)
+		listaDimensiones.Add(numero)
+	}
+
+	//Comparar las lista de dimensiones
+	//Get primitivos del array de dimension
+	arrayDimension := arraylist.New()
+	for i := 0; i < dimension.Valor.(*arraylist.List).Len(); i++ {
+		arrayDimension.Add(dimension.Valor.(*arraylist.List).GetValue(i).(Ast.TipoRetornado).Valor)
+	}
+
+	if !fn_array.CompararListas(listaDimensiones, arrayDimension) {
+		fila := array.Fila
+		columna := array.Columna
+		msg := "Semantic error, ARRAY dimension does not match" +
+			" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
+	return Ast.TipoRetornado{
+		Tipo:  Ast.BOOLEAN,
+		Valor: true,
+	}
+
+}
+
+func CompararArrays(array1 expresiones.Array, array2 expresiones.Array, scope *Ast.Scope) bool {
+	//Comparar las dimensiones
+	if array1.Elementos.Len() != array2.Elementos.Len() {
+		return false
+	} else {
+		elemento1 := array1.Elementos.GetValue(0)
+		elemento2 := array2.Elementos.GetValue(0)
+		tp1 := elemento1.(Ast.TipoRetornado).Tipo
+		tp2 := elemento2.(Ast.TipoRetornado).Tipo
+		if expresiones.EsTipoFinal(tp1) && expresiones.EsTipoFinal(tp2) {
+			return true
+		} else if !expresiones.EsTipoFinal(tp1) && !expresiones.EsTipoFinal(tp2) &&
+			tp1 == Ast.ARRAY && tp2 == Ast.ARRAY {
+			return CompararArrays(elemento1.(expresiones.Array), elemento2.(expresiones.Array), scope)
+		} else {
+			return false
+		}
+	}
+}

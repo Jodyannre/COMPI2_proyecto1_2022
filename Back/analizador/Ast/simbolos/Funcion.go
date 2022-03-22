@@ -81,6 +81,10 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				nError.Tipo = Ast.ERROR_SEMANTICO
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
 			}
 			if f.Retorno.Tipo == Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
 				//Error de break, break_expresion
@@ -93,6 +97,10 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				nError.Tipo = Ast.ERROR_SEMANTICO
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
 			}
 			if f.Retorno.Tipo != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN {
 				//Error, la función espera retornar algo y no esta retornando nada
@@ -105,6 +113,10 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 				nError.Tipo = Ast.ERROR_SEMANTICO
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
 			}
 
 			if f.Retorno.Tipo != Ast.VOID && respuesta.(Ast.TipoRetornado).Tipo == Ast.RETURN_EXPRESION {
@@ -115,9 +127,29 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 					tipoEntrante.Tipo = Ast.STRUCT
 					tipoEntrante.Valor = valorRespueta.Valor.(StructInstancia).GetPlantilla(scope)
 				} else {
-					tipoEntrante = valorRespueta
+					if valorRespueta.Tipo == Ast.VECTOR {
+						tipoEntrante = Ast.TipoRetornado{
+							Tipo:  Ast.VECTOR,
+							Valor: valorRespueta.Valor.(expresiones.Vector).TipoVector,
+						}
+					}
+					if valorRespueta.Tipo == Ast.ARRAY {
+						tipoEntrante = Ast.TipoRetornado{
+							Tipo:  Ast.ARRAY,
+							Valor: valorRespueta.Valor.(expresiones.Array).TipoDelArray,
+						}
+					}
 				}
-				if !CompararTipos(f.Retorno, tipoEntrante) {
+				if f.Retorno.Tipo == Ast.DIMENSION_ARRAY && tipoEntrante.Tipo == Ast.ARRAY {
+					//Comparar las dimensiones solicitadas con el array de salida
+					//Tengo que comparar el dimension de retorno y el valorRespuesta del array
+					resultado := instrucciones.CompararDimensiones(f.Retorno.Valor.(expresiones.DimensionArray),
+						valorRespueta.Valor.(expresiones.Array), scope)
+					if resultado.Tipo == Ast.ERROR {
+						return resultado
+					}
+
+				} else if !CompararTipos(f.Retorno, tipoEntrante) {
 					//Error, retorna un tipo diferente
 					valor := actual.(Ast.Abstracto)
 					fila := valor.GetFila()
@@ -129,6 +161,10 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 					nError.Tipo = Ast.ERROR_SEMANTICO
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
+					return Ast.TipoRetornado{
+						Tipo:  Ast.ERROR,
+						Valor: nError,
+					}
 				}
 				//Ejecutar el return y retornar el valor que trae
 				return respuesta.(Ast.TipoRetornado).Valor.(Ast.TipoRetornado)

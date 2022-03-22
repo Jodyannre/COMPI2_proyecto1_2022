@@ -52,6 +52,7 @@ func (d DeclaracionConTipo) Run(scope *Ast.Scope) interface{} {
 	if !existe {
 		//No existe, entonces agregarla
 		//Crear símbolo y agregarlo a la tabla del entorno actual
+
 		nSimbolo = Ast.Simbolo{
 			Identificador: d.Id,
 			Valor:         Ast.TipoRetornado{Valor: nil, Tipo: Ast.NULL},
@@ -97,3 +98,36 @@ func (op DeclaracionConTipo) GetColumna() int {
 func (d DeclaracionConTipo) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.INSTRUCCION, Ast.DECLARACION
 }
+
+/*
+func ValorPorDefecto(tipo Ast.TipoRetornado)Ast.TipoRetornado{
+	var retorno Ast.TipoRetornado
+	switch tipo.Tipo{
+	case Ast.STRUCT:
+		estructura :=
+		retorno.Tipo = Ast.STRUCT
+
+	case Ast.I64:
+		retorno.Tipo = Ast.I64
+		retorno.Valor = 0
+	case Ast.F64:
+		retorno.Tipo = Ast.F64
+		retorno.Valor = float64(0)
+	case Ast.CHAR:
+		retorno.Tipo = Ast.CHAR
+		retorno.Valor = ""
+	case Ast.STRING:
+		retorno.Tipo = Ast.STRING
+		retorno.Valor = ""
+	case Ast.STR:
+		retorno.Tipo = Ast.STR
+		retorno.Valor = ""
+	case Ast.BOOLEAN:
+		retorno.Tipo = Ast.BOOLEAN
+		retorno.Valor = false
+	case Ast.USIZE:
+		retorno.Tipo = Ast.USIZE
+		retorno.Valor = 0
+	}
+}
+*/

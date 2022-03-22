@@ -192,6 +192,23 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 
 		attPlantilla := plantilla.Atributos[atributoActual.Nombre]
+		//Verificar que el atributo sea public o error
+		if !attPlantilla.Publico {
+			fila := attActual.Fila
+			columna := attActual.Columna
+			msg := "Semantic error, field \"" + attPlantilla.Nombre + "\" of struct " + plantilla.Nombre +
+				" is private." +
+				" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
+			nError := errores.NewError(fila, columna, msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			scope.Errores.Add(nError)
+			scope.Consola += msg + "\n"
+			return Ast.TipoRetornado{
+				Tipo:  Ast.ERROR,
+				Valor: nError,
+			}
+		}
+
 		validadorTipo := CompararTipos(attActual.TipoAtributo,
 			attPlantilla.TipoAtributo)
 		if !validadorTipo {
