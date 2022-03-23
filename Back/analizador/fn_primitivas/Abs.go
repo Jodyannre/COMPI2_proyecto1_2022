@@ -44,6 +44,7 @@ func (a Abs) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(a.Columna)
 		nError := errores.NewError(a.Fila, a.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		valorSalida.Valor = nError

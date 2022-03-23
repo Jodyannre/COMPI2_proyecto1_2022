@@ -1,0 +1,37 @@
+
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>No.</td>
+				  <td>Descripción</td>
+				  <td>Ámbito</td>
+				  <td>Línea</td>
+				  <td>Columna</td>
+				  <td>Fecha y hora</td>
+			  </tr>
+	
+<tr>
+<td cellpadding='4'>
+1
+</td>
+<td cellpadding='4'>Semantic error, the MODULE: "Persona" doesn't exist. -- Line: 45 Column: 21
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>45
+</td>
+<td cellpadding='4'>
+21
+</td>
+<td cellpadding='4'>
+03-23-2022 01:36:30
+</td>
+</tr>
+
+		</table>
+		>];
+	}
+	

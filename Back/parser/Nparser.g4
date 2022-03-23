@@ -406,7 +406,7 @@ declaracion_modulo returns [Ast.Instruccion ex]
     :   MOD ID_CAMEL bloque_modulo
         {
             fila := $MOD.line
-            columna := $MOD.pos -1
+            columna := $MOD.pos
             id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna) 
             modulo := simbolos.NewModulo(id,$bloque_modulo.list,false,fila,columna)
             $ex = simbolos.NewDeclaracionModulo(modulo,false,fila,columna)
@@ -415,7 +415,7 @@ declaracion_modulo returns [Ast.Instruccion ex]
     |   PUB MOD ID_CAMEL bloque_modulo
         {
             fila := $PUB.line
-            columna := $PUB.pos -1 
+            columna := $PUB.pos
             id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)          
             modulo := simbolos.NewModulo(id,$bloque_modulo.list,true,fila,columna)
             $ex = simbolos.NewDeclaracionModulo(modulo,true,fila,columna)
@@ -589,7 +589,7 @@ accesos_vector_array_asignacion returns [Ast.Expresion ex]
         {
             id := $ID.text
             fila := $ID.line
-            columna := $ID.pos-1
+            columna := $ID.pos
             idE := expresiones.NewIdentificador(id,Ast.IDENTIFICADOR,fila,columna)      
             $ex = fn_array.NewAccesoArray(idE,$lista.list,fila,columna)           
         }
@@ -598,7 +598,7 @@ accesos_vector_array_asignacion returns [Ast.Expresion ex]
         {
             id := $ID.text
             fila := $ID.line
-            columna := $ID.pos-1
+            columna := $ID.pos
             idE := expresiones.NewIdentificador (id,Ast.IDENTIFICADOR,fila,columna)     
             $ex = fn_vectores.NewAccesoVec(idE,$index.ex,Ast.VEC_ACCESO,fila,columna)
         }
@@ -999,7 +999,7 @@ control_match returns[Ast.Instruccion ex]
     : MATCH expresion LLAVE_IZQ control_case LLAVE_DER
     {
         fila := $MATCH.line
-        columna := $MATCH.line -1
+        columna := $MATCH.line 
         $ex = exp_ins.NewMatch($expresion.ex,$control_case.list,Ast.MATCH,fila,columna)
     }
 ;
@@ -1065,7 +1065,7 @@ control_match_exp returns[Ast.Instruccion ex]
     : MATCH expresion LLAVE_IZQ control_case_exp LLAVE_DER
     {
         fila := $MATCH.line
-        columna := $MATCH.line -1
+        columna := $MATCH.line 
         $ex = exp_ins.NewMatch($expresion.ex,$control_case_exp.list,Ast.MATCH_EXPRESION,fila,columna)
     }
 ;
@@ -1536,7 +1536,7 @@ acceso_modulo_elementos returns[*arraylist.List list]
     |   ID_CAMEL
         {
             fila:= $ID_CAMEL.line
-            columna:= $ID_CAMEL.pos-1       
+            columna:= $ID_CAMEL.pos      
             id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)   
             $list.Add(id)
         }
@@ -1562,7 +1562,7 @@ control_for returns [Ast.Instruccion ex]
     :   FOR ID IN rango_for bloque
         {
             fila:= $FOR.line
-            columna:= $FOR.pos -1 
+            columna:= $FOR.pos 
             id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
             $ex = bucles.NewFor(id,$rango_for.ex,$bloque.list,fila,columna)      
         }
@@ -1570,7 +1570,7 @@ control_for returns [Ast.Instruccion ex]
     |   FOR ID IN rango_for LLAVE_IZQ LLAVE_DER
         {
             fila:= $FOR.line
-            columna:= $FOR.pos -1 
+            columna:= $FOR.pos 
             id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)  
             listaVacia := arraylist.New()
             $ex = bucles.NewFor(id,$rango_for.ex,listaVacia,fila,columna) 

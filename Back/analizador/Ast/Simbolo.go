@@ -47,13 +47,17 @@ func NewSimbolo(identificador string, valor interface{}, fila int, columna int,
 
 func (s Simbolo) NewSimboloReporte(scope *Scope) SimboloReporte {
 	var tipo string
+	var tipoDato string
 	var nombreScope string
 	if s.Tipo == FUNCION {
 		tipo = ValorTipoDato[FUNCION]
+		tipoDato = s.Valor.(TipoRetornado).Valor.(Funciones).GetTipoRetornado(scope)
 	} else if s.Tipo == MODULO {
 		tipo = ValorTipoDato[MODULO]
+		tipoDato = ""
 	} else {
 		tipo = ValorTipoDato[VARIABLE]
+		tipoDato = ValorTipoDato[s.Valor.(TipoRetornado).Tipo]
 	}
 
 	if scope.Global {
@@ -65,7 +69,7 @@ func (s Simbolo) NewSimboloReporte(scope *Scope) SimboloReporte {
 		return SimboloReporte{
 			Identificador: s.Identificador,
 			TipoSimbolo:   tipo,
-			TipoDato:      ValorTipoDato[s.Valor.(TipoRetornado).Tipo],
+			TipoDato:      tipoDato,
 			Scope:         nombreScope,
 			Fila:          s.Fila,
 			Columna:       s.Columna,

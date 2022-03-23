@@ -1,6 +1,11 @@
 package Ast
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/colegno/arraylist"
@@ -17,6 +22,10 @@ type Scope struct {
 	Errores              *arraylist.List
 	Consola              string
 	Global               bool
+}
+
+func (scope *Scope) GetTablaModulos() map[string]interface{} {
+	return scope.tablaModulos
 }
 
 func NewScope(name string, prev *Scope) Scope {
@@ -364,6 +373,15 @@ func (scope *Scope) GetSimboloReferencia(ident string) Simbolo {
 	return simboloNull
 }
 
+func (scope *Scope) GetTipoScope() string {
+	if strings.ToUpper(scope.Nombre) == "GLOBAL" {
+		return "Global"
+	} else {
+		return "Local"
+	}
+
+}
+
 func (scope *Scope) UpdateReferencias() TipoRetornado {
 	var valor TipoRetornado
 	var scopeReferencia *Scope
@@ -400,7 +418,12 @@ func (s *Scope) UpdateScopeGlobal() {
 			elemento := s.Errores.GetValue(i)
 			scope_global.Errores.Add(elemento)
 		}
+		for i := 0; i < s.tablaSimbolosReporte.Len(); i++ {
+			elemento := s.tablaSimbolosReporte.Clone().GetValue(i)
+			scope_global.tablaSimbolosReporte.Add(elemento)
+		}
 	}
+
 }
 
 func (entorno *Scope) Clonar(scope *Scope) interface{} {
@@ -445,4 +468,270 @@ func (entorno *Scope) Clonar(scope *Scope) interface{} {
 	nEntorno.Errores = nErrores
 	nEntorno.prev = nPrev
 	return &nEntorno
+}
+
+func (entorno *Scope) GenerarTablaSimbolos() {
+	var simbolo SimboloReporte
+	var ruta, nombre string
+	inicio := `
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>Id</td>
+				  <td>Tipo símbolo</td>
+				  <td>Tipo dato</td>
+				  <td>Ámbito</td>
+				  <td>Fila</td>
+				  <td>Columna</td>
+			  </tr>
+	`
+	final := `
+		</table>
+		>];
+	}
+	`
+	if entorno.tablaSimbolosReporte.Len() > 0 {
+		for i := 0; i < entorno.tablaSimbolosReporte.Len(); i++ {
+			simbolo = entorno.tablaSimbolosReporte.GetValue(i).(SimboloReporte)
+			inicio += GenerarFilaSimboloReporte(simbolo)
+		}
+		//Dot listo para la conversion
+		inicio += final
+
+		//Crear el dot y obtener la ruta donde fue creado
+		ruta, nombre = CrearDot(inicio, "tablaSimbolos")
+		GenerarGrafica(ruta, nombre)
+	}
+}
+
+func (entorno *Scope) GenerarTablaErrores() {
+	var ruta, nombre string
+	inicio := `
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>No.</td>
+				  <td>Descripción</td>
+				  <td>Ámbito</td>
+				  <td>Línea</td>
+				  <td>Columna</td>
+				  <td>Fecha y hora</td>
+			  </tr>
+	`
+	final := `
+		</table>
+		>];
+	}
+	`
+	if entorno.Errores.Len() > 0 {
+		for i := 0; i < entorno.Errores.Len(); i++ {
+			err := entorno.Errores.GetValue(i)
+			inicio += GenerarFilaErrores(err, i)
+		}
+		//Dot listo para la conversion
+		inicio += final
+
+		//Crear el dot y obtener la ruta donde fue creado
+		ruta, nombre = CrearDot(inicio, "tablaErrores")
+		GenerarGrafica(ruta, nombre)
+	}
+}
+
+func (entorno *Scope) GenerarTablaBD() {
+	var ruta, nombre string
+	var contador = 0
+	inicio := `
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>No.</td>
+				  <td>Nombre</td>
+				  <td>No. Tablas</td>
+				  <td>Línea</td>
+			  </tr>`
+	final := `
+		</table>
+		>];
+	}
+	`
+	for _, value := range entorno.tablaModulos {
+		mod := value.(Simbolo).Valor.(TipoRetornado).Valor
+		inicio += GenerarFilaBD(mod, contador)
+		contador++
+	}
+	if contador > 0 {
+		//Dot listo para la conversion
+		inicio += final
+
+		//Crear el dot y obtener la ruta donde fue creado
+		ruta, nombre = CrearDot(inicio, "tablaBD")
+		GenerarGrafica(ruta, nombre)
+	}
+}
+
+func (entorno *Scope) GenerarTablaTablas() {
+	var ruta, nombre, nombreBD string
+	var contador = 0
+	inicio := `
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>No.</td>
+				  <td>Nombre tabla</td>
+				  <td>Nombre de la base de datos</td>
+				  <td>Línea</td>
+			  </tr>`
+	final := `
+		</table>
+		>];
+	}
+	`
+	for _, value := range entorno.tablaModulos {
+		mod := value.(Simbolo).Valor.(TipoRetornado).Valor
+		nombreBD = mod.(Modulos).GetNombre()
+		modulos := mod.(Modulos).GetEntorno().GetTablaModulos()
+		for _, value1 := range modulos {
+			mod1 := value1.(Simbolo).Valor.(TipoRetornado).Valor
+			inicio += GenerarFilaTabla(mod1, contador, nombreBD)
+			contador++
+		}
+	}
+	if contador > 0 {
+		//Dot listo para la conversion
+		inicio += final
+		//Crear el dot y obtener la ruta donde fue creado
+		ruta, nombre = CrearDot(inicio, "tablas")
+		GenerarGrafica(ruta, nombre)
+	}
+}
+
+func GenerarFilaErrores(err interface{}, num int) string {
+	salida := "" + "\n" +
+		"<tr>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		strconv.Itoa(num+1) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		err.(Error).GetDescripcion() + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		err.(Error).GetAmbito() + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		strconv.Itoa(err.(Error).GetFila()) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		strconv.Itoa(err.(Error).GetColumna()) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		err.(Error).GetFecha() + "\n" +
+		"</td>" + "\n" +
+		"</tr>" + "\n"
+	return salida
+}
+
+func GenerarFilaSimboloReporte(simbolo SimboloReporte) string {
+	salida := "" + "\n" +
+		"<tr>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		simbolo.Identificador + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		simbolo.TipoSimbolo + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		simbolo.TipoDato + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		simbolo.Scope + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		strconv.Itoa(simbolo.Fila) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		strconv.Itoa(simbolo.Columna) + "\n" +
+		"</td>" + "\n" +
+		"</tr>" + "\n"
+	return salida
+}
+
+func GenerarFilaBD(mod interface{}, num int) string {
+	salida := "" + "\n" +
+		"<tr>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		strconv.Itoa(num+1) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		mod.(Modulos).GetNombre() + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		strconv.Itoa(mod.(Modulos).GetTablas()) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		strconv.Itoa(mod.(Modulos).GetFila()) + "\n" +
+		"</td>" + "\n" +
+		"</tr>" + "\n"
+	return salida
+}
+
+func GenerarFilaTabla(mod interface{}, num int, bd string) string {
+	salida := "" + "\n" +
+		"<tr>" + "\n" +
+		"<td cellpadding='4'>" + "\n" +
+		strconv.Itoa(num+1) + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		mod.(Modulos).GetNombre() + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		bd + "\n" +
+		"</td>" + "\n" +
+		"<td cellpadding='4'>" +
+		strconv.Itoa(mod.(Modulos).GetFila()) + "\n" +
+		"</td>" + "\n" +
+		"</tr>" + "\n"
+	return salida
+}
+
+func CrearDot(contenido string, nombre string) (string, string) {
+	//Get el directorio del proyecto
+	dir, _ := os.Getwd()
+	dir += "\\Web\\tablas"
+	extension := ".dot"
+	//Crear el archivo
+	file, err := os.Create(dir + "\\" + nombre + extension)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		file.WriteString(contenido)
+		fmt.Println("Done")
+	}
+	file.Close()
+	//Generar un delay
+	for i := 0; i < 2000; i++ {
+
+	}
+	return dir, nombre
+}
+
+func GenerarGrafica(ruta, nombre string) {
+	comando := ruta + "\\" + nombre + ".dot"
+	tipo := "-Tsvg"
+	path := "C:\\Program Files\\Graphviz\\bin\\dot.exe"
+	cmd, _ := exec.Command(path, tipo, comando).Output()
+	mode := int(0777)
+	ioutil.WriteFile("Web\\tablas\\"+nombre+".svg", cmd, os.FileMode(mode))
+
 }

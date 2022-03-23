@@ -37,6 +37,7 @@ func (p LenVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -54,6 +55,7 @@ func (p LenVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -69,6 +71,7 @@ func (p LenVec) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{

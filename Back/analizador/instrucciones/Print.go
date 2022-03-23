@@ -69,6 +69,7 @@ func (p Print) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -92,6 +93,7 @@ func (p Print) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -125,6 +127,7 @@ func (p PrintF) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -139,6 +142,7 @@ func (p PrintF) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -180,6 +184,7 @@ func (p PrintF) Run(scope *Ast.Scope) interface{} {
 							" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 						nError := errores.NewError(p.Fila, p.Columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -361,6 +366,7 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 				" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 			nError := errores.NewError(p.Fila, p.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -377,6 +383,7 @@ func (p PrintF) GetCompareValues(scope *Ast.Scope, i int, posiciones []int) Ast.
 			" -- Line:" + strconv.Itoa(p.Fila) + " Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{

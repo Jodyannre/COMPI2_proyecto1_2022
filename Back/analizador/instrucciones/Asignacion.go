@@ -46,6 +46,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 			" Column: " + strconv.Itoa(a.Id.(Ast.Abstracto).GetColumna())
 		nError := errores.NewError(a.Id.(Ast.Abstracto).GetFila(), a.Id.(Ast.Abstracto).GetColumna(), msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -84,6 +85,7 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(a.Id.(Ast.Abstracto).GetColumna())
 			nError := errores.NewError(a.Id.(Ast.Abstracto).GetFila(), a.Id.(Ast.Abstracto).GetColumna(), msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -119,6 +121,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 			" -- Line:" + strconv.Itoa(a.Fila) + " Column: " + strconv.Itoa(a.Columna)
 		nError := errores.NewError(a.Fila, a.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -155,6 +158,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -175,6 +179,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 						" Column: " + strconv.Itoa(a.Columna)
 					nError := errores.NewError(a.Fila, a.Columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -203,6 +208,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 								" Column: " + strconv.Itoa(a.Columna)
 							nError := errores.NewError(a.Fila, a.Columna, msg)
 							nError.Tipo = Ast.ERROR_SEMANTICO
+							nError.Ambito = scope.GetTipoScope()
 							scope.Errores.Add(nError)
 							scope.Consola += msg + "\n"
 							return Ast.TipoRetornado{
@@ -241,6 +247,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 							" Column: " + strconv.Itoa(columna)
 						nError := errores.NewError(fila, columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -290,6 +297,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 					" Column: " + strconv.Itoa(a.Columna)
 				nError := errores.NewError(a.Fila, a.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -309,6 +317,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 						" Column: " + strconv.Itoa(a.Columna)
 					nError := errores.NewError(a.Fila, a.Columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -336,6 +345,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 								" Column: " + strconv.Itoa(a.Columna)
 							nError := errores.NewError(a.Fila, a.Columna, msg)
 							nError.Tipo = Ast.ERROR_SEMANTICO
+							nError.Ambito = scope.GetTipoScope()
 							scope.Errores.Add(nError)
 							scope.Consola += msg + "\n"
 							return Ast.TipoRetornado{
@@ -374,6 +384,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 							" Column: " + strconv.Itoa(columna)
 						nError := errores.NewError(fila, columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -425,6 +436,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 					" Column: " + strconv.Itoa(a.Columna)
 				nError := errores.NewError(a.Fila, a.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -441,6 +453,7 @@ func (a Asignacion) AsignarAccesoArray(id string, scope *Ast.Scope) Ast.TipoReto
 			" -- Line:" + strconv.Itoa(a.Fila) + " Column: " + strconv.Itoa(a.Columna)
 		nError := errores.NewError(a.Fila, a.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -481,6 +494,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -508,6 +522,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -535,6 +550,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 							" Column: " + strconv.Itoa(columna)
 						nError := errores.NewError(fila, columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -572,6 +588,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -595,6 +612,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -627,6 +645,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -640,6 +659,7 @@ func (a Asignacion) AsignarVariable(id string, scope *Ast.Scope) Ast.TipoRetorna
 			" -- Line:" + strconv.Itoa(a.Fila) + " Column: " + strconv.Itoa(a.Columna)
 		nError := errores.NewError(a.Fila, a.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -669,6 +689,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -691,6 +712,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 			" Column: " + strconv.Itoa(a.Valor.(Ast.Abstracto).GetColumna())
 		nError := errores.NewError(a.Valor.(Ast.Abstracto).GetFila(), a.Valor.(Ast.Abstracto).GetColumna(), msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -721,6 +743,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 				" Column: " + strconv.Itoa(a.Columna)
 			nError := errores.NewError(a.Fila, a.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -743,6 +766,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -769,6 +793,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 							" Column: " + strconv.Itoa(a.Columna)
 						nError := errores.NewError(a.Fila, a.Columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -792,6 +817,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 							" Column: " + strconv.Itoa(columna)
 						nError := errores.NewError(fila, columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -828,6 +854,7 @@ func (a Asignacion) AsignarAccesoVector(id string, scope *Ast.Scope) Ast.TipoRet
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{

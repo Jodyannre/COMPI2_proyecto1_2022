@@ -1,0 +1,88 @@
+
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>No.</td>
+				  <td>Nombre tabla</td>
+				  <td>Nombre de la base de datos</td>
+				  <td>Línea</td>
+			  </tr>
+<tr>
+<td cellpadding='4'>
+1
+</td>
+<td cellpadding='4'>Enfermero
+</td>
+<td cellpadding='4'>Personas
+</td>
+<td cellpadding='4'>2
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+2
+</td>
+<td cellpadding='4'>Azucar
+</td>
+<td cellpadding='4'>Ventas
+</td>
+<td cellpadding='4'>9
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+3
+</td>
+<td cellpadding='4'>Pan
+</td>
+<td cellpadding='4'>Ventas
+</td>
+<td cellpadding='4'>12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+4
+</td>
+<td cellpadding='4'>Rueda
+</td>
+<td cellpadding='4'>Carros
+</td>
+<td cellpadding='4'>22
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+5
+</td>
+<td cellpadding='4'>Calcio
+</td>
+<td cellpadding='4'>Carros
+</td>
+<td cellpadding='4'>25
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+6
+</td>
+<td cellpadding='4'>Llanta
+</td>
+<td cellpadding='4'>Carros
+</td>
+<td cellpadding='4'>19
+</td>
+</tr>
+
+		</table>
+		>];
+	}
+	

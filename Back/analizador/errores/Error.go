@@ -2,6 +2,7 @@ package errores
 
 import (
 	"Back/analizador/Ast"
+	"time"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
@@ -12,6 +13,7 @@ type CustomSyntaxError struct {
 	Msg     string
 	Tipo    Ast.TipoDato
 	Ambito  string
+	Fecha   string
 }
 
 type CustomError struct {
@@ -20,13 +22,19 @@ type CustomError struct {
 	Msg     string
 	Tipo    Ast.TipoDato
 	Ambito  string
+	Fecha   string
 }
 
 func NewError(fila int, columna int, msg string) CustomSyntaxError {
+	//Generar la fecha y la hora
+	dt := time.Now()
+	fecha := dt.Format("01-02-2006 15:04:05")
 	return CustomSyntaxError{
 		Fila:    fila,
 		Columna: columna,
 		Msg:     msg,
+		Fecha:   fecha,
+		Ambito:  "Local",
 	}
 }
 
@@ -52,4 +60,14 @@ func (op CustomSyntaxError) GetColumna() int {
 
 func (e CustomSyntaxError) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.INSTRUCCION, e.Tipo
+}
+
+func (op CustomSyntaxError) GetAmbito() string {
+	return op.Ambito
+}
+func (op CustomSyntaxError) GetDescripcion() string {
+	return op.Msg
+}
+func (op CustomSyntaxError) GetFecha() string {
+	return op.Fecha
 }

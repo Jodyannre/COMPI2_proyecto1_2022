@@ -49,6 +49,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -68,6 +69,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -133,6 +135,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -154,6 +157,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -180,6 +184,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -199,6 +204,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -216,6 +222,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -235,6 +242,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -252,6 +260,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -316,6 +325,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -336,6 +346,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{

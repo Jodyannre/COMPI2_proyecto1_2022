@@ -32,6 +32,7 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	var idModuloGlobal string
 	var tipoParticular Ast.TipoDato
 	var simboloGlobal Ast.Simbolo
+	var simboloLocal Ast.Simbolo
 	var moduloGlobal Modulo
 	var scopeValido *Ast.Scope
 	var idElementoActual interface{}
@@ -47,6 +48,11 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 
 	//Verificar que el módulo existe, obtener el símbolo donde esta guardado
 	simboloGlobal = scope.Exist_fms_declaracion(idModuloGlobal)
+	simboloLocal = scope.Exist_fms_local(idModuloGlobal)
+
+	if simboloGlobal.Tipo != Ast.MODULO {
+		simboloGlobal = simboloLocal
+	}
 
 	//Verificar que el símbolo exista
 	if simboloGlobal.Tipo == Ast.ERROR_NO_EXISTE {
@@ -58,9 +64,31 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
-		scope.UpdateScopeGlobal()
+		//scope.UpdateScopeGlobal()
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+	}
+
+	//Verificar que no sea privado
+
+	if simboloGlobal.Tipo == Ast.ERROR_ACCESO_PRIVADO {
+		//Crear error de que el módulo no existe en el ámbito global al menos
+		fila := idElementoGlobal.(Ast.Abstracto).GetFila()
+		columna := idElementoGlobal.(Ast.Abstracto).GetColumna()
+		msg := "Semantic error, the element: \"" + idModuloGlobal + "\" is private." +
+			" -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		//scope.UpdateScopeGlobal()
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
@@ -76,9 +104,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
-		scope.UpdateScopeGlobal()
+		//scope.UpdateScopeGlobal()
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
@@ -99,9 +128,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
-		scope.UpdateScopeGlobal()
+		//scope.UpdateScopeGlobal()
 		return Ast.TipoRetornado{
 			Tipo:  Ast.ERROR,
 			Valor: nError,
@@ -129,9 +159,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -146,9 +177,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -163,9 +195,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -180,9 +213,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -216,9 +250,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -237,9 +272,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -254,9 +290,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -271,9 +308,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,
@@ -288,9 +326,10 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
-				scope.UpdateScopeGlobal()
+				//scope.UpdateScopeGlobal()
 				return Ast.TipoRetornado{
 					Tipo:  Ast.ERROR,
 					Valor: nError,

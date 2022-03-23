@@ -69,6 +69,7 @@ func (f FuncionMain) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				newScope.Errores.Add(nError)
 				newScope.Consola += msg + "\n"
 			}
@@ -99,6 +100,7 @@ func (f FuncionMain) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				}
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				newScope.Errores.Add(nError)
 				newScope.Consola += msg + "\n"
 			}

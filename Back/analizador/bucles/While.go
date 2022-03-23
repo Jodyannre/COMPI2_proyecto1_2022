@@ -53,6 +53,7 @@ func (w While) Run(scope *Ast.Scope) interface{} {
 			strconv.Itoa(w.Columna)
 		nError := errores.NewError(w.Fila, w.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		newScope.Errores.Add(nError)
 		newScope.Consola += msg + "\n"
 		newScope.UpdateScopeGlobal()
@@ -72,6 +73,7 @@ func (w While) Run(scope *Ast.Scope) interface{} {
 				strconv.Itoa(w.Columna)
 			nError := errores.NewError(w.Fila, w.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()
@@ -180,6 +182,7 @@ func (w While) Run(scope *Ast.Scope) interface{} {
 				strconv.Itoa(w.Columna)
 			nError := errores.NewError(w.Fila, w.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()

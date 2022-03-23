@@ -27,6 +27,7 @@ func (p Identificador) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(p.Columna)
 		nError := errores.NewError(p.Fila, p.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -49,4 +50,8 @@ func (op Identificador) GetFila() int {
 }
 func (op Identificador) GetColumna() int {
 	return op.Columna
+}
+
+func (op Identificador) GetNombre() string {
+	return op.Valor
 }

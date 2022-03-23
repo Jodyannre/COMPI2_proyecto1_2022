@@ -6479,7 +6479,7 @@ func (p *Nparser) Declaracion_modulo() (localctx IDeclaracion_moduloContext) {
 			} else {
 				return localctx.(*Declaracion_moduloContext).Get_MOD().GetColumn()
 			}
-		}()) - 1
+		}())
 		id := expresiones.NewIdentificador((func() string {
 			if localctx.(*Declaracion_moduloContext).Get_ID_CAMEL() == nil {
 				return ""
@@ -6531,7 +6531,7 @@ func (p *Nparser) Declaracion_modulo() (localctx IDeclaracion_moduloContext) {
 			} else {
 				return localctx.(*Declaracion_moduloContext).Get_PUB().GetColumn()
 			}
-		}()) - 1
+		}())
 		id := expresiones.NewIdentificador((func() string {
 			if localctx.(*Declaracion_moduloContext).Get_ID_CAMEL() == nil {
 				return ""
@@ -8190,7 +8190,7 @@ func (p *Nparser) Accesos_vector_array_asignacion() (localctx IAccesos_vector_ar
 			} else {
 				return localctx.(*Accesos_vector_array_asignacionContext).Get_ID().GetColumn()
 			}
-		}()) - 1
+		}())
 		idE := expresiones.NewIdentificador(id, Ast.IDENTIFICADOR, fila, columna)
 		localctx.(*Accesos_vector_array_asignacionContext).ex = fn_array.NewAccesoArray(idE, localctx.(*Accesos_vector_array_asignacionContext).GetLista().GetList(), fila, columna)
 
@@ -8239,7 +8239,7 @@ func (p *Nparser) Accesos_vector_array_asignacion() (localctx IAccesos_vector_ar
 			} else {
 				return localctx.(*Accesos_vector_array_asignacionContext).Get_ID().GetColumn()
 			}
-		}()) - 1
+		}())
 		idE := expresiones.NewIdentificador(id, Ast.IDENTIFICADOR, fila, columna)
 		localctx.(*Accesos_vector_array_asignacionContext).ex = fn_vectores.NewAccesoVec(idE, localctx.(*Accesos_vector_array_asignacionContext).GetIndex().GetEx(), Ast.VEC_ACCESO, fila, columna)
 
@@ -12321,7 +12321,7 @@ func (p *Nparser) Control_match() (localctx IControl_matchContext) {
 		} else {
 			return localctx.(*Control_matchContext).Get_MATCH().GetLine()
 		}
-	}()) - 1
+	}())
 	localctx.(*Control_matchContext).ex = exp_ins.NewMatch(localctx.(*Control_matchContext).Get_expresion().GetEx(), localctx.(*Control_matchContext).Get_control_case().GetList(), Ast.MATCH, fila, columna)
 
 	return localctx
@@ -13098,7 +13098,7 @@ func (p *Nparser) Control_match_exp() (localctx IControl_match_expContext) {
 		} else {
 			return localctx.(*Control_match_expContext).Get_MATCH().GetLine()
 		}
-	}()) - 1
+	}())
 	localctx.(*Control_match_expContext).ex = exp_ins.NewMatch(localctx.(*Control_match_expContext).Get_expresion().GetEx(), localctx.(*Control_match_expContext).Get_control_case_exp().GetList(), Ast.MATCH_EXPRESION, fila, columna)
 
 	return localctx
@@ -18915,7 +18915,7 @@ func (p *Nparser) acceso_modulo_elementos(_p int) (localctx IAcceso_modulo_eleme
 		} else {
 			return localctx.(*Acceso_modulo_elementosContext).Get_ID_CAMEL().GetColumn()
 		}
-	}()) - 1
+	}())
 	id := expresiones.NewIdentificador((func() string {
 		if localctx.(*Acceso_modulo_elementosContext).Get_ID_CAMEL() == nil {
 			return ""
@@ -19357,7 +19357,7 @@ func (p *Nparser) Control_for() (localctx IControl_forContext) {
 			} else {
 				return localctx.(*Control_forContext).Get_FOR().GetColumn()
 			}
-		}()) - 1
+		}())
 		id := expresiones.NewIdentificador((func() string {
 			if localctx.(*Control_forContext).Get_ID() == nil {
 				return ""
@@ -19416,7 +19416,7 @@ func (p *Nparser) Control_for() (localctx IControl_forContext) {
 			} else {
 				return localctx.(*Control_forContext).Get_FOR().GetColumn()
 			}
-		}()) - 1
+		}())
 		id := expresiones.NewIdentificador((func() string {
 			if localctx.(*Control_forContext).Get_ID() == nil {
 				return ""

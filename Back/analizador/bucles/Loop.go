@@ -46,6 +46,7 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 				strconv.Itoa(l.Columna)
 			nError := errores.NewError(l.Fila, l.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()
@@ -93,6 +94,7 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 					nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
 						instruccion.(Ast.Abstracto).GetColumna(), msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					newScope.Errores.Add(nError)
 					newScope.Consola += msg + "\n"
 					newScope.UpdateScopeGlobal()
@@ -123,6 +125,7 @@ func (l Loop) Run(scope *Ast.Scope) interface{} {
 					nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
 						instruccion.(Ast.Abstracto).GetColumna(), msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					newScope.Errores.Add(nError)
 					newScope.Consola += msg + "\n"
 					newScope.UpdateScopeGlobal()

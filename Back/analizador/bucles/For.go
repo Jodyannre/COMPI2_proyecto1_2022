@@ -60,6 +60,7 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 			strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		scope.UpdateScopeGlobal()

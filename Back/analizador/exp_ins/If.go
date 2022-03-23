@@ -103,6 +103,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 							" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 						nError := errores.NewError(i.Fila, i.Columna, msg)
 						nError.Tipo = Ast.ERROR_SEMANTICO
+						nError.Ambito = scope.GetTipoScope()
 						scope.Errores.Add(nError)
 						scope.Consola += msg + "\n"
 						return Ast.TipoRetornado{
@@ -156,6 +157,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 						" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 					nError := errores.NewError(i.Fila, i.Columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -172,6 +174,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 				nError := errores.NewError(i.Fila, i.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -232,6 +235,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 			" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 		nError := errores.NewError(i.Fila, i.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{

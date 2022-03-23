@@ -1,0 +1,52 @@
+
+	digraph {
+		tablaSimbolos [
+		  shape=plaintext
+		  label=<
+			<table border='0' cellborder='1' color='black' cellspacing='0'>
+			  <tr>
+				  <td>No.</td>
+				  <td>Nombre</td>
+				  <td>No. Tablas</td>
+				  <td>Línea</td>
+			  </tr>
+<tr>
+<td cellpadding='4'>
+1
+</td>
+<td cellpadding='4'>Personas
+</td>
+<td cellpadding='4'>1
+</td>
+<td cellpadding='4'>1
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+2
+</td>
+<td cellpadding='4'>Ventas
+</td>
+<td cellpadding='4'>2
+</td>
+<td cellpadding='4'>8
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+3
+</td>
+<td cellpadding='4'>Carros
+</td>
+<td cellpadding='4'>3
+</td>
+<td cellpadding='4'>18
+</td>
+</tr>
+
+		</table>
+		>];
+	}
+	

@@ -48,6 +48,7 @@ func (d DeclaracionModulo) Run(scope *Ast.Scope) interface{} {
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -65,6 +66,7 @@ func (d DeclaracionModulo) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(d.Fila) + " Column: " + strconv.Itoa(d.Columna)
 		nError := errores.NewError(d.Fila, d.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{

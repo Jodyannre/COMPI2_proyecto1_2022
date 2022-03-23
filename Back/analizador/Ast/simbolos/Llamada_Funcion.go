@@ -54,6 +54,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				" Column: " + strconv.Itoa(l.Columna)
 			nError := errores.NewError(l.Fila, l.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()
@@ -72,6 +73,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				" Column: " + strconv.Itoa(l.Columna)
 			nError := errores.NewError(l.Fila, l.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()
@@ -89,6 +91,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				" Column: " + strconv.Itoa(l.Columna)
 			nError := errores.NewError(l.Fila, l.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()
@@ -111,6 +114,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(l.Columna)
 		nError := errores.NewError(l.Fila, l.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		newScope.Errores.Add(nError)
 		newScope.Consola += msg + "\n"
 		newScope.UpdateScopeGlobal()
@@ -127,6 +131,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 			" Column: " + strconv.Itoa(l.Columna)
 		nError := errores.NewError(l.Fila, l.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		newScope.Errores.Add(nError)
 		newScope.Consola += msg + "\n"
 		newScope.UpdateScopeGlobal()

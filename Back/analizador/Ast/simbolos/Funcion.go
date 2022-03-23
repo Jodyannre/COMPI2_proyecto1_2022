@@ -79,6 +79,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -95,6 +96,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -111,6 +113,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 					" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -159,6 +162,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 						" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -182,6 +186,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(fila) + " Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 	}
@@ -203,6 +208,7 @@ func (f Funcion) RunParametros(scope *Ast.Scope, parametrosIN *arraylist.List) A
 			" Column: " + strconv.Itoa(f.Columna)
 		nError := errores.NewError(f.Fila, f.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -260,6 +266,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -300,6 +307,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -327,6 +335,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -343,6 +352,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -361,6 +371,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -479,6 +490,12 @@ func (f Funcion) GetFila() int {
 }
 func (f Funcion) GetColumna() int {
 	return f.Columna
+}
+
+func (f Funcion) GetTipoRetornado(scope *Ast.Scope) string {
+	tipo := GetTipoEstructura(f.Retorno, scope, f)
+	cadena := Tipo_String(tipo)
+	return cadena
 }
 
 func EsAVelementos(tipo Ast.TipoDato) bool {

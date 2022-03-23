@@ -56,6 +56,7 @@ func (m Modulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					" Column: " + strconv.Itoa(columna)
 				nError := errores.NewError(fila, columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				newScope.Errores.Add(nError)
 				newScope.Consola += msg + "\n"
 				continue
@@ -77,6 +78,7 @@ func (m Modulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			continue
@@ -104,4 +106,31 @@ func (a Modulo) GetFila() int {
 }
 func (a Modulo) GetColumna() int {
 	return a.Columna
+}
+
+func (a Modulo) GetTablas() int {
+	var cantidad int = 0
+	tabla := a.Entorno.GetTablaModulos()
+	for key, _ := range tabla {
+		if key == "nada" {
+			println("para que no haya error")
+		}
+		cantidad++
+	}
+	return cantidad
+}
+
+func (a Modulo) GetEntorno() *Ast.Scope {
+	return a.Entorno
+}
+
+func (a Modulo) GetNombre() string {
+	_, tipoParticular := a.Identificador.(Ast.Abstracto).GetTipo()
+	var nombre string
+	if tipoParticular == Ast.IDENTIFICADOR {
+		nombre = a.Identificador.(Ast.Identificadores).GetNombre()
+	} else {
+		nombre = a.Identificador.(AccesoModulo).Elementos.GetValue(0).(Ast.Identificadores).GetNombre()
+	}
+	return nombre
 }

@@ -72,6 +72,7 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(m.Fila) + " Column: " + strconv.Itoa(m.Columna)
 		nError := errores.NewError(m.Fila, m.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -99,6 +100,7 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 					" value. -- Line:" + strconv.Itoa(caso.Fila) + " Column: " + strconv.Itoa(caso.Columna)
 				nError := errores.NewError(caso.Fila, caso.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				scope.Errores.Add(nError)
 				scope.Consola += msg + "\n"
 				return Ast.TipoRetornado{
@@ -124,6 +126,7 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 				" -- Line:" + strconv.Itoa(caso.Fila) + " Column: " + strconv.Itoa(caso.Columna)
 			nError := errores.NewError(caso.Fila, caso.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -140,6 +143,7 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 				" -- Line:" + strconv.Itoa(m.Fila) + " Column: " + strconv.Itoa(m.Columna)
 			nError := errores.NewError(m.Fila, m.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			scope.UpdateScopeGlobal()
@@ -181,6 +185,7 @@ func (m Match) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(m.Fila) + " Column: " + strconv.Itoa(m.Columna)
 		nError := errores.NewError(m.Fila, m.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -225,6 +230,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 					" -- Line:" + strconv.Itoa(c.Fila) + " Column: " + strconv.Itoa(c.Columna)
 				nError := errores.NewError(c.Fila, c.Columna, msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				newScope.Errores.Add(nError)
 				newScope.Consola += msg + "\n"
 				newScope.UpdateScopeGlobal()
@@ -249,6 +255,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 					" -- Line:" + strconv.Itoa(temp.GetFila()) + " Column: " + strconv.Itoa(temp.GetColumna())
 				nError := errores.NewError(temp.GetFila(), temp.GetColumna(), msg)
 				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = scope.GetTipoScope()
 				newScope.Errores.Add(nError)
 				newScope.Consola += msg + "\n"
 				newScope.UpdateScopeGlobal()
@@ -277,6 +284,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 				" -- Line:" + strconv.Itoa(c.Fila) + " Column: " + strconv.Itoa(c.Columna)
 			nError := errores.NewError(c.Fila, c.Columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			newScope.Errores.Add(nError)
 			newScope.Consola += msg + "\n"
 			newScope.UpdateScopeGlobal()
@@ -294,6 +302,7 @@ func (c Case) Run(scope *Ast.Scope) interface{} {
 			" -- Line:" + strconv.Itoa(c.Fila) + " Column: " + strconv.Itoa(c.Columna)
 		nError := errores.NewError(c.Fila, c.Columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		newScope.UpdateScopeGlobal()

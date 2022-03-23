@@ -51,6 +51,7 @@ func (s StructTemplate) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 						" Column: " + strconv.Itoa(att_val.Columna)
 					nError := errores.NewError(att_val.Fila, att_val.Columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{

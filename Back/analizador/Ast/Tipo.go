@@ -12,7 +12,7 @@ var ValorTipoDato = [100]string{
 	"USIZE",
 	"CHAR",
 	"ARRAY",
-	"Vec<>",
+	"VECTOR",
 	"STRUCT",
 	"IDENTIFICADOR",
 	"LOOP_EXPRESION",

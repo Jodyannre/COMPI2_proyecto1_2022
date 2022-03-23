@@ -23,6 +23,7 @@ func (a AccesoModulo) GetTipoFromAccesoModulo(tipo Ast.TipoRetornado, scope *Ast
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{
@@ -126,6 +127,7 @@ func GetTipoEstructura(tipo Ast.TipoRetornado, scope *Ast.Scope, elemento interf
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -156,6 +158,7 @@ func GetTipoEstructura(tipo Ast.TipoRetornado, scope *Ast.Scope, elemento interf
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -209,6 +212,7 @@ func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope)
 				" Column: " + strconv.Itoa(columna)
 			nError := errores.NewError(fila, columna, msg)
 			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = scope.GetTipoScope()
 			scope.Errores.Add(nError)
 			scope.Consola += msg + "\n"
 			return Ast.TipoRetornado{
@@ -228,6 +232,7 @@ func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope)
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -247,6 +252,7 @@ func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope)
 						" Column: " + strconv.Itoa(columna)
 					nError := errores.NewError(fila, columna, msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
+					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
 					return Ast.TipoRetornado{
@@ -268,6 +274,7 @@ func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope)
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
 		scope.Errores.Add(nError)
 		scope.Consola += msg + "\n"
 		return Ast.TipoRetornado{

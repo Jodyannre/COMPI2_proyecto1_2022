@@ -26,6 +26,16 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 	instrucciones := ctx.GetLista()
 	//Verificar que no existan errores sintácticos o semánticos
 	if v.Errores.Len() > 0 {
+		EntornoGlobal := Ast.NewScope("global", nil)
+		EntornoGlobal.Global = true
+		for i := 0; i < v.Errores.Len(); i++ {
+			err := v.Errores.GetValue(i).(errores.CustomSyntaxError)
+			nError := errores.NewError(err.Fila, err.Columna, err.Msg)
+			nError.Tipo = Ast.ERROR_SEMANTICO
+			nError.Ambito = EntornoGlobal.GetTipoScope()
+			EntornoGlobal.Errores.Add(nError)
+		}
+		EntornoGlobal.GenerarTablaErrores()
 		return
 	}
 
@@ -82,6 +92,7 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = EntornoGlobal.GetTipoScope()
 		EntornoGlobal.Errores.Add(nError)
 		EntornoGlobal.Consola += msg + "\n"
 	}
@@ -95,6 +106,7 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 			" Column: " + strconv.Itoa(columna)
 		nError := errores.NewError(fila, columna, msg)
 		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = EntornoGlobal.GetTipoScope()
 		EntornoGlobal.Errores.Add(nError)
 		EntornoGlobal.Consola += msg + "\n"
 	}
@@ -112,6 +124,10 @@ func (v *Visitador) ExitInicio(ctx *parser.InicioContext) {
 	for i := 0; i < EntornoGlobal.Errores.Len(); i++ {
 		v.Errores.Add(EntornoGlobal.Errores.GetValue(i))
 	}
+	EntornoGlobal.GenerarTablaSimbolos()
+	EntornoGlobal.GenerarTablaErrores()
+	EntornoGlobal.GenerarTablaBD()
+	EntornoGlobal.GenerarTablaTablas()
 }
 
 func (v *Visitador) GetConsola() string {

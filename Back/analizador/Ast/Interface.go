@@ -21,6 +21,21 @@ type Structs interface {
 	SetMutabilidad(mutable bool) interface{}
 }
 
+type Modulos interface {
+	GetFila() int
+	GetTablas() int
+	GetNombre() string
+	GetEntorno() *Scope
+}
+
+type Funciones interface {
+	GetTipoRetornado(scope *Scope) string
+}
+
+type Identificadores interface {
+	GetNombre() string
+}
+
 type AccesosM interface {
 	GetTipoFromAccesoModulo(tipo TipoRetornado, scope *Scope) TipoRetornado
 	GetTipoEstructura(tipo TipoRetornado, scope *Scope) TipoRetornado
@@ -40,4 +55,12 @@ type Clones interface {
 
 type CrearStruct interface {
 	CrearStructInstancia(plantilla TipoRetornado, atributos *arraylist.List, mutable bool, fila, columna int) interface{}
+}
+
+type Error interface {
+	GetFila() int
+	GetColumna() int
+	GetAmbito() string
+	GetDescripcion() string
+	GetFecha() string
 }
