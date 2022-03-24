@@ -238,8 +238,17 @@ func GetNivelesVector(vectorGuardado expresiones.Vector, vectorEntrante expresio
 	if vectorGuardado.Tipo == Ast.VECTOR && vectorEntrante.Tipo == Ast.VECTOR {
 		//Verificar si tiene elementos ambos
 		if vectorGuardado.Valor.Len() > 0 && vectorEntrante.Valor.Len() > 0 {
-			return GetNivelesVector(vectorGuardado.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector),
-				vectorEntrante.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector))
+			if vectorGuardado.TipoVector.Tipo == Ast.VECTOR && vectorEntrante.TipoVector.Tipo == Ast.VECTOR {
+				return GetNivelesVector(vectorGuardado.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector),
+					vectorEntrante.Valor.GetValue(0).(Ast.TipoRetornado).Valor.(expresiones.Vector))
+			}
+			if vectorGuardado.TipoVector.Tipo != Ast.VECTOR && vectorEntrante.TipoVector.Tipo == Ast.VECTOR {
+				return false
+			}
+			if vectorGuardado.TipoVector.Tipo == Ast.VECTOR && vectorEntrante.TipoVector.Tipo != Ast.VECTOR {
+				return false
+			}
+
 		}
 		return true
 	}

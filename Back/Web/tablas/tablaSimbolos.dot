@@ -393,16 +393,16 @@ registrar_lectores
 
 <tr>
 <td cellpadding='4'>
-vector
+tabla_libro
 </td>
 <td cellpadding='4'>VARIABLE
 </td>
-<td cellpadding='4'>ARRAY
+<td cellpadding='4'>VECTOR
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-440
+438
 </td>
 <td cellpadding='4'>
 4
@@ -411,7 +411,43 @@ vector
 
 <tr>
 <td cellpadding='4'>
-elemento
+tabla_lector
+</td>
+<td cellpadding='4'>VARIABLE
+</td>
+<td cellpadding='4'>VECTOR
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+439
+</td>
+<td cellpadding='4'>
+4
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+tabla
+</td>
+<td cellpadding='4'>VARIABLE
+</td>
+<td cellpadding='4'>VECTOR
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+397
+</td>
+<td cellpadding='4'>
+20
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+libros
 </td>
 <td cellpadding='4'>VARIABLE
 </td>
@@ -420,7 +456,25 @@ elemento
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-442
+399
+</td>
+<td cellpadding='4'>
+4
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+libro
+</td>
+<td cellpadding='4'>VARIABLE
+</td>
+<td cellpadding='4'>ARRAY
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+407
 </td>
 <td cellpadding='4'>
 4
