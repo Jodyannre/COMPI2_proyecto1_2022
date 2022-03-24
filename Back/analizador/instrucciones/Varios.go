@@ -90,16 +90,19 @@ func GetTipoEstructura(tipo Ast.TipoRetornado, scope *Ast.Scope) Ast.TipoRetorna
 	}
 	if tipo.Tipo == Ast.STRUCT {
 		//Verificar que el struct exista
-		nombreStruct := tipo.Valor.(string)
-		if scope.Exist(nombreStruct) {
-			return tipo
-		} else {
-			//No existe el struct
-			return Ast.TipoRetornado{
-				Tipo:  Ast.ERROR,
-				Valor: true,
+		return tipo
+		/*
+			nombreStruct := tipo.Valor.(string)
+			if scope.Exist(nombreStruct) {
+				return tipo
+			} else {
+				//No existe el struct
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: true,
+				}
 			}
-		}
+		*/
 
 	}
 	return Ast.TipoRetornado{

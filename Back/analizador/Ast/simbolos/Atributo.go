@@ -3,6 +3,7 @@ package simbolos
 import (
 	"Back/analizador/Ast"
 	"Back/analizador/expresiones"
+	"reflect"
 )
 
 type Atributo struct {
@@ -41,8 +42,13 @@ func NewAtributo(nombre string, valor interface{}, mutable bool, fila, columna i
 }
 
 func (a *Atributo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
+	var valor Ast.TipoRetornado
 	//calcular el valor y los tipos del atributo
-	valor := a.Valor.(Ast.Expresion).GetValue(scope)
+	if reflect.TypeOf(a.Valor) == reflect.TypeOf(Ast.TipoRetornado{}) {
+		valor = a.Valor.(Ast.TipoRetornado)
+	} else {
+		valor = a.Valor.(Ast.Expresion).GetValue(scope)
+	}
 
 	if valor.Tipo == Ast.ERROR {
 		return valor

@@ -142,6 +142,11 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 
+	//Verificar que el scopeOriginal no sea null
+	if l.ScopeOriginal == nil {
+		l.ScopeOriginal = &newScope
+	}
+
 	//Crear los parámetros de las funciones
 	parametrosCreados = funcion.RunParametros(&newScope, l.ScopeOriginal, l.Parametros)
 

@@ -158,3 +158,16 @@ func (op Range) GetColumna() int {
 func (f Range) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 	return Ast.EXPRESION, f.Tipo
 }
+
+func GetVectorFromArray(array expresiones.Array, vector *arraylist.List) interface{} {
+	//Recorrer los elementos
+	for i := 0; i < array.Elementos.Len(); i++ {
+		elemento := array.Elementos.GetValue(i)
+		if elemento.(Ast.TipoRetornado).Tipo == Ast.ARRAY {
+			GetVectorFromArray(elemento.(Ast.TipoRetornado).Valor.(expresiones.Array), vector)
+		} else {
+			vector.Add(elemento)
+		}
+	}
+	return vector
+}

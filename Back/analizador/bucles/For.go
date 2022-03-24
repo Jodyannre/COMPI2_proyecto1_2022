@@ -38,7 +38,7 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 	var primerValor Ast.TipoRetornado
 	var rango Ast.TipoRetornado
 	var nSimbolo Ast.Simbolo
-	var vector expresiones.Vector
+	var vector interface{}
 	//var simboloTemp Ast.Simbolo
 	//var variableTemp Ast.TipoRetornado
 	var valorActual Ast.TipoRetornado
@@ -81,10 +81,18 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 	if rango.Tipo == Ast.ERROR {
 		return rango
 	}
-	vector = rango.Valor.(expresiones.Vector)
+	if rango.Tipo == Ast.VECTOR {
+		vector = rango.Valor.(expresiones.Vector)
+	} else {
+		vector = rango.Valor.(expresiones.Array)
+	}
 
 	//Get el primer elemento
-	primerValor = rango.Valor.(expresiones.Vector).Valor.GetValue(0).(Ast.TipoRetornado)
+	if rango.Tipo == Ast.VECTOR {
+		primerValor = rango.Valor.(expresiones.Vector).Valor.GetValue(0).(Ast.TipoRetornado)
+	} else {
+		primerValor = rango.Valor.(expresiones.Array).Elementos.GetValue(0).(Ast.TipoRetornado)
+	}
 
 	//Crear el símbolo de la variable que se va a utilizar en el for
 	nSimbolo = Ast.Simbolo{
@@ -100,58 +108,115 @@ func (f For) Run(scope *Ast.Scope) interface{} {
 	//Agregar el nuevo simbolo al scope del for
 	newScope.Add(nSimbolo)
 	//primeraIteracion = true
-	for i := 0; i < vector.Valor.Len(); i++ {
-		//Hasta que sea verdadero y termine de iterar toda la lista
-		//Actualizar el valor de la variable al siguiente elemento
-		//Verificar la variable por si fue modifica en la iteración anterior
+	if rango.Tipo == Ast.VECTOR {
 
-		//Recupero la variable tal como esta luego de la iteracion
-		valorActual = vector.Valor.GetValue(i).(Ast.TipoRetornado)
-		//simboloTemp = newScope.GetSimbolo(nombreVariable)
-		//variableTemp = simboloTemp.Valor.(Ast.TipoRetornado)
-		nSimbolo.Valor = vector.Valor.GetValue(i)
-		//Verifico el valor antes de actualizar
-		nSimbolo.Valor = valorActual
-		newScope.UpdateSimbolo(nombreVariable, nSimbolo)
+		for i := 0; i < vector.(expresiones.Vector).Valor.Len(); i++ {
+			//Hasta que sea verdadero y termine de iterar toda la lista
+			//Actualizar el valor de la variable al siguiente elemento
+			//Verificar la variable por si fue modifica en la iteración anterior
 
-		//Ejectuar todas las instrucciones dentro del for en la n iteración
-		for j := 0; j < f.Instrucciones.Len(); j++ {
-			instruccion = f.Instrucciones.GetValue(j)
+			//Recupero la variable tal como esta luego de la iteracion
+			valorActual = vector.(expresiones.Vector).Valor.GetValue(i).(Ast.TipoRetornado)
+			//simboloTemp = newScope.GetSimbolo(nombreVariable)
+			//variableTemp = simboloTemp.Valor.(Ast.TipoRetornado)
+			nSimbolo.Valor = vector.(expresiones.Vector).Valor.GetValue(i)
+			//Verifico el valor antes de actualizar
+			nSimbolo.Valor = valorActual
+			newScope.UpdateSimbolo(nombreVariable, nSimbolo)
 
-			//Verificar los tipos para saber que comportamiento tiene que tener
-			tipoGeneral, _ = instruccion.(Ast.Abstracto).GetTipo()
+			//Ejectuar todas las instrucciones dentro del for en la n iteración
+			for j := 0; j < f.Instrucciones.Len(); j++ {
+				instruccion = f.Instrucciones.GetValue(j)
 
-			if tipoGeneral == Ast.INSTRUCCION {
-				//Ejecutar run
-				resultadoInstruccion = instruccion.(Ast.Instruccion).Run(&newScope).(Ast.TipoRetornado)
+				//Verificar los tipos para saber que comportamiento tiene que tener
+				tipoGeneral, _ = instruccion.(Ast.Abstracto).GetTipo()
 
-			} else if tipoGeneral == Ast.EXPRESION {
-				//Ejecutar getvalue
-				resultadoInstruccion = instruccion.(Ast.Expresion).GetValue(&newScope)
+				if tipoGeneral == Ast.INSTRUCCION {
+					//Ejecutar run
+					resultadoInstruccion = instruccion.(Ast.Instruccion).Run(&newScope).(Ast.TipoRetornado)
 
-			}
+				} else if tipoGeneral == Ast.EXPRESION {
+					//Ejecutar getvalue
+					resultadoInstruccion = instruccion.(Ast.Expresion).GetValue(&newScope)
 
-			//Verificar las instrucciones de transferencia
-			if Ast.EsTransferencia(resultadoInstruccion.Tipo) {
-
-				//Primero verificar que no sea un return normal, el cual si es permitido
-				if resultadoInstruccion.Tipo == Ast.CONTINUE {
-					//Rompemos y vamos a la siguiente iteración del for
-					break
 				}
-				switch resultadoInstruccion.Tipo {
-				case Ast.BREAK_EXPRESION, Ast.RETURN_EXPRESION, Ast.RETURN:
-					return resultadoInstruccion
-				case Ast.BREAK:
-					return Ast.TipoRetornado{
-						Tipo:  Ast.EJECUTADO,
-						Valor: true,
+
+				//Verificar las instrucciones de transferencia
+				if Ast.EsTransferencia(resultadoInstruccion.Tipo) {
+
+					//Primero verificar que no sea un return normal, el cual si es permitido
+					if resultadoInstruccion.Tipo == Ast.CONTINUE {
+						//Rompemos y vamos a la siguiente iteración del for
+						break
+					}
+					switch resultadoInstruccion.Tipo {
+					case Ast.BREAK_EXPRESION, Ast.RETURN_EXPRESION, Ast.RETURN:
+						return resultadoInstruccion
+					case Ast.BREAK:
+						return Ast.TipoRetornado{
+							Tipo:  Ast.EJECUTADO,
+							Valor: true,
+						}
 					}
 				}
-			}
 
+			}
+			//primeraIteracion = false
 		}
-		//primeraIteracion = false
+
+	} else {
+		for i := 0; i < vector.(expresiones.Array).Elementos.Len(); i++ {
+			//Hasta que sea verdadero y termine de iterar toda la lista
+			//Actualizar el valor de la variable al siguiente elemento
+			//Verificar la variable por si fue modifica en la iteración anterior
+
+			//Recupero la variable tal como esta luego de la iteracion
+			valorActual = vector.(expresiones.Array).Elementos.GetValue(i).(Ast.TipoRetornado)
+			//simboloTemp = newScope.GetSimbolo(nombreVariable)
+			//variableTemp = simboloTemp.Valor.(Ast.TipoRetornado)
+			nSimbolo.Valor = vector.(expresiones.Array).Elementos.GetValue(i)
+			//Verifico el valor antes de actualizar
+			nSimbolo.Valor = valorActual
+			newScope.UpdateSimbolo(nombreVariable, nSimbolo)
+
+			//Ejectuar todas las instrucciones dentro del for en la n iteración
+			for j := 0; j < f.Instrucciones.Len(); j++ {
+				instruccion = f.Instrucciones.GetValue(j)
+
+				//Verificar los tipos para saber que comportamiento tiene que tener
+				tipoGeneral, _ = instruccion.(Ast.Abstracto).GetTipo()
+
+				if tipoGeneral == Ast.INSTRUCCION {
+					//Ejecutar run
+					resultadoInstruccion = instruccion.(Ast.Instruccion).Run(&newScope).(Ast.TipoRetornado)
+
+				} else if tipoGeneral == Ast.EXPRESION {
+					//Ejecutar getvalue
+					resultadoInstruccion = instruccion.(Ast.Expresion).GetValue(&newScope)
+
+				}
+				//Verificar las instrucciones de transferencia
+				if Ast.EsTransferencia(resultadoInstruccion.Tipo) {
+
+					//Primero verificar que no sea un return normal, el cual si es permitido
+					if resultadoInstruccion.Tipo == Ast.CONTINUE {
+						//Rompemos y vamos a la siguiente iteración del for
+						break
+					}
+					switch resultadoInstruccion.Tipo {
+					case Ast.BREAK_EXPRESION, Ast.RETURN_EXPRESION, Ast.RETURN:
+						return resultadoInstruccion
+					case Ast.BREAK:
+						return Ast.TipoRetornado{
+							Tipo:  Ast.EJECUTADO,
+							Valor: true,
+						}
+					}
+				}
+
+			}
+			//primeraIteracion = false
+		}
 	}
 	newScope.UpdateScopeGlobal()
 	return Ast.TipoRetornado{

@@ -24,7 +24,7 @@ Libro
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-7
+8
 </td>
 <td cellpadding='4'>
 19
@@ -37,12 +37,12 @@ create_table
 </td>
 <td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>Vec <Libro>
+<td cellpadding='4'>Vec -Libro-
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-23
+24
 </td>
 <td cellpadding='4'>
 12
@@ -60,7 +60,7 @@ select_by_id
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-49
+50
 </td>
 <td cellpadding='4'>
 12
@@ -78,7 +78,7 @@ select
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-76
+78
 </td>
 <td cellpadding='4'>
 12
@@ -91,12 +91,12 @@ inserts
 </td>
 <td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>Vec <Libro>
+<td cellpadding='4'>Vec -Libro-
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-100
+102
 </td>
 <td cellpadding='4'>
 12
@@ -109,12 +109,12 @@ update
 </td>
 <td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>Vec <Libro>
+<td cellpadding='4'>Vec -Libro-
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-129
+131
 </td>
 <td cellpadding='4'>
 12
@@ -127,12 +127,12 @@ update_by_filter
 </td>
 <td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>Vec <Libro>
+<td cellpadding='4'>Vec -Libro-
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-157
+158
 </td>
 <td cellpadding='4'>
 12
@@ -145,12 +145,12 @@ delete_by_id
 </td>
 <td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>Vec <Libro>
+<td cellpadding='4'>Vec -Libro-
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-190
+191
 </td>
 <td cellpadding='4'>
 12
@@ -168,7 +168,169 @@ libro
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
+5
+</td>
+<td cellpadding='4'>
 4
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+Lector
+</td>
+<td cellpadding='4'>VARIABLE
+</td>
+<td cellpadding='4'>STRUCT
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+206
+</td>
+<td cellpadding='4'>
+19
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+create_table
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>Vec -Lector-
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+222
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+select_by_id
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>Lector
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+248
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+select
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>VOID
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+277
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+inserts
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>Vec -Lector-
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+301
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+update
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>Vec -Lector-
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+330
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+update_by_filter
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>Vec -Lector-
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+357
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+delete_by_id
+</td>
+<td cellpadding='4'>FUNCION
+</td>
+<td cellpadding='4'>Vec -Lector-
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+385
+</td>
+<td cellpadding='4'>
+12
+</td>
+</tr>
+
+<tr>
+<td cellpadding='4'>
+lector
+</td>
+<td cellpadding='4'>MODULO
+</td>
+<td cellpadding='4'>
+</td>
+<td cellpadding='4'>Local
+</td>
+<td cellpadding='4'>
+203
 </td>
 <td cellpadding='4'>
 4
@@ -186,7 +348,7 @@ biblioteca
 <td cellpadding='4'>Global
 </td>
 <td cellpadding='4'>
-1
+2
 </td>
 <td cellpadding='4'>
 0
@@ -195,70 +357,52 @@ biblioteca
 
 <tr>
 <td cellpadding='4'>
-titulo
+registrar_libros
 </td>
-<td cellpadding='4'>VARIABLE
+<td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>STRING
+<td cellpadding='4'>Vec -ERROR-
 </td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-204
+<td cellpadding='4'>Global
 </td>
 <td cellpadding='4'>
-45
+397
+</td>
+<td cellpadding='4'>
+0
 </td>
 </tr>
 
 <tr>
 <td cellpadding='4'>
-autor
+registrar_lectores
 </td>
-<td cellpadding='4'>VARIABLE
+<td cellpadding='4'>FUNCION
 </td>
-<td cellpadding='4'>STRING
+<td cellpadding='4'>Vec -ERROR-
 </td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-204
+<td cellpadding='4'>Global
 </td>
 <td cellpadding='4'>
-79
+414
+</td>
+<td cellpadding='4'>
+0
 </td>
 </tr>
 
 <tr>
 <td cellpadding='4'>
-genero
+vector
 </td>
 <td cellpadding='4'>VARIABLE
 </td>
-<td cellpadding='4'>STRING
+<td cellpadding='4'>ARRAY
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-204
-</td>
-<td cellpadding='4'>
-106
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-instancia
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRUCT
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-204
+440
 </td>
 <td cellpadding='4'>
 4
@@ -267,394 +411,16 @@ instancia
 
 <tr>
 <td cellpadding='4'>
-titulo
+elemento
 </td>
 <td cellpadding='4'>VARIABLE
 </td>
-<td cellpadding='4'>STRING
+<td cellpadding='4'>ARRAY
 </td>
 <td cellpadding='4'>Local
 </td>
 <td cellpadding='4'>
-205
-</td>
-<td cellpadding='4'>
-46
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-autor
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-205
-</td>
-<td cellpadding='4'>
-85
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-genero
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-205
-</td>
-<td cellpadding='4'>
-112
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-instancia2
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRUCT
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-205
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-libros
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>VECTOR
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-206
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-num
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>USIZE
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-211
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-libro
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRUCT
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-212
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-nuevaTabla
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>VECTOR
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-217
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-titulo
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-218
-</td>
-<td cellpadding='4'>
-46
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-autor
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-218
-</td>
-<td cellpadding='4'>
-77
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-genero
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-218
-</td>
-<td cellpadding='4'>
-110
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-libroCopia
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRUCT
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-218
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-titulo
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-219
-</td>
-<td cellpadding='4'>
-42
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-autor
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-219
-</td>
-<td cellpadding='4'>
-74
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-genero
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-219
-</td>
-<td cellpadding='4'>
-104
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-nLibro
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRUCT
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-219
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-titulo
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-224
-</td>
-<td cellpadding='4'>
-46
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-autor
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-224
-</td>
-<td cellpadding='4'>
-76
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-genero
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRING
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-224
-</td>
-<td cellpadding='4'>
-102
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-nuevoLibro
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>STRUCT
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-224
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-resultado
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>VECTOR
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-227
-</td>
-<td cellpadding='4'>
-4
-</td>
-</tr>
-
-<tr>
-<td cellpadding='4'>
-resultado2
-</td>
-<td cellpadding='4'>VARIABLE
-</td>
-<td cellpadding='4'>VECTOR
-</td>
-<td cellpadding='4'>Local
-</td>
-<td cellpadding='4'>
-230
+442
 </td>
 <td cellpadding='4'>
 4
