@@ -335,7 +335,9 @@ func (a AccesoModulo) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 					Valor: nError,
 				}
 			}
-
+			funcion := elementoActual.(LlamadaFuncion)
+			funcion.ScopeOriginal = scope
+			elementoActual = funcion
 			return elementoActual.(Ast.Expresion).GetValue(scopeValido)
 
 		}

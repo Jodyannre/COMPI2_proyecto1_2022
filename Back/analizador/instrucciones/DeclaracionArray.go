@@ -12,15 +12,16 @@ import (
 )
 
 type DeclaracionArray struct {
-	Id        string
-	Tipo      Ast.TipoDato
-	TipoArray Ast.TipoRetornado
-	Dimension interface{}
-	Mutable   bool
-	Publico   bool
-	Valor     interface{}
-	Fila      int
-	Columna   int
+	Id            string
+	Tipo          Ast.TipoDato
+	TipoArray     Ast.TipoRetornado
+	Dimension     interface{}
+	Mutable       bool
+	Publico       bool
+	Valor         interface{}
+	Fila          int
+	Columna       int
+	ScopeOriginal *Ast.Scope
 }
 
 func NewDeclaracionArray(id string, dimension interface{},
@@ -46,9 +47,17 @@ func (d DeclaracionArray) GetTipo() (Ast.TipoDato, Ast.TipoDato) {
 func (d DeclaracionArray) Run(scope *Ast.Scope) interface{} {
 	//Verificar que exista, recuperar los arryas y los tipos
 	var validacionDimensiones string
-	existe := scope.Exist_actual(d.Id)
+	var existe bool
+	var valor Ast.TipoRetornado
 	_, tipoIn := d.Valor.(Ast.Abstracto).GetTipo()
-	valor := d.Valor.(Ast.Expresion).GetValue(scope)
+
+	if tipoIn == Ast.VALOR {
+		existe = d.ScopeOriginal.Exist_actual(d.Id)
+		valor = d.Valor.(Ast.Expresion).GetValue(d.ScopeOriginal)
+	} else {
+		existe = scope.Exist_actual(d.Id)
+		valor = d.Valor.(Ast.Expresion).GetValue(scope)
+	}
 	dimension := d.Dimension.(Ast.Expresion).GetValue(scope)
 
 	if existe {

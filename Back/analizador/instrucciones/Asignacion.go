@@ -96,7 +96,6 @@ func (a Asignacion) Run(scope *Ast.Scope) interface{} {
 		id := a.Id.(fn_array.AccesoArray).Identificador.(expresiones.Identificador).Valor
 		resultado = a.AsignarAccesoArray(id, scope)
 	}
-
 	return resultado
 }
 

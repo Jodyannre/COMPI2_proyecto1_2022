@@ -643,6 +643,9 @@ func GenerarFilaErrores(err interface{}, num int) string {
 }
 
 func GenerarFilaSimboloReporte(simbolo SimboloReporte) string {
+	tipo := strings.Replace(simbolo.TipoDato, ">", "-", -1)
+	tipo = strings.Replace(tipo, "<", "-", -1)
+
 	salida := "" + "\n" +
 		"<tr>" + "\n" +
 		"<td cellpadding='4'>" + "\n" +
@@ -652,7 +655,7 @@ func GenerarFilaSimboloReporte(simbolo SimboloReporte) string {
 		simbolo.TipoSimbolo + "\n" +
 		"</td>" + "\n" +
 		"<td cellpadding='4'>" +
-		simbolo.TipoDato + "\n" +
+		tipo + "\n" +
 		"</td>" + "\n" +
 		"<td cellpadding='4'>" +
 		simbolo.Scope + "\n" +
@@ -734,4 +737,18 @@ func GenerarGrafica(ruta, nombre string) {
 	mode := int(0777)
 	ioutil.WriteFile("Web\\tablas\\"+nombre+".svg", cmd, os.FileMode(mode))
 
+}
+
+func (s *Scope) AgregarPrint(cadena string) {
+	//Obtener el scope global
+	var scope_global *Scope
+	if s.prev != nil {
+		for scope_global = s; scope_global.prev != nil; scope_global = scope_global.prev {
+			//Buscando el scope global
+		}
+	} else {
+		scope_global = s
+	}
+
+	scope_global.Consola += cadena
 }

@@ -50,6 +50,9 @@ func (i IF) Run(scope *Ast.Scope) interface{} {
 
 func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetornado {
 	var condicion1 Ast.TipoRetornado
+	var resultado Ast.TipoRetornado
+	var ultimoTipo Ast.TipoDato
+	var instruccion interface{}
 	if pos == -1 {
 		condicion1 = i.Condicion.GetValue(scope)
 	} else {
@@ -72,16 +75,16 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 		}
 	}
 
+	if i.Tipo == Ast.IF_EXPRESION ||
+		i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION {
+		expresion = true
+	}
+
 	if condicion1.Tipo == Ast.BOOLEAN {
 		if condicion1.Valor.(bool) {
 			//Es verdadera; ejecutar las instrucciones
 			n := 0
-			var ultimaExpresion interface{}
-			//Dar un valor por defecto a la expresión, por si nunca retorna nada
-			ultimaExpresion = Ast.TipoRetornado{
-				Valor: nil,
-				Tipo:  Ast.NULL,
-			}
+
 			for n < i.Instrucciones.Len() {
 
 				//Verificar que la instrucción no sea null
@@ -90,86 +93,43 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					continue
 				}
 
-				elemento2 := i.Instrucciones.GetValue(n).(Ast.Abstracto)
-				tipo_abstracto, _ := elemento2.GetTipo()
-				if tipo_abstracto == Ast.EXPRESION && (i.Tipo == Ast.IF_EXPRESION ||
-					i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION) {
-					//Si es un if expresión, tiene que retornar algo
+				instruccion = i.Instrucciones.GetValue(n).(Ast.Abstracto)
+				tipo_abstracto, _ := instruccion.(Ast.Abstracto).GetTipo()
+				ultimoTipo = tipo_abstracto
+				if tipo_abstracto == Ast.EXPRESION {
+					instruccion = i.Instrucciones.GetValue(n)
+					resultado = instruccion.(Ast.Expresion).GetValue(scope)
 
-					//Verificar que sea la última o error
-					if n != i.Instrucciones.Len()-1 {
-						//Error porque no puede venir una expresión sin ser la última
-						msg := "Semantic error, an instruction was expected." +
-							" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
-						nError := errores.NewError(i.Fila, i.Columna, msg)
-						nError.Tipo = Ast.ERROR_SEMANTICO
-						nError.Ambito = scope.GetTipoScope()
-						scope.Errores.Add(nError)
-						scope.Consola += msg + "\n"
-						return Ast.TipoRetornado{
-							Valor: nError,
-							Tipo:  Ast.ERROR,
-						}
-					}
-					expresion := i.Instrucciones.GetValue(n).(Ast.Expresion)
-					ultimaExpresion = expresion.GetValue(scope)
-					if Ast.EsPrimitivo(ultimaExpresion.(Ast.TipoRetornado).Tipo) {
-						scope.UpdateScopeGlobal()
-						return ultimaExpresion.(Ast.TipoRetornado)
-					}
 				} else if tipo_abstracto == Ast.INSTRUCCION {
-					instruccion := i.Instrucciones.GetValue(n).(Ast.Instruccion)
-					//Es transferencia pero if es normal, solo retornar
-					/*
-						if Ast.EsTransferencia(tipoParticular) &&
-							(i.Tipo == Ast.IF_EXPRESION ||
-								i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION) {
-							msg := "Semantic error," + Ast.ValorTipoDato[tipoParticular] + " statement not allowed inside this kind of IF." +
-								" -- Line:" + strconv.Itoa(instruccion.(Ast.Abstracto).GetFila()) + " Column: " +
-								strconv.Itoa(instruccion.(Ast.Abstracto).GetColumna())
-							nError := errores.NewError(instruccion.(Ast.Abstracto).GetFila(),
-								instruccion.(Ast.Abstracto).GetColumna(), msg)
-							nError.Tipo = Ast.ERROR_SEMANTICO
-							scope.Errores.Add(nError)
-							scope.Consola += msg + "\n"
-							return Ast.TipoRetornado{
-								Valor: nError,
-								Tipo:  Ast.ERROR,
-							}
-						}
-					*/
-					resultado := instruccion.Run(scope)
-					/*
-						if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
-							resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
-							//Continuar a la siguiente instruccion
-							//fmt.Println(resultado)
-						}
-					*/
+					instruccion = i.Instrucciones.GetValue(n)
+					resultado = instruccion.(Ast.Instruccion).Run(scope).(Ast.TipoRetornado)
+				}
 
-					if Ast.EsTransferencia(resultado.(Ast.TipoRetornado).Tipo) {
-						//Si es transferencia, terminar con el if y retornarlo
-						return resultado.(Ast.TipoRetornado)
-					}
-
-				} else if tipo_abstracto == Ast.EXPRESION {
-					msg := "Semantic error, an instruction was expected." +
-						" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
-					nError := errores.NewError(i.Fila, i.Columna, msg)
+				if Ast.EsTransferencia(resultado.Tipo) &&
+					expresion {
+					temp := instruccion.(Ast.Abstracto)
+					msg := "Semantic error, transfer statements are not allowed within a if expression statement." +
+						" -- Line:" + strconv.Itoa(temp.GetFila()) + " Column: " + strconv.Itoa(temp.GetColumna())
+					nError := errores.NewError(temp.GetFila(), temp.GetColumna(), msg)
 					nError.Tipo = Ast.ERROR_SEMANTICO
 					nError.Ambito = scope.GetTipoScope()
 					scope.Errores.Add(nError)
 					scope.Consola += msg + "\n"
+					scope.UpdateScopeGlobal()
 					return Ast.TipoRetornado{
 						Valor: nError,
 						Tipo:  Ast.ERROR,
 					}
 				}
+				if Ast.EsTransferencia(resultado.Tipo) {
+					//Si es transferencia, terminar con el if y retornarlo
+					return resultado
+				}
 				n++
 			}
 			//Termino el for, retornar la ultima expresion
 			//Verificar si hay algun retorno o retornar un error
-			if ultimaExpresion.(Ast.TipoRetornado).Tipo == Ast.NULL && expresion {
+			if ultimoTipo != Ast.EXPRESION && expresion {
 				msg := "Semantic error, the if clause is not returning any value." +
 					" -- Line:" + strconv.Itoa(i.Fila) + " Column: " + strconv.Itoa(i.Columna)
 				nError := errores.NewError(i.Fila, i.Columna, msg)
@@ -182,9 +142,9 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					Tipo:  Ast.ERROR,
 				}
 
-			} else if expresion {
+			} else if expresion && ultimoTipo == Ast.EXPRESION {
 				//Si esta retornado algún valor
-				return ultimaExpresion.(Ast.TipoRetornado)
+				return resultado
 			}
 
 		} else {
@@ -216,7 +176,7 @@ func GetResultado(i IF, scope *Ast.Scope, pos int, expresion bool) Ast.TipoRetor
 					return resultado
 				}
 
-				if Ast.EsPrimitivo(resultado.Tipo) && (i.Tipo == Ast.IF_EXPRESION ||
+				if resultado.Tipo != Ast.EJECUTADO && (i.Tipo == Ast.IF_EXPRESION ||
 					i.Tipo == Ast.ELSE_EXPRESION || i.Tipo == Ast.ELSEIF_EXPRESION) {
 					scope.UpdateScopeGlobal()
 					return resultado

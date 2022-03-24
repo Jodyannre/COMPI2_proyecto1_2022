@@ -101,8 +101,9 @@ func (p Print) Run(scope *Ast.Scope) interface{} {
 			Valor: nError,
 		}
 	}
-	//Actualizar consola del scope
-	scope.Consola += valor + "\n"
+	//Actualizar consola del scope global directamente
+	//scope.Consola += valor + "\n"
+	scope.AgregarPrint(valor + "\n")
 	return Ast.TipoRetornado{
 		Tipo:  Ast.EJECUTADO,
 		Valor: true,
@@ -201,7 +202,8 @@ func (p PrintF) Run(scope *Ast.Scope) interface{} {
 			}
 		}
 	}
-	scope.Consola += salida + "\n"
+	//scope.Consola += salida + "\n"
+	scope.AgregarPrint(salida + "\n")
 	return Ast.TipoRetornado{
 		Valor: true,
 		Tipo:  Ast.EJECUTADO,

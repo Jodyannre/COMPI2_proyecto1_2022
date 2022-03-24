@@ -17,17 +17,17 @@
 <td cellpadding='4'>
 1
 </td>
-<td cellpadding='4'>Semantic error, the MODULE: "Persona" doesn't exist. -- Line: 45 Column: 21
+<td cellpadding='4'>Semantic error, expected Vec <Libro> found &VECTOR -- Line: 225 Column: 30
 </td>
 <td cellpadding='4'>Local
 </td>
-<td cellpadding='4'>45
+<td cellpadding='4'>225
 </td>
 <td cellpadding='4'>
-21
+30
 </td>
 <td cellpadding='4'>
-03-23-2022 01:36:30
+03-23-2022 21:21:12
 </td>
 </tr>
 

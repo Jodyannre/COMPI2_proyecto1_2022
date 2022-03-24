@@ -51,7 +51,7 @@ func (t ToString) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	}
 	//Salida
 	switch valor.Tipo {
-	case Ast.I64:
+	case Ast.I64, Ast.USIZE:
 		valorSalida.Valor = strconv.Itoa(valor.Valor.(int))
 	case Ast.F64:
 		valorSalida.Valor = strconv.FormatFloat(valor.Valor.(float64), 'f', -1, 64)

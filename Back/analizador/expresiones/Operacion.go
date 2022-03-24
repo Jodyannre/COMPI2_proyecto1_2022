@@ -9,33 +9,44 @@ import (
 )
 
 var suma_dominante = [7][7]Ast.TipoDato{
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING_OWNED, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
+	{Ast.USIZE, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
+}
+
+var suma_dominante_comparacion = [8][8]Ast.TipoDato{
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.I64},
+	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING_OWNED, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.STRING, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.STR, Ast.NULL, Ast.NULL},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.BOOLEAN, Ast.NULL},
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
+	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.CHAR},
 }
 
 var resta_dominante = [7][7]Ast.TipoDato{
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
+	{Ast.USIZE, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 }
 
 var mul_div_dominante = [7][7]Ast.TipoDato{
-	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
+	{Ast.I64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 	{Ast.NULL, Ast.F64, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
 	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL},
-	{Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
+	{Ast.USIZE, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.NULL, Ast.USIZE},
 }
 
 type Operacion struct {
@@ -536,8 +547,9 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 	case ">", "<", ">=", "<=", "==", "!=":
 		var val_der interface{}
 		var val_izq interface{}
-		result_dominante = suma_dominante[tipo_izq.Tipo][tipo_der.Tipo]
-		if result_dominante == Ast.I64 || result_dominante == Ast.F64 {
+		result_dominante = suma_dominante_comparacion[tipo_izq.Tipo][tipo_der.Tipo]
+		if result_dominante == Ast.I64 || result_dominante == Ast.F64 ||
+			result_dominante == Ast.USIZE {
 
 			if tipo_izq.Tipo == Ast.F64 || tipo_der.Tipo == Ast.F64 {
 
@@ -620,7 +632,7 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 					}
 				}
 			}
-		} else if result_dominante == Ast.STR {
+		} else if result_dominante == Ast.STR || result_dominante == Ast.STRING || result_dominante == Ast.CHAR {
 			//Es una comparación entre STR
 			val_izq = tipo_izq.Valor.(string)
 			val_der = tipo_der.Valor.(string)
@@ -660,6 +672,40 @@ func (op Operacion) GetValue(entorno *Ast.Scope) Ast.TipoRetornado {
 				Tipo:  Ast.BOOLEAN,
 				Valor: len(val_izq.(string)) > len(val_der.(string)),
 			}
+		} else if result_dominante == Ast.BOOLEAN {
+
+			switch op.operador {
+			case "==":
+				return Ast.TipoRetornado{
+					Tipo:  Ast.BOOLEAN,
+					Valor: len(val_izq.(string)) == len(val_der.(string)),
+				}
+			case "!=":
+				return Ast.TipoRetornado{
+					Tipo:  Ast.BOOLEAN,
+					Valor: len(val_izq.(string)) != len(val_der.(string)),
+				}
+			default:
+				msg := "Semantic error, can't compare a " + Ast.ValorTipoDato[tipo_izq.Tipo] +
+					" using " + op.operador +
+					" type. -- Line: " + strconv.Itoa(op.Fila) +
+					" Column: " + strconv.Itoa(op.Columna)
+				nError := errores.NewError(op.Fila, op.Columna, msg)
+				nError.Tipo = Ast.ERROR_SEMANTICO
+				nError.Ambito = entorno.GetTipoScope()
+				entorno.Errores.Add(nError)
+				entorno.Consola += msg + "\n"
+				return Ast.TipoRetornado{
+					Tipo:  Ast.ERROR,
+					Valor: nError,
+				}
+			}
+			/*
+				return Ast.TipoRetornado{
+					Tipo:  Ast.BOOLEAN,
+					Valor: len(val_izq.(string)) > len(val_der.(string)),
+				}
+			*/
 		}
 		msg := "Semantic error, can't compare " + Ast.ValorTipoDato[tipo_izq.Tipo] +
 			" with " + Ast.ValorTipoDato[tipo_der.Tipo] +

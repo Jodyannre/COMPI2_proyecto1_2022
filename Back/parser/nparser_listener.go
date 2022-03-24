@@ -80,6 +80,12 @@ type NparserListener interface {
 	// EnterAccesos_vector_array_asignacion is called when entering the accesos_vector_array_asignacion production.
 	EnterAccesos_vector_array_asignacion(c *Accesos_vector_array_asignacionContext)
 
+	// EnterExpresion_logica is called when entering the expresion_logica production.
+	EnterExpresion_logica(c *Expresion_logicaContext)
+
+	// EnterExpresion_relacional is called when entering the expresion_relacional production.
+	EnterExpresion_relacional(c *Expresion_relacionalContext)
+
 	// EnterExpresion is called when entering the expresion production.
 	EnterExpresion(c *ExpresionContext)
 
@@ -283,6 +289,12 @@ type NparserListener interface {
 
 	// ExitAccesos_vector_array_asignacion is called when exiting the accesos_vector_array_asignacion production.
 	ExitAccesos_vector_array_asignacion(c *Accesos_vector_array_asignacionContext)
+
+	// ExitExpresion_logica is called when exiting the expresion_logica production.
+	ExitExpresion_logica(c *Expresion_logicaContext)
+
+	// ExitExpresion_relacional is called when exiting the expresion_relacional production.
+	ExitExpresion_relacional(c *Expresion_relacionalContext)
 
 	// ExitExpresion is called when exiting the expresion production.
 	ExitExpresion(c *ExpresionContext)

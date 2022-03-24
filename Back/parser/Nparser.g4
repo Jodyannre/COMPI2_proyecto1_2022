@@ -188,39 +188,39 @@ funcion_main returns[Ast.Expresion ex]
 
 
 declaracion returns[Ast.Instruccion ex]
-    : LET ID IGUAL expresion
+    : LET ID IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion_logica.ex,
             false,false,fila,columna)
         }
-    | LET ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
+    | LET ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos 
             tipoVector := $tipo.ex
-            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,false,false,fila,columna)    
+            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion_logica.ex,false,false,fila,columna)    
     
         }
-    | LET MUT ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion
+    | LET MUT ID DOSPUNTOS VEC MENOR tipo=tipo_dato_tipo MAYOR IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos 
             tipoVector := $tipo.ex
-            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion.ex,true,false,fila,columna)            
+            $ex = instrucciones.NewDeclaracionVector($ID.text,tipoVector,$expresion_logica.ex,true,false,fila,columna)            
         }
-    | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion
+    | LET ID DOSPUNTOS dimension=dimension_array IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,false,false,$expresion.ex,fila,columna)            
+            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,false,false,$expresion_logica.ex,fila,columna)            
         }
-    | LET MUT ID DOSPUNTOS dimension=dimension_array IGUAL expresion
+    | LET MUT ID DOSPUNTOS dimension=dimension_array IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos 
-            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,true,false,$expresion.ex,fila,columna)            
+            $ex = instrucciones.NewDeclaracionArray($ID.text,$dimension.ex,true,false,$expresion_logica.ex,fila,columna)            
         }
         
     | LET ID IGUAL control_expresion
@@ -230,11 +230,11 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$control_expresion.ex,
             false,false,fila,columna)
         }
-    | LET ID DOSPUNTOS tipo_dato_tipo IGUAL expresion
+    | LET ID DOSPUNTOS tipo_dato_tipo IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracionTotal($ID.text,$expresion.ex,
+            $ex = instrucciones.NewDeclaracionTotal($ID.text,$expresion_logica.ex,
             $tipo_dato_tipo.ex,false,false,fila,columna)             
         }
     | LET ID DOSPUNTOS tipo_dato_tipo IGUAL control_expresion
@@ -244,11 +244,11 @@ declaracion returns[Ast.Instruccion ex]
             $ex = instrucciones.NewDeclaracionTotal($ID.text,$control_expresion.ex,
             $tipo_dato_tipo.ex,false,false,fila,columna)   
         }
-    | LET MUT ID IGUAL expresion
+    | LET MUT ID IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion.ex,
+            $ex = instrucciones.NewDeclaracionSinTipo($ID.text,$expresion_logica.ex,
             true,false,fila,columna)                 
         }
     | LET MUT ID IGUAL control_expresion
@@ -277,11 +277,11 @@ declaracion returns[Ast.Instruccion ex]
         }
     */
     
-    | LET MUT ID DOSPUNTOS tipo_dato_tipo IGUAL expresion
+    | LET MUT ID DOSPUNTOS tipo_dato_tipo IGUAL expresion_logica
         {
             fila := $LET.line
             columna := $LET.pos
-            $ex = instrucciones.NewDeclaracionTotal($ID.text,$expresion.ex,
+            $ex = instrucciones.NewDeclaracionTotal($ID.text,$expresion_logica.ex,
             $tipo_dato_tipo.ex,true,false,fila,columna)                
         }
     | LET MUT ID DOSPUNTOS tipo_dato_tipo IGUAL control_expresion
@@ -403,20 +403,20 @@ atributo_struct_instancia returns [Ast.Expresion ex]
 
 
 declaracion_modulo returns [Ast.Instruccion ex]
-    :   MOD ID_CAMEL bloque_modulo
+    :   MOD ID bloque_modulo
         {
             fila := $MOD.line
             columna := $MOD.pos
-            id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna) 
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna) 
             modulo := simbolos.NewModulo(id,$bloque_modulo.list,false,fila,columna)
             $ex = simbolos.NewDeclaracionModulo(modulo,false,fila,columna)
 
         }
-    |   PUB MOD ID_CAMEL bloque_modulo
+    |   PUB MOD ID bloque_modulo
         {
             fila := $PUB.line
             columna := $PUB.pos
-            id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)          
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)          
             modulo := simbolos.NewModulo(id,$bloque_modulo.list,true,fila,columna)
             $ex = simbolos.NewDeclaracionModulo(modulo,true,fila,columna)
         }
@@ -514,7 +514,7 @@ declaracion_funcion returns [Ast.Instruccion ex]
 ;
 
 asignacion returns[Ast.Instruccion ex]
-    : id=accesos_vector_array_asignacion IGUAL elemento=expresion
+    : id=accesos_vector_array_asignacion IGUAL elemento=expresion_logica
     {
         fila := $IGUAL.line
         columna := $IGUAL.pos-1
@@ -526,12 +526,12 @@ asignacion returns[Ast.Instruccion ex]
         columna := $IGUAL.pos
         $ex = instrucciones.NewAsignacion($id.ex,$control_expresion.ex,fila,columna)
     }
-    | ID IGUAL expresion
+    | ID IGUAL expresion_logica
     {
         fila := $ID.line
         columna := $ID.pos
         id := expresiones.NewIdentificador($ID.text, Ast.IDENTIFICADOR,fila,columna)
-        $ex = instrucciones.NewAsignacion(id,$expresion.ex,fila,columna)
+        $ex = instrucciones.NewAsignacion(id,$expresion_logica.ex,fila,columna)
     }
     | ID IGUAL control_expresion
     {
@@ -540,7 +540,7 @@ asignacion returns[Ast.Instruccion ex]
         id := expresiones.NewIdentificador($ID.text, Ast.IDENTIFICADOR,fila,columna)
         $ex = instrucciones.NewAsignacion(id,$control_expresion.ex,fila,columna)
     }
-    | idExp=expresion IGUAL valor=expresion
+    | idExp=expresion IGUAL valor=expresion_logica
     {
         fila := $IGUAL.line
         columna := $IGUAL.pos-1
@@ -554,7 +554,7 @@ asignacion returns[Ast.Instruccion ex]
              
     }
 
-    | ex1=expresion PUNTO atributo=ID IGUAL ex2=expresion
+    | ex1=expresion PUNTO atributo=ID IGUAL ex2=expresion_logica
         {
             filaS := $PUNTO.line
             columnaS := $PUNTO.pos-1
@@ -612,6 +612,46 @@ accesos_vector_array_asignacion returns [Ast.Expresion ex]
 ;
 
 
+
+expresion_logica returns[Ast.Expresion ex]
+    :   op_izq=expresion_logica AND op_der=expresion_logica
+        {
+            fila := $AND.line
+            columna := $AND.pos
+            $ex = expresiones.NewOperation($op_izq.ex,$AND.text,$op_der.ex,false,fila,columna)
+        }
+    |   op_izq=expresion_logica OR op_der=expresion_logica
+        {
+            fila := $OR.line
+            columna := $OR.pos
+            $ex = expresiones.NewOperation($op_izq.ex,$OR.text,$op_der.ex,false,fila,columna)
+        }
+    |   expresion_relacional
+        {
+            $ex = $expresion_relacional.ex   
+        }
+;
+
+
+expresion_relacional returns[Ast.Expresion ex]
+    :  op_izq=expresion_relacional op=(MAYOR_I|MAYOR|MENOR_I|MENOR|IGUALDAD|DISTINTO) op_der=expresion_relacional
+        {
+            fila := $op.line
+            columna := $op.pos
+            $ex = expresiones.NewOperation($op_izq.ex,$op.text,$op_der.ex,false,fila,columna)
+        }
+    |   op_izq=expresion_relacional op=(IGUALDAD|DISTINTO) op_der=expresion_relacional
+        {
+            fila := $op.line
+            columna := $op.pos
+            $ex = expresiones.NewOperation($op_izq.ex,$op.text,$op_der.ex,false,fila,columna)
+        }
+    |   expresion 
+    {
+        $ex = $expresion.ex
+    }
+;
+
 expresion returns[Ast.Expresion ex] 
     :   op=(RESTA|NOT) op_izq= expresion
         {
@@ -637,6 +677,51 @@ expresion returns[Ast.Expresion ex]
             columna := $PUNTO.pos - 1
             $ex = fn_primitivas.NewAbs(Ast.LLAMADA_FUNCION,$e.ex,fila,columna)
         }
+
+        //Metodo para clonar
+    |   exp=expresion PUNTO CLONE PAR_IZQ PAR_DER
+
+        {
+            fila:= $PUNTO.line
+            columna:= $PUNTO.pos
+            $ex = expresiones.NewClone($exp.ex,fila,columna)
+        }
+
+        //Metodo len de vector
+    |   id=expresion PUNTO LEN PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewLenVec($id.ex,Ast.VEC_PUSH,fila,columna)
+        }   
+    | id=expresion PUNTO CAPACITY PAR_IZQ PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewCapacityVec($id.ex,Ast.VEC_CAPACITY,fila,columna)
+        }
+    | id=expresion PUNTO CONTAINS PAR_IZQ AMPERSAND exp=expresion PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewContainsVec($id.ex,$exp.ex,Ast.VEC_CONTAINS,fila,columna)            
+        }
+    | id=expresion PUNTO REMOVE PAR_IZQ index=expresion PAR_DER
+        {
+            fila := $PUNTO.line
+            columna := $PUNTO.pos
+            $ex = fn_vectores.NewRemoveVec($id.ex,$index.ex,Ast.VEC_REMOVE,fila,columna)
+
+        }
+        //Funcion to chars
+    |   ex1=expresion PUNTO CHARS PAR_IZQ PAR_DER
+        {
+            elemento := localctx.(*ExpresionContext).GetEx1().GetEx()
+            fila := elemento.(Ast.Abstracto).GetFila()
+            columna := elemento.(Ast.Abstracto).GetColumna()
+            $ex = fn_primitivas.NewToChars($ex1.ex,fila,columna)
+        }
+
     |   op_izq=expresion op=(MULTIPLICACION|DIVISION|MODULO) op_der=expresion
         {
             fila := $op.line
@@ -649,30 +734,6 @@ expresion returns[Ast.Expresion ex]
             fila := $op.line
             columna := $op.pos
             $ex = expresiones.NewOperation($op_izq.ex,$op.text,$op_der.ex,false,fila,columna)
-        }
-    |   op_izq=expresion op=(MAYOR_I|MAYOR|MENOR_I|MENOR|IGUALDAD|DISTINTO) op_der=expresion
-        {
-            fila := $op.line
-            columna := $op.pos
-            $ex = expresiones.NewOperation($op_izq.ex,$op.text,$op_der.ex,false,fila,columna)
-        }
-    |   op_izq=expresion op=(IGUALDAD|DISTINTO) op_der=expresion
-        {
-            fila := $op.line
-            columna := $op.pos
-            $ex = expresiones.NewOperation($op_izq.ex,$op.text,$op_der.ex,false,fila,columna)
-        }
-    |   op_izq=expresion AND op_der=expresion
-        {
-            fila := $AND.line
-            columna := $AND.pos
-            $ex = expresiones.NewOperation($op_izq.ex,$AND.text,$op_der.ex,false,fila,columna)
-        }
-    |   op_izq=expresion OR op_der=expresion
-        {
-            fila := $OR.line
-            columna := $OR.pos
-            $ex = expresiones.NewOperation($op_izq.ex,$OR.text,$op_der.ex,false,fila,columna)
         }
     |   PAR_IZQ expresion PAR_DER
         {
@@ -715,10 +776,6 @@ expresion returns[Ast.Expresion ex]
             }
             $ex = simbolos.NewStructInstancia(acceso,$att.list,false,fila,columna)
         }
-    |   acceso_modulo
-        {
-            $ex = $acceso_modulo.ex
-        }
     |   obj=expresion PUNTO atributo=ID 
     {
             filaS := $PUNTO.line
@@ -737,7 +794,7 @@ expresion returns[Ast.Expresion ex]
             columna := elemento.(Ast.Abstracto).GetColumna() -1 
             $ex = fn_array.NewAccesoArray($id.ex,$lista.list,fila,columna)           
         }
-        /* 
+        
         //Acceso a vector
     |   id=expresion CORCHETE_IZQ index=expresion CORCHETE_DER  
         {
@@ -745,40 +802,14 @@ expresion returns[Ast.Expresion ex]
             columna := $CORCHETE_IZQ.pos-1 
             $ex = fn_vectores.NewAccesoVec($id.ex,$index.ex,Ast.VEC_ACCESO,fila,columna)
         }
-    */
-        //Metodo len de vector
-    |   id=expresion PUNTO LEN PAR_IZQ PAR_DER
+        //Acceso a array
+    |   ID lista=dimension_acceso_array
         {
-            fila := $PUNTO.line
-            columna := $PUNTO.pos
-            $ex = fn_vectores.NewLenVec($id.ex,Ast.VEC_PUSH,fila,columna)
-        }   
-    | id=expresion PUNTO CAPACITY PAR_IZQ PAR_DER
-        {
-            fila := $PUNTO.line
-            columna := $PUNTO.pos
-            $ex = fn_vectores.NewCapacityVec($id.ex,Ast.VEC_CAPACITY,fila,columna)
-        }
-    | id=expresion PUNTO CONTAINS PAR_IZQ AMPERSAND exp=expresion PAR_DER
-        {
-            fila := $PUNTO.line
-            columna := $PUNTO.pos
-            $ex = fn_vectores.NewContainsVec($id.ex,$exp.ex,Ast.VEC_CONTAINS,fila,columna)            
-        }
-    | id=expresion PUNTO REMOVE PAR_IZQ index=expresion PAR_DER
-        {
-            fila := $PUNTO.line
-            columna := $PUNTO.pos
-            $ex = fn_vectores.NewRemoveVec($id.ex,$index.ex,Ast.VEC_REMOVE,fila,columna)
-
-        }
-        //Funcion to chars
-    |   ex1=expresion PUNTO CHARS PAR_IZQ PAR_DER
-        {
-            elemento := localctx.(*ExpresionContext).GetEx1().GetEx()
-            fila := elemento.(Ast.Abstracto).GetFila()
-            columna := elemento.(Ast.Abstracto).GetColumna()
-            $ex = fn_primitivas.NewToChars($ex1.ex,fila,columna)
+            id := $ID.text
+            fila := $ID.line
+            columna := $ID.pos
+            idE := expresiones.NewIdentificador(id,Ast.IDENTIFICADOR,fila,columna)      
+            $ex = fn_array.NewAccesoArray(idE,$lista.list,fila,columna)           
         }
     |   ID		
         {
@@ -786,6 +817,10 @@ expresion returns[Ast.Expresion ex]
             fila := $ID.line
             columna := $ID.pos
             $ex = expresiones.NewIdentificador (id,Ast.IDENTIFICADOR,fila,columna)
+        }
+    |   acceso_modulo
+        {
+            $ex = $acceso_modulo.ex
         }
     |   TRUE        
         {
@@ -854,15 +889,15 @@ tipo_dato returns[Ast.TipoDato ex]
 
 
 control_if returns[Ast.Instruccion ex]
-	:IF expresion bloqueIf = bloque
+	:IF expresion_logica bloqueIf = bloque
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
 		columna++
 		lista_null := arraylist.New()
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_null,Ast.IF,fila,columna,false)
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_null,Ast.IF,fila,columna,false)
 	}	
-	|IF expresion bloqueIf = bloque ELSE bloqueElse = bloque
+	|IF expresion_logica bloqueIf = bloque ELSE bloqueElse = bloque
 	  
 	{
 		fila:= $IF.line
@@ -870,28 +905,28 @@ control_if returns[Ast.Instruccion ex]
 		columna++
         lista_entonces := arraylist.New()
         lista_null := arraylist.New()
-        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE,fila,columna,false)
+        Else := exp_ins.NewIF ($expresion_logica.ex,$bloqueElse.list,lista_null,Ast.ELSE,fila,columna,false)
 		lista_entonces.Add(Else)
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)	
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)	
 	}
-	|IF expresion bloqueIf = bloque bloque_else_if
+	|IF expresion_logica bloqueIf = bloque bloque_else_if
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
 		columna++
 		lista_entonces := $bloque_else_if.list
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)		
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)		
 	}
-	|IF expresion bloqueIf = bloque bloque_else_if ELSE bloqueElse = bloque
+	|IF expresion_logica bloqueIf = bloque bloque_else_if ELSE bloqueElse = bloque
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
 		columna++
         lista_null := arraylist.New()
-        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE,fila,columna,false)
+        Else := exp_ins.NewIF ($expresion_logica.ex,$bloqueElse.list,lista_null,Ast.ELSE,fila,columna,false)
 		lista_entonces := $bloque_else_if.list
         lista_entonces.Add(Else)
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)		
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_entonces,Ast.IF,fila,columna,false)		
 	}
 ;
 
@@ -908,13 +943,13 @@ bloque_else_if returns [*arraylist.List list]
 
 
 else_if returns [Ast.Instruccion ex]
-    : ELSE IF expresion bloquec=bloque
+    : ELSE IF expresion_logica bloquec=bloque
     {
         fila:= $ELSE.line
 		columna:= $ELSE.pos
 		columna++
         lista_null := arraylist.New()
-        $ex = exp_ins.NewIF($expresion.ex,$bloquec.list,lista_null,Ast.ELSEIF,fila,columna,false)	
+        $ex = exp_ins.NewIF($expresion_logica.ex,$bloquec.list,lista_null,Ast.ELSEIF,fila,columna,false)	
     }
 ;
 
@@ -923,15 +958,15 @@ else_if returns [Ast.Instruccion ex]
 
 
 control_if_exp returns[Ast.Instruccion ex]
-	:IF expresion bloqueIf = bloque_control
+	:IF expresion_logica bloqueIf = bloque_control
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
 		columna++
 		lista_null := arraylist.New()
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_null,Ast.IF_EXPRESION,fila,columna,true)
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_null,Ast.IF_EXPRESION,fila,columna,true)
 	}	
-	|IF expresion bloqueIf = bloque_control ELSE bloqueElse = bloque_control
+	|IF expresion_logica bloqueIf = bloque_control ELSE bloqueElse = bloque_control
 	  
 	{
 		fila:= $IF.line
@@ -939,28 +974,28 @@ control_if_exp returns[Ast.Instruccion ex]
 		columna++
         lista_entonces := arraylist.New()
         lista_null := arraylist.New()
-        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE_EXPRESION,fila,columna,true)
+        Else := exp_ins.NewIF ($expresion_logica.ex,$bloqueElse.list,lista_null,Ast.ELSE_EXPRESION,fila,columna,true)
 		lista_entonces.Add(Else)
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)	
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)	
 	}
-	|IF expresion bloqueIf = bloque_control bloque_else_if_exp
+	|IF expresion_logica bloqueIf = bloque_control bloque_else_if_exp
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
 		columna++
 		lista_entonces := $bloque_else_if_exp.list
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
 	}
-	|IF expresion bloqueIf = bloque_control bloque_else_if_exp ELSE bloqueElse = bloque_control
+	|IF expresion_logica bloqueIf = bloque_control bloque_else_if_exp ELSE bloqueElse = bloque_control
 	{
 		fila:= $IF.line
 		columna:= $IF.pos
 		columna++
         lista_null := arraylist.New()
-        Else := exp_ins.NewIF ($expresion.ex,$bloqueElse.list,lista_null,Ast.ELSE_EXPRESION,fila,columna,true)
+        Else := exp_ins.NewIF ($expresion_logica.ex,$bloqueElse.list,lista_null,Ast.ELSE_EXPRESION,fila,columna,true)
 		lista_entonces := $bloque_else_if_exp.list
         lista_entonces.Add(Else)
-		$ex = exp_ins.NewIF($expresion.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
+		$ex = exp_ins.NewIF($expresion_logica.ex,$bloqueIf.list,lista_entonces,Ast.IF_EXPRESION,fila,columna,true)		
 	}
 ;
 
@@ -977,13 +1012,13 @@ bloque_else_if_exp returns [*arraylist.List list]
 
 
 else_if_exp returns [Ast.Instruccion ex]
-    : ELSE IF expresion bloquec=bloque_control
+    : ELSE IF expresion_logica bloquec=bloque_control
     {
         fila:= $ELSE.line
 		columna:= $ELSE.pos
 		columna++
         lista_null := arraylist.New()
-        $ex = exp_ins.NewIF($expresion.ex,$bloquec.list,lista_null,Ast.ELSEIF_EXPRESION,fila,columna,true)	
+        $ex = exp_ins.NewIF($expresion_logica.ex,$bloquec.list,lista_null,Ast.ELSEIF_EXPRESION,fila,columna,true)	
     }
 ;
 
@@ -996,11 +1031,11 @@ control_expresion returns [Ast.Instruccion ex]
 
 
 control_match returns[Ast.Instruccion ex]
-    : MATCH expresion LLAVE_IZQ control_case LLAVE_DER
+    : MATCH expresion_logica LLAVE_IZQ control_case LLAVE_DER
     {
         fila := $MATCH.line
-        columna := $MATCH.line 
-        $ex = exp_ins.NewMatch($expresion.ex,$control_case.list,Ast.MATCH,fila,columna)
+        columna := $MATCH.pos 
+        $ex = exp_ins.NewMatch($expresion_logica.ex,$control_case.list,Ast.MATCH,fila,columna)
     }
 ;
 
@@ -1024,7 +1059,7 @@ cases returns[Ast.Instruccion ex]
     {
 
         fila := $CASE.line
-        columna := $CASE.line -1
+        columna := $CASE.pos
         //Verificar si lo que vienen es un default
         listaTemp := $case_match.list
         _, tipo := listaTemp.GetValue(0).(Ast.Abstracto).GetTipo()
@@ -1039,14 +1074,14 @@ cases returns[Ast.Instruccion ex]
 
 case_match returns[*arraylist.List list]
 @init{$list = arraylist.New()}
-    : lista_cases = case_match O expresion 
+    : lista_cases = case_match O expresion_logica 
         {
-            $lista_cases.list.Add($expresion.ex)
+            $lista_cases.list.Add($expresion_logica.ex)
             $list = $lista_cases.list
         }
-    | expresion 
+    | expresion_logica 
         {
-            $list.Add($expresion.ex)
+            $list.Add($expresion_logica.ex)
         }
     | DEFAULT
         {
@@ -1062,11 +1097,11 @@ case_match returns[*arraylist.List list]
 
 
 control_match_exp returns[Ast.Instruccion ex]
-    : MATCH expresion LLAVE_IZQ control_case_exp LLAVE_DER
+    : MATCH expresion_logica LLAVE_IZQ control_case_exp LLAVE_DER
     {
         fila := $MATCH.line
-        columna := $MATCH.line 
-        $ex = exp_ins.NewMatch($expresion.ex,$control_case_exp.list,Ast.MATCH_EXPRESION,fila,columna)
+        columna := $MATCH.pos 
+        $ex = exp_ins.NewMatch($expresion_logica.ex,$control_case_exp.list,Ast.MATCH_EXPRESION,fila,columna)
     }
 ;
 
@@ -1089,7 +1124,7 @@ cases_exp returns[Ast.Instruccion ex]
     : case_match_exp CASE bloquec=bloque_control COMA
     {
         fila := $CASE.line
-        columna := $CASE.line -1
+        columna := $CASE.pos -1
         //Verificar si lo que vienen es un default
         listaTemp := $case_match_exp.list
         _, tipo := listaTemp.GetValue(0).(Ast.Abstracto).GetTipo()
@@ -1104,14 +1139,14 @@ cases_exp returns[Ast.Instruccion ex]
 
 case_match_exp returns[*arraylist.List list]
 @init{$list = arraylist.New()}
-    : lista_cases = case_match_exp O expresion 
+    : lista_cases = case_match_exp O expresion_logica 
         {
-            $lista_cases.list.Add($expresion.ex)
+            $lista_cases.list.Add($expresion_logica.ex)
             $list = $lista_cases.list
         }
-    | expresion 
+    | expresion_logica 
         {
-            $list.Add($expresion.ex)
+            $list.Add($expresion_logica.ex)
         }
     | DEFAULT
         {
@@ -1130,11 +1165,11 @@ ireturn returns[Ast.Instruccion ex]
             columna := $RETURN.pos
             $ex = transferencia.NewReturn(Ast.RETURN,nil,fila,columna)
         }
-    | RETURN expresion
+    | RETURN expresion_logica
         {
             fila := $RETURN.line
             columna := $RETURN.pos
-            $ex = transferencia.NewReturn(Ast.RETURN_EXPRESION,$expresion.ex,fila,columna)
+            $ex = transferencia.NewReturn(Ast.RETURN_EXPRESION,$expresion_logica.ex,fila,columna)
         }
 ;
 
@@ -1145,11 +1180,11 @@ ibreak returns[Ast.Instruccion ex]
             columna := $BREAK.pos
             $ex = transferencia.NewBreak(Ast.BREAK,nil,fila,columna)            
         }
-    | BREAK expresion
+    | BREAK expresion_logica
         {
             fila := $BREAK.line
             columna := $BREAK.pos
-            $ex = transferencia.NewBreak(Ast.BREAK_EXPRESION,$expresion.ex,fila,columna)                   
+            $ex = transferencia.NewBreak(Ast.BREAK_EXPRESION,$expresion_logica.ex,fila,columna)                   
         }
 ;
 
@@ -1182,11 +1217,11 @@ control_loop_exp returns[Ast.Instruccion ex]
 ;
 
 printNormal returns[Ast.Instruccion ex]
-    : PRINT PAR_IZQ expresion PAR_DER
+    : PRINT PAR_IZQ expresion_logica PAR_DER
         {
             fila := $PRINT.line
             columna := $PRINT.pos
-            $ex = instrucciones.NewPrint($expresion.ex,Ast.PRINT,fila,columna)            
+            $ex = instrucciones.NewPrint($expresion_logica.ex,Ast.PRINT,fila,columna)            
         }
 ;
 
@@ -1203,24 +1238,24 @@ printFormato returns[Ast.Instruccion ex]
 
 elementosPrint returns[*arraylist.List list]
 @init{$list = arraylist.New()}
-    : lista_elementos = elementosPrint COMA expresion 
+    : lista_elementos = elementosPrint COMA expresion_logica 
         {
-            $lista_elementos.list.Add($expresion.ex)
+            $lista_elementos.list.Add($expresion_logica.ex)
             $list = $lista_elementos.list
         }
-    | expresion 
+    | expresion_logica 
         {
-            $list.Add($expresion.ex)
+            $list.Add($expresion_logica.ex)
         }
 ;
 
 
 control_while returns[Ast.Instruccion ex]
-    : WHILE expresion bloque 
+    : WHILE expresion_logica bloque 
         {
             fila := $WHILE.line
             columna := $WHILE.pos
-            $ex = bucles.NewWhile(Ast.WHILE,$expresion.ex,$bloque.list,fila,columna)
+            $ex = bucles.NewWhile(Ast.WHILE,$expresion_logica.ex,$bloque.list,fila,columna)
         }
 ;
 
@@ -1322,14 +1357,14 @@ parametros_llamada returns [*arraylist.List list]
 ;
 
 parametro_llamada_referencia returns [Ast.Expresion ex]
-    :   e = expresion
+    :   e = expresion_logica
     {
         temp := localctx.(*Parametro_llamada_referenciaContext).GetE().GetEx()
         fila := temp.(Ast.Abstracto).GetFila()
         columna := temp.(Ast.Abstracto).GetColumna()
         $ex = simbolos.NewValor($e.ex, Ast.VALOR , false, false, fila, columna)
     }
-    |   AMPERSAND MUT id=expresion
+    |   AMPERSAND MUT id=expresion_logica
     {
         fila := $AMPERSAND.line
         columna := $AMPERSAND.pos
@@ -1337,7 +1372,7 @@ parametro_llamada_referencia returns [Ast.Expresion ex]
         $ex = simbolos.NewValor($id.ex, Ast.VALOR , true, true, fila, columna)
     }
     //id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)
-    |   AMPERSAND id=expresion
+    |   AMPERSAND id=expresion_logica
     {
         fila := $AMPERSAND.line
         columna := $AMPERSAND.pos
@@ -1350,14 +1385,14 @@ parametro_llamada_referencia returns [Ast.Expresion ex]
 
 elementos_vector returns[*arraylist.List list]
 @init{$list = arraylist.New()}
-:   lista_elementos = elementos_vector COMA expresion
+:   lista_elementos = elementos_vector COMA expresion_logica
         {
-            $lista_elementos.list.Add($expresion.ex)
+            $lista_elementos.list.Add($expresion_logica.ex)
             $list = $lista_elementos.list
         }
-|   expresion
+|   expresion_logica
         {
-            $list.Add($expresion.ex)
+            $list.Add($expresion_logica.ex)
         }
 ;
 
@@ -1376,7 +1411,7 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
             //listaTemp := localctx.(*Metodos_iniciar_vectorContext).GetE().GetList()
             $ex = fn_vectores.NewVecElementos($elementos_vector.list,fila,columna)            
         }
-    | VEC_M NOT CORCHETE_IZQ ex1=expresion PUNTOCOMA ex2=expresion CORCHETE_DER
+    | VEC_M NOT CORCHETE_IZQ ex1=expresion_logica PUNTOCOMA ex2=expresion_logica CORCHETE_DER
         {
             fila := $VEC_M.line
             columna := $VEC_M.pos 
@@ -1385,7 +1420,7 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
             listaTemp.Add($ex2.ex)
             $ex = fn_vectores.NewVecFactorial(listaTemp,fila,columna)            
         }
-    | VEC DOBLE_DOSPUNTOS WITH_CAPACITY PAR_IZQ capacity=expresion PAR_DER
+    | VEC DOBLE_DOSPUNTOS WITH_CAPACITY PAR_IZQ capacity=expresion_logica PAR_DER
         {
             fila := $VEC.line
             columna := $VEC.pos 
@@ -1394,13 +1429,13 @@ metodos_iniciar_vector returns[Ast.Expresion ex]
 ;
 
 metodos_vector returns[Ast.Instruccion ex]
-    : id=expresion PUNTO PUSH PAR_IZQ exp=expresion PAR_DER
+    : id=expresion_logica PUNTO PUSH PAR_IZQ exp=expresion_logica PAR_DER
         {
             fila := $PUNTO.line
             columna := $PUNTO.pos
             $ex = fn_vectores.NewPush($id.ex,$exp.ex,Ast.VEC_PUSH,fila,columna)
         }
-    | id=expresion PUNTO INSERT PAR_IZQ pos=expresion COMA exp=expresion PAR_DER
+    | id=expresion_logica PUNTO INSERT PAR_IZQ pos=expresion_logica COMA exp=expresion_logica PAR_DER
         {
             fila := $PUNTO.line
             columna := $PUNTO.pos
@@ -1409,13 +1444,13 @@ metodos_vector returns[Ast.Instruccion ex]
 ;
 
 potencia returns[Ast.Expresion ex]
-    : I64 DOBLE_DOSPUNTOS POW PAR_IZQ val=expresion COMA pot=expresion PAR_DER 
+    : I64 DOBLE_DOSPUNTOS POW PAR_IZQ val=expresion_logica COMA pot=expresion_logica PAR_DER 
     {
         fila := $DOBLE_DOSPUNTOS.line
         columna := $DOBLE_DOSPUNTOS.pos-1        
         $ex = expresiones.NewPow(Ast.POW,Ast.I64,$val.ex,$pot.ex,fila,columna)
     }
-| F64 DOBLE_DOSPUNTOS POWF PAR_IZQ val=expresion COMA pot=expresion PAR_DER 
+| F64 DOBLE_DOSPUNTOS POWF PAR_IZQ val=expresion_logica COMA pot=expresion_logica PAR_DER 
     {
         fila := $DOBLE_DOSPUNTOS.line
         columna := $DOBLE_DOSPUNTOS.pos-1        
@@ -1431,7 +1466,7 @@ array returns[Ast.Expresion ex]
             columna := $CORCHETE_IZQ.pos 
             $ex = fn_array.NewArrayElementos($elementos_vector.list,fila,columna)                
         }
-    | CORCHETE_IZQ elemento=expresion PUNTOCOMA serie=expresion CORCHETE_DER
+    | CORCHETE_IZQ elemento=expresion_logica PUNTOCOMA serie=expresion_logica CORCHETE_DER
         {
             fila := $CORCHETE_IZQ.line
             columna := $CORCHETE_IZQ.pos
@@ -1443,18 +1478,18 @@ array returns[Ast.Expresion ex]
 ;
 
 dimension_array returns[Ast.Expresion ex]
-    : CORCHETE_IZQ lista_elementos = dimension_array PUNTOCOMA expresion CORCHETE_DER
+    : CORCHETE_IZQ lista_elementos = dimension_array PUNTOCOMA expresion_logica CORCHETE_DER
         {
             dimension := localctx.(*Dimension_arrayContext).GetLista_elementos().GetEx()
-            dimension.(expresiones.DimensionArray).Elementos.Add($expresion.ex)
+            dimension.(expresiones.DimensionArray).Elementos.Add($expresion_logica.ex)
             $ex = dimension
         }
-    | CORCHETE_IZQ tipo=tipo_dato_tipo PUNTOCOMA expresion CORCHETE_DER
+    | CORCHETE_IZQ tipo=tipo_dato_tipo PUNTOCOMA expresion_logica CORCHETE_DER
         {
             fila := $CORCHETE_IZQ.line
             columna := $CORCHETE_IZQ.pos
             listaD := arraylist.New()
-            listaD.Add($expresion.ex)
+            listaD.Add($expresion_logica.ex)
             $ex = expresiones.NewDimensionArray(listaD, $tipo.ex,fila,columna)
         }
 
@@ -1462,12 +1497,12 @@ dimension_array returns[Ast.Expresion ex]
 
 dimension_acceso_array returns[*arraylist.List list]
 @init{$list = arraylist.New()}
-    :   lista_elementos = dimension_acceso_array CORCHETE_IZQ expresion CORCHETE_DER
+    :   lista_elementos = dimension_acceso_array CORCHETE_IZQ expresion_logica CORCHETE_DER
              {
-                $lista_elementos.list.Add($expresion.ex)
+                $lista_elementos.list.Add($expresion_logica.ex)
                 $list = $lista_elementos.list
             }
-    |   CORCHETE_IZQ ex1=expresion CORCHETE_DER /*CORCHETE_IZQ ex2=expresion CORCHETE_DER*/
+    |   CORCHETE_IZQ ex1=expresion_logica CORCHETE_DER /*CORCHETE_IZQ ex2=expresion CORCHETE_DER*/
             {
                 $list.Add($ex1.ex)
             }
@@ -1533,11 +1568,11 @@ acceso_modulo_elementos returns[*arraylist.List list]
             $lista_elementos.list.Add($id.ex)
             $list = $lista_elementos.list          
         }
-    |   ID_CAMEL
+    |   ID
         {
-            fila:= $ID_CAMEL.line
-            columna:= $ID_CAMEL.pos      
-            id := expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)   
+            fila:= $ID.line
+            columna:= $ID.pos      
+            id := expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)   
             $list.Add(id)
         }
 ;
@@ -1549,6 +1584,13 @@ acceso_modulo_elemento_final returns [Ast.Expresion ex]
             fila:= $ID_CAMEL.line
             columna:= $ID_CAMEL.pos-1       
             $ex = expresiones.NewIdentificador($ID_CAMEL.text,Ast.IDENTIFICADOR,fila,columna)  
+
+        }
+    | DOBLE_DOSPUNTOS ID
+        {
+            fila:= $ID.line
+            columna:= $ID.pos-1       
+            $ex = expresiones.NewIdentificador($ID.text,Ast.IDENTIFICADOR,fila,columna)  
 
         }
     | DOBLE_DOSPUNTOS llamada_funcion
@@ -1580,20 +1622,20 @@ control_for returns [Ast.Instruccion ex]
 
 
 rango_for returns [Ast.Expresion ex]
-    :   ex1=expresion RANGO ex2=expresion
+    :   ex1=expresion_logica RANGO ex2=expresion_logica
         {
             elemento := localctx.(*Rango_forContext).GetEx1().GetEx()
             fila:= elemento.(Ast.Abstracto).GetFila()
             columna:= elemento.(Ast.Abstracto).GetColumna()  
             $ex = bucles.NewRange(Ast.RANGE_RANGO,$ex1.ex,$ex2.ex,fila,columna)       
         }
-    |   ex3=expresion
+    |   ex3=expresion_logica
     {
             elemento := localctx.(*Rango_forContext).GetEx3().GetEx()
             fila:= elemento.(Ast.Abstracto).GetFila()
             columna:= elemento.(Ast.Abstracto).GetColumna()    
             expresionVacia := expresiones.NewPrimitivo(nil,Ast.NULL,fila,columna) 
-            $ex = bucles.NewRange(Ast.RANGE_EXPRESION,$expresion.ex,expresionVacia,fila,columna)      
+            $ex = bucles.NewRange(Ast.RANGE_EXPRESION,$expresion_logica.ex,expresionVacia,fila,columna)      
     }
 ;
 

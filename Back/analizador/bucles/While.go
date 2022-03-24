@@ -128,16 +128,16 @@ func (w While) Run(scope *Ast.Scope) interface{} {
 					return resultado
 				}
 			}
-
-			if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
-				resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
-				//Siguiente instrucción
-				newScope.UpdateScopeGlobal()
-				newScope.Errores.Clear()
-				newScope.Consola = ""
-				continue
-			}
-
+			/*
+				if resultado.(Ast.TipoRetornado).Tipo == Ast.ERROR ||
+					resultado.(Ast.TipoRetornado).Tipo == Ast.EJECUTADO {
+					//Siguiente instrucción
+					newScope.UpdateScopeGlobal()
+					newScope.Errores.Clear()
+					newScope.Consola = ""
+					continue
+				}
+			*/
 			if resultado.(Ast.TipoRetornado).Tipo == Ast.CONTINUE {
 				//Siguiente iteración
 				newScope.UpdateScopeGlobal()

@@ -197,7 +197,7 @@ func (f Funcion) Run(scope *Ast.Scope) interface{} {
 	}
 }
 
-func (f Funcion) RunParametros(scope *Ast.Scope, parametrosIN *arraylist.List) Ast.TipoRetornado {
+func (f Funcion) RunParametros(scope *Ast.Scope, scopeOrigen *Ast.Scope, parametrosIN *arraylist.List) Ast.TipoRetornado {
 	//var tipos Ast.TipoRetornado             //Variable para verificar que los tipos son correctos
 	var parametrosCreados Ast.TipoRetornado //Variaable para verificar que los parametros fueron creados
 	// Primero revisar que la cantidad de parámetros sea la misma
@@ -226,7 +226,7 @@ func (f Funcion) RunParametros(scope *Ast.Scope, parametrosIN *arraylist.List) A
 	*/
 
 	// crear los parámetros
-	parametrosCreados = CrearParametros(scope, f.Parametros, parametrosIN)
+	parametrosCreados = CrearParametros(scope, scopeOrigen, f.Parametros, parametrosIN)
 
 	if parametrosCreados.Tipo == Ast.ERROR {
 		return parametrosCreados
@@ -389,7 +389,7 @@ func TiposCorrectos(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) 
 	}
 }
 
-func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List) Ast.TipoRetornado {
+func CrearParametros(scope *Ast.Scope, scopeOrigen *Ast.Scope, parametros, parametrosIN *arraylist.List) Ast.TipoRetornado {
 	var iterador int
 	var resultadoParametro, tipoParametro, tipoParametroIN Ast.TipoRetornado
 	var parametroIN, parametro, resultadoDeclaracion interface{}
@@ -402,7 +402,7 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 		paramTemp.TipoDeclaracion = tipoParametro
 		parametro = paramTemp
 		parametroIN = parametrosIN.GetValue(iterador)
-		tipoParametroIN = parametroIN.(Ast.Expresion).GetValue(scope) //**************
+		tipoParametroIN = parametroIN.(Ast.Expresion).GetValue(scopeOrigen) //**************
 		resultadoParametro = parametro.(Ast.Expresion).GetValue(scope)
 		if resultadoParametro.Tipo == Ast.ERROR {
 			return resultadoParametro
@@ -418,7 +418,7 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 				parametro.(Ast.Abstracto).GetFila(), parametro.(Ast.Abstracto).GetColumna())
 		*/
 		//Verificar si es referencia y que todo este correcto
-		verificacionDeReferencia = VerificarReferencia(parametro, parametroIN, scope)
+		verificacionDeReferencia = VerificarReferencia(parametro, parametroIN, scope, scopeOrigen)
 		//Verificar algún posible error
 		if verificacionDeReferencia.Tipo == Ast.ERROR {
 			return verificacionDeReferencia
@@ -431,12 +431,14 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 					false, tipoParametroIN.Valor, parametro.(Ast.Abstracto).GetFila(),
 					parametro.(Ast.Abstracto).GetColumna())
 				//Ejecutar declaración
+				nuevaDeclaracion.ScopeOriginal = scopeOrigen
 				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
 			} else {
 				nuevaDeclaracion := instrucciones.NewDeclaracionTotal(resultadoParametro.Valor.(string), parametroIN, tipoParametro,
 					parametro.(Parametro).Mutable, false, parametro.(Ast.Abstracto).GetFila(),
 					parametro.(Ast.Abstracto).GetColumna())
 				//Ejecutar declaración
+				nuevaDeclaracion.ScopeOriginal = scopeOrigen
 				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
 
 			}
@@ -449,6 +451,7 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 					false, tipoParametroIN.Valor, parametro.(Ast.Abstracto).GetFila(),
 					parametro.(Ast.Abstracto).GetColumna())
 				//Ejecutar declaración
+				nuevaDeclaracion.ScopeOriginal = scopeOrigen
 				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
 
 			} else {
@@ -456,6 +459,7 @@ func CrearParametros(scope *Ast.Scope, parametros, parametrosIN *arraylist.List)
 					parametro.(Parametro).Mutable, false, parametro.(Ast.Abstracto).GetFila(),
 					parametro.(Ast.Abstracto).GetColumna())
 				//Ejecutar declaración
+				nuevaDeclaracion.ScopeOriginal = scopeOrigen
 				resultadoDeclaracion = nuevaDeclaracion.Run(scope)
 			}
 

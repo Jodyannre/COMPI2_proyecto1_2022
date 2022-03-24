@@ -7,7 +7,7 @@ var ValorTipoDato = [100]string{
 	"F64",
 	"STRING_OWNED",
 	"STRING",
-	"&STR",
+	"STR",
 	"BOOLEAN",
 	"USIZE",
 	"CHAR",
@@ -193,6 +193,7 @@ const (
 	TO_CHARS
 	RANGE_EXPRESION
 	RANGE_RANGO
+	CLONE
 )
 
 type TipoRetornado struct {

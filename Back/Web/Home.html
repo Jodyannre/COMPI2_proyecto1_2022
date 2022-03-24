@@ -13,6 +13,12 @@
     <!-- Menú superior -->
     <div class="topnav">
         <a href="#" id="aCompile">Compilar</a>
+        <a href="#" id="aEditor">Editor</a>
+        <a href="#" id="aReporteErrores">ReporteErrores</a>
+        <a href="#" id="aReporteTablaSimbolos">Tabla de símbolos</a>
+        <a href="#" id="aReporteBD">Tablas BD</a>
+        <a href="#" id="aReporteTablas">Tablas de BD</a>
+        <a href="#" id="aInfo">Sobre mí.</a>
     </div>
 
     <!-- Div que contiene las pestañas de los editores de código -->
@@ -28,10 +34,31 @@
         <ul>
         </ul>
     </div>
+    <!-- Div que contiene la tabla de errores-->
+    <div id="divReporteErrores" style="width: 1330px;">
+        <!--<img id="imgErrores" src="/tablas/tablaErrores.svg">>-->
+    </div>
 
+    <!-- Div que contiene la tabla de simbolos-->
+    <div id="divTablaSimbolos" style="width: 1330px;">
+        <!--<img id="imgSimbolos" src="/tablas/tablaSimbolos.svg">>-->
+    </div>
 
+    <!-- Div que contiene la tabla de errores-->
+    <div id="divTablaBD" style="width: 1330px;">
+         <!--<img id="imgBD" src="/tablas/tablaBD.svg">>-->
+    </div>
 
-
+    <!-- Div que contiene la tabla de errores-->
+    <div id="divTablas" style="width: 1330px;">
+        <!--<img id="imgTablas" src="/tablas/tablas.svg">-->
+    </div>
+    <!-- Div que contiene la tabla de errores-->
+    <div id="divInfo" style="width: 1330px;">
+       <!-- <p>Nombre: Joel Rodríguez Santos</p>
+        <p>Carné: 201115018</p>
+        <p>Sección: B</p> -->
+    </div>
 
     <!-- Scripts necesarios para el funcionamiento de operaciones Javascript -->
     <script src="javascript/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -50,42 +77,83 @@
             $("#importFile").trigger('click');
         });
 
-
         $("#aEditor").click(function (e) {
             document.getElementById('tabs').style.display = "block";
             document.getElementById('tabs2').style.display = "block";
+            deleteTablas();
+            deleteErrores();
+            deleteSimbolos()
+            deleteBD();
+            deleteInfo();
+
         });
 
-        $("#aReportError").click(function (e) {
+        $("#aReporteErrores").click(function (e) {
             document.getElementById('tabs').style.display = "none";
             document.getElementById('tabs2').style.display = "none";
+            deleteTablas();
+            deleteErrores();
+            deleteSimbolos()
+            deleteBD();
+            deleteInfo();
+            var img = document.createElement('img');
+            img.src = '/tablas/tablaErrores.svg';
+            document.getElementById('divReporteErrores').appendChild(img);
+            down.innerHTML = "Image Element Added."
         });
-
-        $("#aReportAST").click(function (e) {
+        $("#aReporteTablaSimbolos").click(function (e) {
             document.getElementById('tabs').style.display = "none";
             document.getElementById('tabs2').style.display = "none";
+            deleteTablas();
+            deleteErrores();
+            deleteSimbolos()
+            deleteBD();
+            deleteInfo();
+            var img = document.createElement('img');
+            img.src = '/tablas/tablaSimbolos.svg';
+            document.getElementById('divTablaSimbolos').appendChild(img);
+            down.innerHTML = "Image Element Added."
         });
-
-
-        //Método para guardar el archivo en el editor seleccionado
-        $("#aSave").click(function (e) {
-            var fileName = prompt("Nombre a dar al archivo", "");
-            if (fileName == undefined) {
-                return;
-            }
-
-            var selectedTab = $("#tabs").tabs('option', 'active');
-
-            var tabUniqueId = $(this).parent().attr('data-tab-id');
-            var resultArray = $.grep(editors, function (n, i) {
-                return n.id === tabUniqueId;
-            }, true);
-
-            var editor = resultArray[selectedTab].instance;
-            var text = editor.getValue();
-            var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-            saveAs(blob, fileName);
+        $("#aReporteBD").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            deleteTablas();
+            deleteErrores();
+            deleteSimbolos()
+            deleteBD();
+            deleteInfo();
+            var img = document.createElement('img');
+            img.src = '/tablas/tablaBD.svg';
+            document.getElementById('divTablaBD').appendChild(img);
+            down.innerHTML = "Image Element Added."
         });
+        $("#aReporteTablas").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            deleteTablas();
+            deleteErrores();
+            deleteSimbolos()
+            deleteBD();
+            deleteInfo();
+            var img = document.createElement('img');
+            img.src = '/tablas/tablas.svg';
+            document.getElementById('divTablas').appendChild(img);
+            down.innerHTML = "Image Element Added."
+        });
+        $("#aInfo").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            deleteTablas();
+            deleteErrores();
+            deleteSimbolos()
+            deleteBD();
+            deleteInfo();
+            var newDiv = document.createElement("div");
+            var newContent = document.createTextNode("Nombre: Joel Rodríguez Santos -- Carné: 201115018 -- Sección: B");
+            newDiv.appendChild(newContent); //añade texto al div creado.
+            document.getElementById('divInfo').appendChild(newDiv);    
+        });
+        
 
         $("#aCompile").click(function (e) {
             compilar();
@@ -141,6 +209,54 @@
             var te = $('#tabs2');
             te.tabs('option', 'active', 0);
         });
+
+        //Eliminar la tabla de tablas
+
+        function deleteTablas(){
+            var elem = document.getElementById("divTablas");
+            var first = elem.firstElementChild;
+            while (first) {
+                first.remove();
+                first = e.firstElementChild;
+            }
+        }
+
+        function deleteBD(){
+            var elem = document.getElementById("divTablaBD");
+            var first = elem.firstElementChild;
+            while (first) {
+                first.remove();
+                first = e.firstElementChild;
+            }
+        }
+
+        function deleteSimbolos(){
+            var elem = document.getElementById("divTablaSimbolos");
+            var first = elem.firstElementChild;
+            while (first) {
+                first.remove();
+                first = e.firstElementChild;
+            }
+        }
+
+        function deleteErrores(){
+            var elem = document.getElementById("divReporteErrores");
+            var first = elem.firstElementChild;
+            while (first) {
+                first.remove();
+                first = e.firstElementChild;
+            }
+
+        }
+        function deleteInfo(){
+            var elem = document.getElementById("divInfo");
+            var first = elem.firstElementChild;
+            while (first) {
+                first.remove();
+                first = e.firstElementChild;
+            }
+
+        }
 
         //Lógica al abrir archivo y mostrar su contenido en un nuevo editor.
         function showFile() {

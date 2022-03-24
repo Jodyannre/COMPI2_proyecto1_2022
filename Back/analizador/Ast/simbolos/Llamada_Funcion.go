@@ -14,6 +14,7 @@ type LlamadaFuncion struct {
 	Parametros    *arraylist.List
 	Tipo          Ast.TipoDato
 	Fila          int
+	ScopeOriginal *Ast.Scope
 	Columna       int
 }
 
@@ -142,7 +143,7 @@ func (l LlamadaFuncion) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 	}
 
 	//Crear los parámetros de las funciones
-	parametrosCreados = funcion.RunParametros(&newScope, l.Parametros)
+	parametrosCreados = funcion.RunParametros(&newScope, l.ScopeOriginal, l.Parametros)
 
 	if parametrosCreados.Tipo == Ast.ERROR {
 		newScope.UpdateScopeGlobal()

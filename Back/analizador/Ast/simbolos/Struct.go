@@ -57,7 +57,8 @@ func (s StructInstancia) GetValue(scope *Ast.Scope) Ast.TipoRetornado {
 		}
 	}
 	if s.Plantilla.Tipo == Ast.STRUCT {
-		simboloPlantilla = scope.Exist_fms(s.Plantilla.Valor.(string))
+		//simboloPlantilla = scope.Exist_fms(s.Plantilla.Valor.(string))
+		simboloPlantilla = scope.Exist_fms_local(s.Plantilla.Valor.(string))
 		nombreNewScope = s.Plantilla.Valor.(string)
 	} else {
 		//Es un acceso a modulo, ejecutarlo

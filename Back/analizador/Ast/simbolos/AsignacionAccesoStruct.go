@@ -31,16 +31,38 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 	nombreAtributo := a.Acceso.(AccesoStruct).NombreAtributo
 	nombreStruct := a.Acceso.(AccesoStruct).NombreStruct
 	_, tipoParticular := nombreStruct.(Ast.Abstracto).GetTipo()
-	var resultadoAtributo interface{}
+	var resultadoAtributo Ast.TipoRetornado
 	var idAtributo, idStruct string
+
+	if reflect.TypeOf(nombreAtributo) != reflect.TypeOf(expresiones.Identificador{}) {
+		fila := nombreAtributo.(Ast.Abstracto).GetFila()
+		columna := nombreAtributo.(Ast.Abstracto).GetColumna()
+		_, tipo := nombreAtributo.(Ast.Abstracto).GetTipo()
+		msg := "Semantic error, expected IDENTIFICADOR, found. " + Ast.ValorTipoDato[tipo] +
+			". -- Line: " + strconv.Itoa(fila) +
+			" Column: " + strconv.Itoa(columna)
+		nError := errores.NewError(fila, columna, msg)
+		nError.Tipo = Ast.ERROR_SEMANTICO
+		nError.Ambito = scope.GetTipoScope()
+		scope.Errores.Add(nError)
+		scope.Consola += msg + "\n"
+		return Ast.TipoRetornado{
+			Tipo:  Ast.ERROR,
+			Valor: nError,
+		}
+
+	}
+
+	//Get id del atributo
+	idAtributo = nombreAtributo.(expresiones.Identificador).Valor
 
 	//Verificar de que sean identificadores
 
 	if tipoParticular != Ast.IDENTIFICADOR {
-		resultadoAtributo = nombreAtributo.(Ast.Expresion).GetValue(scope)
-		_, tipoParticular = resultadoAtributo.(Ast.Abstracto).GetTipo()
+		resultadoAtributo = nombreStruct.(Ast.Expresion).GetValue(scope)
+		_, tipoParticular = resultadoAtributo.Valor.(Ast.Abstracto).GetTipo()
 
-		if reflect.TypeOf(resultadoAtributo) != reflect.TypeOf(StructInstancia{}) {
+		if reflect.TypeOf(resultadoAtributo.Valor) != reflect.TypeOf(StructInstancia{}) {
 			//Error, no es un struct
 			fila := a.Valor.(Ast.Abstracto).GetFila()
 			columna := a.Valor.(Ast.Abstracto).GetColumna()
@@ -58,7 +80,7 @@ func (a AsignacionAccesoStruct) Run(scope *Ast.Scope) interface{} {
 			}
 		}
 
-		structInstancia := resultadoAtributo.(StructInstancia)
+		structInstancia := resultadoAtributo.Valor.(StructInstancia)
 
 		//Verificar que exista el atributo
 		if !structInstancia.Entorno.Exist_actual(idAtributo) {

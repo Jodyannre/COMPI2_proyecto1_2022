@@ -171,6 +171,18 @@ func (s *BaseNparserListener) EnterAccesos_vector_array_asignacion(ctx *Accesos_
 func (s *BaseNparserListener) ExitAccesos_vector_array_asignacion(ctx *Accesos_vector_array_asignacionContext) {
 }
 
+// EnterExpresion_logica is called when production expresion_logica is entered.
+func (s *BaseNparserListener) EnterExpresion_logica(ctx *Expresion_logicaContext) {}
+
+// ExitExpresion_logica is called when production expresion_logica is exited.
+func (s *BaseNparserListener) ExitExpresion_logica(ctx *Expresion_logicaContext) {}
+
+// EnterExpresion_relacional is called when production expresion_relacional is entered.
+func (s *BaseNparserListener) EnterExpresion_relacional(ctx *Expresion_relacionalContext) {}
+
+// ExitExpresion_relacional is called when production expresion_relacional is exited.
+func (s *BaseNparserListener) ExitExpresion_relacional(ctx *Expresion_relacionalContext) {}
+
 // EnterExpresion is called when production expresion is entered.
 func (s *BaseNparserListener) EnterExpresion(ctx *ExpresionContext) {}
 

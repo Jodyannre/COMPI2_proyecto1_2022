@@ -15,6 +15,14 @@ type AccesoStruct struct {
 	Columna        int
 }
 
+func (a AccesoStruct) GetStruct(scope *Ast.Scope) Ast.TipoRetornado {
+	return a.NombreStruct.(Ast.Expresion).GetValue(scope)
+}
+
+func (a AccesoStruct) GetNombreAtributo() string {
+	return a.NombreAtributo.(expresiones.Identificador).Valor
+}
+
 func NewAccesoStruct(nombre interface{}, atributo interface{}, fila, columna int) AccesoStruct {
 	nA := AccesoStruct{
 		NombreStruct:   nombre,

@@ -8,13 +8,14 @@ import (
 )
 
 type DeclaracionNoRef struct {
-	Id      string
-	Mutable bool
-	Publico bool
-	Tipo    Ast.TipoRetornado
-	Valor   interface{}
-	Fila    int
-	Columna int
+	Id            string
+	Mutable       bool
+	Publico       bool
+	Tipo          Ast.TipoRetornado
+	Valor         interface{}
+	Fila          int
+	Columna       int
+	ScopeOriginal *Ast.Scope
 }
 
 func NewDeclaracionNoRef(id string, valor interface{}, tipo Ast.TipoRetornado, mutable, publico bool,
@@ -61,6 +62,8 @@ func (d DeclaracionNoRef) Run(scope *Ast.Scope) interface{} {
 	var preValor interface{}
 	if tipoIn == Ast.IF_EXPRESION || tipoIn == Ast.MATCH_EXPRESION || tipoIn == Ast.LOOP_EXPRESION {
 		preValor = d.Valor.(Ast.Instruccion).Run(scope)
+	} else if tipoIn == Ast.VALOR {
+		preValor = d.Valor.(Ast.Expresion).GetValue(d.ScopeOriginal)
 	} else {
 		preValor = d.Valor.(Ast.Expresion).GetValue(scope)
 	}

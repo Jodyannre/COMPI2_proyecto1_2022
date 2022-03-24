@@ -53,6 +53,11 @@ type Clones interface {
 	Clonar(scope *Scope) interface{}
 }
 
+type AccesosStruct interface {
+	GetStruct(scope *Scope) TipoRetornado
+	GetNombreAtributo() string
+}
+
 type CrearStruct interface {
 	CrearStructInstancia(plantilla TipoRetornado, atributos *arraylist.List, mutable bool, fila, columna int) interface{}
 }

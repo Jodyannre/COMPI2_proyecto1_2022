@@ -196,10 +196,10 @@ func EsPosibleReferencia(tipo Ast.TipoDato) bool {
 	}
 }
 
-func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope) Ast.TipoRetornado {
+func VerificarReferencia(param interface{}, value interface{}, scope *Ast.Scope, scopeOriginal *Ast.Scope) Ast.TipoRetornado {
 	parametro := param.(Parametro)
 	valor := value.(Valor)
-	respuestaValor := valor.GetValue(scope)
+	respuestaValor := valor.GetValue(scopeOriginal)
 	tipoParametro := parametro.FormatearTipo(scope)
 	if parametro.Referencia {
 		if !valor.Referencia {
